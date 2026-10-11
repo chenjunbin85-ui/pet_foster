@@ -71,11 +71,8 @@ public class SecurityConfig {
         if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
             config.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
         } else {
-            config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "https://*.vercel.app"
-            ));
+            // 默认允许所有来源（毕业设计演示用，避免各平台跨域问题）
+            config.setAllowedOriginPatterns(List.of("*"));
         }
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));

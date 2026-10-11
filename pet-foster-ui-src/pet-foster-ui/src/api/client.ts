@@ -1,7 +1,7 @@
 // API 客户端 —— 连接后端 Spring Boot 服务
-// 线上部署自动用Render后端，本地开发用本地后端
-const IS_PROD = typeof window !== "undefined" && window.location.hostname.includes("vercel.app")
-const BASE_URL = IS_PROD ? "https://pet-foster-server.onrender.com" : (import.meta.env.VITE_API_URL || "http://127.0.0.1:8090")
+// 本地开发用本地后端，线上部署（任何平台）自动用Render后端
+const IS_LOCAL = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+const BASE_URL = IS_LOCAL ? (import.meta.env.VITE_API_URL || "http://127.0.0.1:8090") : "https://pet-foster-server.onrender.com"
 
 const TOKEN_KEY = "pet_foster_token"
 
