@@ -1,6 +1,33 @@
+# ===== 项目源码（保留）=====
+# .idea/
+# .workbuddy/
+# pet-foster-server-src/
+# pet-foster-ui-src/
+# .gitignore
+
+# ===== 排除根目录下的临时文件和素材 =====
+/*.png
+/*.jpg
+/*.jpeg
+/*.gif
+/*.webp
+/*.py
+/*.txt
+/*.docx
+/*.doc
+/*.pdf
+/*.zip
+/*.rar
+/*.7z
+/*.mp4
+/*.mp3
+/*.svg
+
 # 排除截图文件夹
 响应式截图/
 宽度互换截图/
+截图/
+screenshots/
 
 # 后端构建产物
 **/target/
