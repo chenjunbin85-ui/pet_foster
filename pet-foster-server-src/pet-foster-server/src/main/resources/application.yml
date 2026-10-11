@@ -1,23 +1,23 @@
 server:
-  port: 8090
+  port: ${PORT:8090}
 
 spring:
   application:
     name: pet-foster-server
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/pet_foster?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: root
+    url: ${DATABASE_URL:jdbc:mysql://127.0.0.1:3306/pet_foster?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DATABASE_USERNAME:root}
+    password: ${DATABASE_PASSWORD:root}
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
     default-property-inclusion: non_null
-  # Redis：登录失败次数限制的计数存储
+  # Redis：登录失败次数限制的计数存储（本地开发用，部署时用内存替代）
   data:
     redis:
-      host: 127.0.0.1
-      port: 6379
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
       database: 0
       timeout: 2000ms
 
@@ -36,7 +36,7 @@ mybatis-plus:
 
 # JWT 配置
 jwt:
-  secret: petFosterSecretKey2026VeryLongAndStrongEnoughForHS256AlgorithmMustBeAtLeast256BitsLong
+  secret: ${JWT_SECRET:petFosterSecretKey2026VeryLongAndStrongEnoughForHS256AlgorithmMustBeAtLeast256BitsLong}
   expiration: 86400000  # 24小时，单位毫秒
 
 # SpringDoc OpenAPI
@@ -46,3 +46,7 @@ springdoc:
     tags-sorter: alpha
   api-docs:
     path: /v3/api-docs
+
+# CORS 配置
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173,https://*.vercel.app}
