@@ -1,5 +1,5 @@
 // API 客户端 —— 连接后端 Spring Boot 服务
-const BASE_URL = "http://127.0.0.1:8090"
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8090"
 
 const TOKEN_KEY = "pet_foster_token"
 
