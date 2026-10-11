@@ -1,0 +1,1897 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.55 0.15 45);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.95 0.03 45);
+    --secondary-foreground: oklch(0.35 0.12 45);
+    --muted: oklch(0.96 0.02 45);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.95 0.05 45);
+    --accent-foreground: oklch(0.33 0.12 45);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.9 0.02 45);
+    --input: oklch(0.9 0.02 45);
+    --ring: oklch(0.6 0.15 45);
+    --chart-1: oklch(0.62 0.18 45);
+    --chart-2: oklch(0.62 0.14 85);
+    --chart-3: oklch(0.62 0.15 150);
+    --chart-4: oklch(0.62 0.15 245);
+    --chart-5: oklch(0.45 0.02 260);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.55 0.15 45);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.95 0.05 45);
+    --sidebar-accent-foreground: oklch(0.33 0.12 45);
+    --sidebar-border: oklch(0.92 0.02 45);
+    --sidebar-ring: oklch(0.6 0.15 45);
+    /* 登录页照片墙专用 */
+    --photo-foreground: oklch(0.985 0 0);
+    --photo-shadow: oklch(0.22 0.025 45);
+    /* 新版界面（设计稿）尺寸与圆角体系 */
+    --button-height: 32px;
+    --button-padding: 8px 12px;
+    --button-font-size: 11px;
+    --status-active: oklch(0.76 0.19 150);
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-pill: 9996px;
+    /* 悬浮窗（下拉菜单 / 对话框）统一规范：
+       圆角 16px、边框与卡片统一色、浮起阴影、入场缩放 */
+    --surface-shadow: 0 12px 32px color-mix(in oklch, var(--foreground) 10%, transparent),
+                      0 2px 6px color-mix(in oklch, var(--foreground) 6%, transparent);
+    --surface-shadow-lg: 0 24px 56px color-mix(in oklch, var(--foreground) 14%, transparent),
+                         0 6px 16px color-mix(in oklch, var(--foreground) 7%, transparent);
+    --surface-duration: 160ms;
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.85 0.12 45);
+    --primary-foreground: oklch(0.22 0.1 45);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.3 0.08 45);
+    --accent-foreground: oklch(0.9 0.1 45);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.72 0.12 45);
+    --chart-1: oklch(0.72 0.16 45);
+    --chart-2: oklch(0.8 0.14 85);
+    --chart-3: oklch(0.72 0.15 150);
+    --chart-4: oklch(0.68 0.15 245);
+    --chart-5: oklch(0.55 0.04 260);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.72 0.16 45);
+    --sidebar-primary-foreground: oklch(0.2 0.1 45);
+    --sidebar-accent: oklch(0.3 0.08 45);
+    --sidebar-accent-foreground: oklch(0.9 0.1 45);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.72 0.12 45);
+    /* 暗色下浮层压深一档，与卡片面拉开层次 */
+    --surface-shadow: 0 14px 36px oklch(0 0 0 / 55%), 0 3px 10px oklch(0 0 0 / 40%);
+    --surface-shadow-lg: 0 26px 60px oklch(0 0 0 / 62%), 0 8px 20px oklch(0 0 0 / 46%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+
+
+/* ============================================================
+   新版界面（按设计稿还原）：应用外壳 / 侧边栏 / 仪表盘 /
+   客户与业务表格 / 统计图表 / 系统管理
+   来源：Text Formatting Enhancement 设计稿，登录页样式见下方独立分段
+   ============================================================ */
+
+.business-filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.business-select { border: 1px solid var(--input); border-radius: var(--radius-sm); padding: 12px; font: inherit; font-size: 12px; color: var(--muted-foreground); background: var(--card); max-width: 100%; }
+.business-select:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.business-table { min-width: 920px; }
+.business-table th, .business-table td { padding-left: 16px; padding-right: 16px; }
+.business-table td { white-space: nowrap; }
+.business-form-input, .form-select { width: 100%; padding: 13px 14px; border: 1px solid var(--input); border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13px; }
+.business-form-input:focus { border-color: var(--ring); }
+.analytics-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; }
+.statistics-page .analytics-grid .dashboard-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-2xl);
+  border-color: color-mix(in oklch, var(--border) 65%, var(--card));
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--foreground) 2%, transparent);
+}
+.statistics-page .analytics-grid .card-heading h2 { font-size: 16px; font-weight: 600; }
+.statistics-page .analytics-grid .soft-badge { background: var(--muted); color: var(--primary); font-size: 10px; padding: 5px 9px; }
+.statistics-page .chart-legend { margin-top: 20px; margin-bottom: 12px; }
+.statistics-page .trend-chart { margin-top: 16px; margin-bottom: 12px; }
+.statistics-page .breed-legend { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.statistics-page .breed-legend > div { flex-wrap: wrap; justify-content: flex-start; column-gap: 10px; row-gap: 4px; }
+.statistics-page .breed-legend strong { white-space: nowrap; }
+.statistics-page .breed-legend small { margin-left: 6px; }
+.statistics-page .analytics-grid { align-items: stretch; }
+.statistics-page .breed-legend { margin-top: auto; }
+
+/* 卡片内部响应式（环形图卡）：
+   1) 环形图区吃掉「标题 → 图例」之间的全部剩余空间（原来被 max-width:140px 固定住，下方留一大片空白）；
+   2) 画布在其中水平+垂直居中，取正方形，边长 = min(可用宽, 可用高, 上限)，
+      所以窗口变矮/变窄时画布会自动缩小，不会溢出到标题或图例上；
+   3) 用 container query 单位取「可用宽/高」，避免手写多档断点。 */
+.statistics-page .analytics-grid .donut-wrap {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: none; /* 覆盖设计稿的 140px —— 卡片内部改为自适应 */
+  min-height: 280px; /* 卡片没有被拉伸时（窄屏单列）由宽度决定边长，下限与上限取同一个值 */
+  margin: 8px 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.statistics-page .analytics-grid .donut-wrap > [data-chart] {
+  width: min(100cqw, 100cqh, 280px);
+  aspect-ratio: 1;
+}
+/* 中心合计跟着画布同比例缩放（设计稿里 "4" 是画布的 15%，这里取 13% 更耐看） */
+.statistics-page .analytics-grid .donut-wrap > .donut-center {
+  gap: calc(min(100cqw, 100cqh, 280px) * 0.015);
+}
+.statistics-page .analytics-grid .donut-wrap > .donut-center strong {
+  font-size: calc(min(100cqw, 100cqh, 280px) * 0.13);
+}
+.statistics-page .analytics-grid .donut-wrap > .donut-center span {
+  font-size: calc(min(100cqw, 100cqh, 280px) * 0.05);
+}
+/* 趋势图同样宽度主导，但给个高度上限：超宽屏下 16:9 会被拉成一整屏高 */
+.statistics-page .analytics-grid .dashboard-card > [data-chart] { max-height: 360px; }
+
+/* --- 环形图 tooltip：从「悬浮的扇区」原地浮现，而不是从图表左上角滑入 ---
+   recharts 的 Tooltip 定位方式很特殊（见 node_modules/recharts/.../Tooltip.js）：
+     · wrapper 的 style.top / style.left 恒为 0px；
+     · 真正的位置**只用 transform: translate(x, y)** 表达；
+     · 且默认挂了一条 `transition: transform 400ms`（transitionDuration 默认值）。
+   后果（实测 rAF 采样）：
+     · 首次 hover 时 wrapper 从 translate(0,0)（= 图表左上角）开始，
+       在 ~420ms 内斜向「飞」到扇区上 —— 用户看到的就是「从左上角同一处浮现」；
+     · 换扇区时 transform 瞬间跳到新值，但过渡把它从前一个扇区**横穿图表**拖过去。
+   修法：把这条 transform 过渡关掉，让 tooltip 直接「贴」到当前扇区；
+   再用 opacity 做一段很短的淡入，保留一点呼吸感、又不产生位移。
+   ⚠️ 必须加 !important：recharts 把 transition 写在**内联 style** 上
+   （TooltipBoundingBox.js 的 positionStyle.transition），普通类选择器压不住它。
+   源码依据：resolveTransitionProperty() 仅在 isAnimationActive && active 时才返回
+   `transform {animationDuration}ms {animationEasing}`，两者默认 true / 400。
+   ⚠️ 只作用于 .donut-wrap（趋势图是矩形图表，横向滑动反而是合理的，不动它）。 */
+.donut-wrap .recharts-tooltip-wrapper {
+  transition: none !important;
+}
+.donut-wrap .recharts-tooltip-wrapper > * {
+  animation: donut-tooltip-in 120ms ease-out both;
+}
+@keyframes donut-tooltip-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .donut-wrap .recharts-tooltip-wrapper > * { animation: none; }
+}
+.chart-legend { display: flex; gap: 20px; font-size: 10px; color: var(--muted-foreground); margin: 24px 0 16px; }
+.chart-legend span { display: flex; align-items: center; gap: 7px; }
+.chart-legend i, .breed-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
+.legend-order { background: var(--chart-1); }
+.legend-income { background: var(--chart-2); }
+.trend-chart { display: block; width: 100%; height: auto; margin: 20px 0; }
+.trend-chart text, .donut-wrap text { fill: var(--muted-foreground); font-family: inherit; font-size: 11px; }
+.chart-grid-line { stroke: var(--border); stroke-dasharray: 3 4; }
+.chart-order { fill: var(--chart-1); }
+.chart-income { fill: none; stroke: var(--chart-2); stroke-width: 2; }
+.chart-income-dot { fill: var(--card); stroke: var(--chart-2); stroke-width: 2; }
+.donut-wrap { width: 100%; max-width: 140px; flex-shrink: 0; margin: 20px auto; }
+.donut-wrap svg { display: block; width: 100%; }
+.donut-wrap .donut-total { fill: var(--foreground); font-size: 30px; font-weight: 600; }
+
+/* 实现补充：设计稿的环形图中心是 SVG <text>（4 / 在档宠物）；
+   recharts 版用 HTML 叠层实现同样的中心合计，字体更清晰。
+   注意 .donut-wrap 必须 position:relative，叠层才不会溢出到卡片其它区域。 */
+.donut-wrap { position: relative; }
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+.donut-center strong { font-size: 20px; font-weight: 600; line-height: 1; color: var(--foreground); }
+.donut-center span { font-size: 10px; line-height: 1; color: var(--muted-foreground); }
+.chart-breed.breed-0 { stroke: var(--chart-1); }
+.chart-breed.breed-1 { stroke: var(--chart-2); }
+.chart-breed.breed-2 { stroke: var(--chart-3); }
+.chart-breed.breed-3 { stroke: var(--chart-4); }
+.breed-legend { display: grid; gap: 12px; font-size: 11px; color: var(--muted-foreground); }
+.breed-legend > div, .breed-legend span { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.breed-legend strong { font-size: 11px; font-weight: 500; color: var(--foreground); }
+.breed-legend small { margin-left: 10px; color: var(--muted-foreground); }
+.breed-legend .breed-0 { background: var(--chart-1); }
+.breed-legend .breed-1 { background: var(--chart-2); }
+.breed-legend .breed-2 { background: var(--chart-3); }
+.breed-legend .breed-3 { background: var(--chart-4); }
+.system-security { display: flex; align-items: center; gap: 18px; padding: 22px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--muted); margin-bottom: 24px; }
+.system-security .empty-icon { flex-shrink: 0; margin: 0; background: var(--card); }
+.system-security strong { font-size: 14px; font-weight: 500; }
+.system-security p { margin: 8px 0 0; font-size: 11px; line-height: 1.8; color: var(--muted-foreground); }
+.system-tab-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.system-tabs { display: flex; padding: 4px; gap: 3px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--muted); }
+.system-tabs button { padding: 9px 14px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted-foreground); font-size: 12px; }
+.system-tabs .active { background: var(--card); color: var(--secondary-foreground); box-shadow: 0 2px 5px color-mix(in oklch, var(--foreground) 5%, transparent); }
+.account-switch { display: inline-flex; align-items: center; width: 36px; height: 21px; border: 0; border-radius: var(--radius-xl); background: var(--border); padding: 3px; }
+.account-switch span { width: 15px; height: 15px; border-radius: 50%; background: var(--card); transition: transform .2s; }
+.account-switch.enabled { background: var(--primary); }
+.account-switch.enabled span { transform: translateX(15px); }
+.system-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; height: 100%; }
+.system-action-btn { border: 1px solid var(--border); background: var(--card); color: var(--muted-foreground); border-radius: var(--radius-sm); padding: 5px 14px; font-size: 12px; transition: all .2s; }
+.system-action-btn:hover { border-color: var(--primary); color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
+.system-action-btn.edit:hover { border-color: var(--primary); color: var(--primary); }
+.system-user-table td:last-child { text-align: right; vertical-align: middle; }
+.system-user-table td { vertical-align: middle; }
+.system-user-table .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
+.system-user-table .status-badge.enabled { background: color-mix(in srgb, #22c55e 12%, transparent); color: #16a34a; }
+.system-user-table .status-badge.disabled { background: color-mix(in srgb, var(--muted-foreground) 12%, transparent); color: var(--muted-foreground); }
+.system-log { padding: 0 24px; }
+.system-log > div:not(.empty-state) { display: flex; align-items: center; gap: 14px; border-top: 1px solid var(--border); padding: 16px 0; }
+.system-log p { flex: 1; margin: 0; font-size: 12px; }
+.dictionary-list { padding: 0 24px; }
+.dictionary-list > div { padding: 18px 0; border-top: 1px solid var(--border); }
+.dictionary-list strong { font-size: 12px; font-weight: 500; }
+.dictionary-list p { font-size: 11px; color: var(--muted-foreground); margin: 8px 0 0; }
+@media (max-width: 1000px) { .analytics-grid { grid-template-columns: 1fr; } .business-filters { justify-content: flex-start; } }
+@media (max-width: 600px) { .system-tab-toolbar { align-items: flex-start; flex-direction: column; } .system-tabs button { padding: 9px 12px; } }
+
+.customer-list { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.customer-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; }
+.customer-list-title h2 { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin: 0; }
+.customer-list-title p { font-size: 11px; color: var(--muted-foreground); margin: 8px 0 0; }
+.customer-search { display: flex; align-items: center; gap: 10px; width: 320px; max-width: 100%; padding: 12px 14px; border: 1px solid var(--input); border-radius: var(--radius-sm); color: var(--muted-foreground); background: var(--card); }
+.customer-search:focus-within { border-color: var(--ring); }
+.customer-search svg { width: 16px; height: 16px; flex-shrink: 0; }
+.customer-search input { font-size: 12px; flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--foreground); }
+.customer-search input::placeholder { color: var(--muted-foreground); }
+.customer-search button { border: 0; padding: 0 4px; color: var(--muted-foreground); background: transparent; font-size: 18px; }
+
+/* === 下拉选择器暖橙风格补全 === */
+[data-slot="select-trigger"] { border-color: var(--input); background: var(--card); color: var(--foreground); transition: border-color .2s, box-shadow .2s; }
+[data-slot="select-trigger"]:hover { border-color: color-mix(in srgb, var(--primary) 40%, var(--input)); }
+[data-slot="select-trigger"]:focus-visible { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent); }
+[data-slot="select-content"] { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 8%, transparent); padding: 4px; }
+[data-slot="select-item"] { border-radius: var(--radius-sm); padding: 8px 10px; color: var(--foreground); transition: background .15s, color .15s; }
+[data-slot="select-item"]:hover, [data-slot="select-item"][data-highlighted], [data-slot="select-item"][data-focus] { background: color-mix(in srgb, var(--primary) 10%, var(--card)); color: var(--primary); }
+[data-slot="select-item"][data-selected], [data-slot="select-item"][aria-selected="true"] { background: color-mix(in srgb, var(--primary) 15%, var(--card)); color: var(--primary); font-weight: 600; }
+.customer-table-scroll { overflow-x: auto; }
+.customer-table { width: 100%; min-width: 840px; border-collapse: collapse; text-align: left; }
+.customer-table th { padding: 15px 20px; background: var(--muted); color: var(--secondary-foreground); font-size: 11px; font-weight: 500; white-space: nowrap; }
+.customer-table td { padding: 22px 20px; font-size: 12px; border-bottom: 1px solid var(--border); color: var(--muted-foreground); line-height: 1.7; }
+.customer-table tbody tr:hover { background: color-mix(in oklch, var(--muted) 40%, var(--card)); }
+.customer-table tbody tr.empty-row { pointer-events: none; }
+.customer-table tbody tr.empty-row td { border-bottom: 1px solid var(--border); background: transparent; }
+.customer-table tbody tr:last-child td { border-bottom: 0; }
+.customer-id { font-size: 11px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+.customer-name { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.customer-avatar { display: grid; place-items: center; width: 30px; height: 30px; border-radius: var(--radius-md); background: var(--secondary); color: var(--secondary-foreground); font-size: 11px; }
+.customer-name strong { color: var(--foreground); font-size: 12px; font-weight: 500; }
+.customer-phone { font-variant-numeric: tabular-nums; letter-spacing: .025em; white-space: nowrap; }
+.customer-created { font-size: 11px !important; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.row-actions { display: flex; align-items: center; gap: 6px; }
+.row-actions button { display: grid; place-items: center; width: 30px; height: 30px; border: 0; background: transparent; color: var(--muted-foreground); border-radius: var(--radius-sm); transition: background .2s, color .2s; }
+.row-actions svg { width: 16px; height: 16px; }
+.row-actions button:hover { background: var(--secondary); color: var(--primary); }
+.row-actions .delete-action:hover { background: color-mix(in oklch, var(--destructive) 8%, var(--card)); color: var(--destructive); }
+.customer-table-footer { display: flex; justify-content: space-between; gap: 14px; border-top: 1px solid var(--border); padding: 18px 24px; color: var(--muted-foreground); font-size: 10px; }
+
+/* 统一分页组件 */
+.pagination-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; }
+.pagination-total { font-size: 12px; color: var(--muted-foreground); }
+.pagination-controls { display: flex; align-items: center; gap: 8px; }
+.pagination-btn { padding: 6px 14px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); color: var(--foreground); cursor: pointer; transition: all .15s ease; }
+.pagination-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); background: var(--secondary); }
+.pagination-btn:disabled { opacity: .4; cursor: not-allowed; }
+.pagination-numbers { display: flex; align-items: center; gap: 4px; }
+.pagination-page { min-width: 32px; height: 32px; padding: 0 8px; font-size: 12px; border: 1px solid transparent; border-radius: var(--radius-md); background: transparent; color: var(--muted-foreground); cursor: pointer; transition: all .15s ease; display: inline-flex; align-items: center; justify-content: center; }
+.pagination-page:hover { background: var(--secondary); color: var(--primary); }
+.pagination-page.active { background: var(--primary); color: var(--primary-foreground); font-weight: 600; }
+.pagination-ellipsis { color: var(--muted-foreground); font-size: 12px; padding: 0 4px; }
+.customer-notice { min-height: 20px; color: var(--primary); font-size: 12px; margin: 14px 0 0; }
+.customer-dialog {
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100svh - 48px);
+  overflow-y: auto;
+  margin: auto;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: var(--surface-shadow-lg);
+}
+.customer-dialog::backdrop { background: color-mix(in oklch, var(--foreground) 35%, transparent); backdrop-filter: blur(3px); }
+
+/* === 切换账号悬浮窗暖橙风格 === */
+.role-switch-dialog { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 20px 60px color-mix(in srgb, var(--foreground) 15%, transparent); }
+.role-switch-dialog [data-slot="dialog-header"] { padding-bottom: 8px; }
+.role-switch-dialog [data-slot="dialog-title"] { color: var(--foreground); font-size: 18px; font-weight: 600; }
+.role-switch-dialog [data-slot="dialog-description"] { color: var(--muted-foreground); font-size: 13px; line-height: 1.7; }
+.role-switch-dialog [data-slot="field-label"] { color: var(--foreground); font-size: 13px; font-weight: 500; }
+.role-switch-dialog [data-slot="input"] { border-color: var(--input); background: var(--card); transition: border-color .2s, box-shadow .2s; }
+.role-switch-dialog [data-slot="input"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent); }
+.role-switch-dialog [data-slot="dialog-footer"] { padding-top: 16px; border-top: 1px solid var(--border); margin-top: 8px; }
+.role-switch-dialog [data-slot="dialog-footer"] button:first-child { border-color: var(--border); color: var(--muted-foreground); background: var(--card); }
+.role-switch-dialog [data-slot="dialog-footer"] button:first-child:hover { background: var(--muted); color: var(--foreground); }
+.role-switch-dialog [data-slot="dialog-footer"] button:last-child { background: var(--primary); color: var(--primary-foreground); }
+.role-switch-dialog [data-slot="dialog-footer"] button:last-child:hover { filter: brightness(1.08); }
+.customer-dialog-heading { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.customer-dialog-heading h2 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: .01em; }
+.customer-dialog-heading button { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: var(--radius-xs); background: transparent; color: var(--muted-foreground); font-size: 20px; line-height: 1; padding: 0; }
+.customer-dialog-heading button:hover { background: var(--muted); color: var(--foreground); }
+.customer-dialog > p, .customer-form > p { font-size: 12px; color: var(--muted-foreground); line-height: 1.9; }
+/* 原生弹窗内的表单行：逐行纵向排布，控件占满整行
+   （此前 .customer-form > div 没有 flex 布局，label 与控件被排成同一行的两列，
+   导致输入框只有一半宽度 —— 这里显式修正） */
+.customer-form { margin-top: 16px; }
+/* 原生弹窗内的表单行：逐行纵向排布，控件占满整行
+   （此前 .customer-form > div 没有 flex 布局，label 与控件被排成同一行的两列，
+   导致输入框只有一半宽度 —— 这里显式修正）
+   注意：.dialog-actions 也是 .customer-form 的直接子 div，必须排除，
+   否则会被下面的 flex-direction:column 覆盖成竖排、按钮被拉满整行。 */
+.dialog-actions { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-end; align-items: center; gap: 10px; }
+.dialog-actions > .secondary-action,
+.dialog-actions > .primary-action,
+.dialog-actions > .danger-action { width: auto; flex: 0 0 auto; }
+.customer-form > div:not(.dialog-actions) { display: flex; flex-direction: column; align-items: stretch; }
+.customer-form label { display: block; margin-bottom: 8px; font-size: 12px; }
+.customer-form > div > input,
+.customer-form > div > select,
+.customer-form > div > textarea { width: 100%; }
+.customer-form > input { display: block; width: 100%; padding: 13px 14px; border: 1px solid var(--input); border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13px; }
+.customer-form > input:focus { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 12%, transparent); }
+.required-mark { font-size: 9px; font-weight: 400; color: var(--primary); }
+/* 弹窗底部按钮区：与悬浮窗规范一致，取消白底 + 主操作暖橙实心。
+   规则本体见上方 .customer-form 分段（需与其同层以保证优先级）。 */
+.dialog-actions > .secondary-action,
+.dialog-actions > .primary-action,
+.dialog-actions > .danger-action { width: auto; flex: 0 0 auto; }
+.secondary-action { height: 38px; padding: 0 22px; font-size: 13px; border: 1px solid var(--border); background: var(--card); color: var(--foreground); border-radius: var(--radius-sm); transition: background .2s; }
+.secondary-action:hover { background: var(--muted); }
+.danger-action { height: 38px; padding: 0 22px; border: 0; border-radius: var(--radius-sm); font-size: 13px; background: var(--destructive); color: var(--photo-foreground); }
+.customer-detail { margin-top: 24px; }
+.customer-detail > div { display: grid; grid-template-columns: 85px 1fr; gap: 16px; border-bottom: 1px solid var(--border); padding: 15px 0; font-size: 12px; }
+.customer-detail dt { color: var(--muted-foreground); }
+.customer-detail dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 750px) { .customer-toolbar { align-items: flex-start; flex-direction: column; gap: 16px; padding: 20px; } .customer-search { width: 100%; } .customer-table-footer { flex-direction: column; padding: 16px 20px; } }
+
+.workspace { display: flex; height: 100dvh; overflow: hidden; background: var(--sidebar); }
+.workspace button { cursor: pointer; }
+.sidebar { align-self: flex-start; height: calc(100dvh - 32px); overflow: hidden; width: 252px; flex-shrink: 0; margin: 16px 16px 16px 0; background: var(--card); border: 1px solid var(--border); border-left: 0; border-radius: 0 var(--radius-xl) var(--radius-xl) 0; box-shadow: 0 6px 24px color-mix(in oklch, var(--foreground) 5%, transparent); display: flex; flex-direction: column; padding: 24px 16px 16px; }
+.sidebar nav { flex: 1; min-height: 0; overflow-y: auto; }
+.sidebar-brand, .sidebar-bottom { flex-shrink: 0; }
+.sidebar nav, .dashboard-body, .customer-table-scroll, .customer-dialog { scrollbar-width: none; }
+.sidebar nav::-webkit-scrollbar, .dashboard-body::-webkit-scrollbar, .customer-table-scroll::-webkit-scrollbar, .customer-dialog::-webkit-scrollbar { display: none; }
+.sidebar-brand { display: flex; align-items: center; gap: 5px; margin: 0 0 30px; }
+.sidebar-brand img { width: 54px; height: 54px; object-fit: contain; }
+.sidebar-brand strong { font-size: 15px; letter-spacing: .02em; }
+.sidebar-brand p { margin: 7px 0 0; color: var(--muted-foreground); font-size: 10px; letter-spacing: .09em; }
+.nav-group { margin-bottom: 24px; }
+.nav-group > p { font-size: 10px; letter-spacing: .08em; color: var(--muted-foreground); margin: 0 14px 10px; }
+.nav-item { width: 100%; display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--muted-foreground); font-size: 13px; text-align: left; margin-bottom: 4px; transition: background .2s, color .2s; }
+.nav-item svg, .workspace-header svg { width: 18px; height: 18px; flex-shrink: 0; }
+.nav-item:hover { background: var(--muted); color: var(--secondary-foreground); }
+.nav-item.selected { background: var(--secondary); color: var(--secondary-foreground); font-weight: 600; }
+.nav-dot { margin-left: auto; width: 5px; height: 5px; background: var(--status-active); border-radius: 50%; }
+.sidebar-bottom { margin-top: auto; border-top: 1px solid var(--border); padding-top: 18px; }
+.profile { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: var(--radius-sm); background: var(--muted); }
+.avatar { display: grid; place-items: center; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--primary-foreground); font-size: 11px; }
+.profile > div { min-width: 0; }
+.profile strong { display: block; font-size: 11px; font-weight: 500; line-height: 1.4; }
+.profile small { display: block; margin-top: 2px; font-size: 9px; line-height: 1.4; color: var(--secondary-foreground); }
+.profile button { flex-shrink: 0; display: grid; place-items: center; width: 28px; height: 28px; margin-left: auto; border: 0; background: transparent; color: var(--muted-foreground); padding: 4px; font-size: 15px; }
+.sidebar-bottom > p { font-size: 9px; color: var(--muted-foreground); text-align: center; letter-spacing: .07em; margin: 16px 0 0; }
+.workspace-main { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.workspace-header { height: 76px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 36px; background: var(--card); border-bottom: 1px solid var(--border); }
+.workspace-header > div { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted-foreground); }
+.workspace-header strong { font-size: 15px; color: var(--foreground); font-weight: 600; }
+.header-divider { height: 14px; width: 1px; background: var(--border); margin: 0 4px; }
+.date-label { font-size: 11px; color: var(--muted-foreground); }
+.dashboard-body { flex: 1; min-height: 0; overflow-y: auto; width: 100%; max-width: 1440px; margin: 0 auto; padding: 34px 36px 20px; }
+.dashboard-welcome { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
+.stats-filters { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.stats-filters .secondary-action { border-radius: var(--radius-md); height: 36px; }
+.stats-period-select { height: 36px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); color: var(--foreground); font-size: 12px; cursor: pointer; outline: none; transition: border-color .2s; }
+.stats-period-select:hover, .stats-period-select:focus { border-color: var(--primary); }
+.stats-date-picker { display: flex; align-items: center; }
+.stats-date-inline { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card); transition: border-color .2s; }
+.stats-date-inline:focus-within { border-color: var(--primary); }
+.stats-date-icon { color: var(--muted-foreground); flex-shrink: 0; }
+.stats-date-inline input[type="date"] { padding: 4px 6px; border: 0; background: transparent; color: var(--foreground); font-size: 12px; outline: none; width: 130px; }
+.stats-date-inline input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; }
+.stats-date-sep { font-size: 12px; color: var(--muted-foreground); flex-shrink: 0; }
+.section-kicker { font-size: 10px; letter-spacing: .12em; color: var(--primary); }
+.dashboard-welcome h1 { margin: 10px 0; font-size: 27px; font-weight: 600; letter-spacing: .035em; }
+.dashboard-welcome p { margin: 0; font-size: 12px; line-height: 1.8; color: var(--muted-foreground); }
+.date-weather { flex-shrink: 0; padding: 12px 0; margin-left: auto; text-align: right; }
+.date-weather time { display: block; font-size: 13px; font-weight: 500; letter-spacing: .025em; }
+.weather-status { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 9px; font-size: 11px; color: var(--muted-foreground); }
+.weather-status svg { width: 18px; height: 18px; color: var(--primary); flex-shrink: 0; }
+.weather-temperature { padding-left: 2px; font-weight: 600; color: var(--foreground); font-variant-numeric: tabular-nums; }
+/* 天气文案与定位城市：城市用更淡的色，避免和天气现象抢视线 */
+.weather-text { color: var(--foreground); }
+.weather-city { padding-left: 2px; color: color-mix(in oklch, var(--muted-foreground) 80%, transparent); }
+.weather-city::before { content: "·"; margin-right: 6px; }
+/* 加载态：转圈占位，替换掉原来的「天气暂未获取」 */
+.weather-spinner {
+  width: 13px; height: 13px; flex-shrink: 0;
+  border: 1.5px solid color-mix(in oklch, var(--primary) 30%, transparent);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: weather-spin .7s linear infinite;
+}
+@keyframes weather-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .weather-spinner { animation-duration: 2s; } }
+/* 失败态：图标降为中性灰，避免用主色显得像正常状态 */
+.weather-status.is-error svg { color: color-mix(in oklch, var(--muted-foreground) 70%, transparent); }
+.primary-action { display: inline-flex; align-items: center; justify-content: center; height: 38px; border: 0; border-radius: var(--radius-sm); padding: 0 22px; background: var(--primary); color: var(--primary-foreground); font-size: 13px; white-space: nowrap; transition: filter .2s; }
+.primary-action:hover { filter: brightness(.92); }
+.stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 24px; }
+.stat-card { padding: 22px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.stat-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted-foreground); font-size: 12px; }
+.stat-icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: var(--radius-md); background: var(--muted); color: var(--primary); }
+.stat-icon svg { width: 19px; height: 19px; }
+.stat-value { margin: 16px 0 10px; font-size: 34px; font-weight: 600; letter-spacing: -.025em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat-value small { margin-left: 8px; font-size: 11px; color: var(--muted-foreground); font-weight: 400; }
+.stat-card p { margin: 0; font-size: 10px; color: var(--muted-foreground); }
+.home-stat-grid .stat-card {
+  min-width: 0;
+  padding: 20px 22px;
+  border-radius: var(--radius-2xl);
+  border-color: color-mix(in oklch, var(--border) 65%, var(--card));
+  background: var(--card);
+  box-shadow: 0 2px 8px color-mix(in oklch, var(--foreground) 2%, transparent);
+}
+.home-stat-grid .stat-top { margin: 0; color: var(--foreground); font-size: 13px; font-weight: 600; line-height: 1.5; }
+.home-stat-grid .stat-value { display: flex; align-items: baseline; gap: 6px; margin: 26px 0 16px; font-size: clamp(26px, 2.5vw, 34px); font-weight: 700; letter-spacing: -.03em; white-space: nowrap; }
+.home-stat-grid .stat-value small { margin: 0; font-size: 17px; font-weight: 400; color: color-mix(in oklch, var(--muted-foreground) 65%, var(--card)); letter-spacing: 0; }
+.home-stat-grid .stat-card p { font-size: 11px; line-height: 1.7; }
+@media (max-width: 1150px) { .home-stat-grid .stat-card { padding: 18px; } }
+@media (max-width: 600px) { .home-stat-grid .stat-card { padding: 16px; } .home-stat-grid .stat-value { font-size: 28px; margin-top: 22px; } .home-stat-grid .stat-value small { font-size: 14px; } }
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+.dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+.card-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.card-heading h2 { margin: 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 9px; }
+.card-heading p { margin: 8px 0 0; font-size: 11px; color: var(--muted-foreground); line-height: 1.7; }
+.count-badge { padding: 2px 7px; background: var(--muted); color: var(--primary); border-radius: var(--radius-xs); font-size: 10px; }
+.text-action { color: var(--primary); background: transparent; border: 0; padding: 5px 0; font-size: 10px; white-space: nowrap; }
+.soft-badge { background: var(--secondary); color: var(--secondary-foreground); border-radius: var(--radius-xl); padding: 6px 10px; font-size: 10px; white-space: nowrap; }
+.empty-state { text-align: center; padding: 32px 12px 18px; }
+.empty-icon { display: grid; place-items: center; width: 52px; height: 52px; margin: 0 auto 15px; background: var(--muted); border-radius: var(--radius-lg); color: var(--primary); }
+.empty-icon svg { width: 24px; height: 24px; }
+.empty-state h3 { font-size: 13px; font-weight: 500; margin: 0 0 9px; }
+.empty-state p { margin: 0; font-size: 11px; line-height: 1.7; color: var(--muted-foreground); }
+/* Compact care cards share a warm palette without changing other modules. */
+.care-card {
+  --care-background: #FFFDF9;
+  --care-heading: #4A3425;
+  --care-muted: #9A806C;
+  --care-number-start: #5B412E;
+  --care-number-end: #3A281C;
+  --care-amber-start: #E8924F;
+  --care-amber-end: #B86628;
+  --care-badge: #FDF0E0;
+  --care-orange: #C97B3D;
+  --care-emphasis: #E8924F;
+  --care-veil: #FFFFFF;
+  padding: 20px;
+  border-radius: var(--radius-2xl);
+  background: var(--care-background);
+  box-shadow: 0 5px 24px color-mix(in srgb, var(--care-heading) 7%, transparent);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.status-grid:has(.care-card) { grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr); gap: 22px; }
+.care-title-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; min-height: 34px; }
+.care-title-row h2 { display: flex; align-items: center; gap: 12px; margin: 0; color: var(--care-heading); font-size: 16px; font-weight: 700; }
+/* 标题前的暖橙竖条（设计稿里的 accent bar） */
+.care-title-row h2::before { content: ""; width: 4px; height: 20px; flex-shrink: 0; border-radius: var(--radius-xs); background: linear-gradient(var(--care-amber-start), var(--care-amber-end)); }
+.care-order-button { display: inline-flex; align-items: center; gap: 7px; padding: 9px 13px; border: 0; border-radius: var(--radius-pill); background: linear-gradient(135deg, var(--care-amber-start), var(--care-amber-end)); color: var(--photo-foreground); font-size: 13.5px; white-space: nowrap; transition: filter .2s; }
+.care-order-button:hover { filter: brightness(1.06); }
+.care-card-clickable { cursor: pointer; transition: transform .2s, box-shadow .2s; }
+.care-card-clickable:hover { transform: translateY(-2px); box-shadow: 0 8px 24px color-mix(in srgb, var(--care-orange) 15%, transparent); }
+.care-card-clickable:active { transform: translateY(0); }
+.care-waiting { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border-radius: var(--radius-pill); background: var(--care-badge); color: var(--care-orange); padding: 8px 10px; font-size: 11px; }
+.care-pulse { width: 5px; height: 5px; border-radius: 50%; background: var(--care-orange); animation: care-breathe 2.8s ease-in-out infinite; }
+@keyframes care-breathe { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.care-banner { position: relative; isolation: isolate; overflow: hidden; border-radius: var(--radius-lg); height: clamp(160px, 16vw, 228px); margin-bottom: 12px; }
+/* 均匀半透明蒙版（追加层）：把插图整体往卡片底色里「洗」淡一点，让文字更突出。
+   用 --care-background 而不是黑色/白色 —— 蒙版色必须和卡片底色同源，
+   否则会在插图上压出一块可见的异色块。18% 取「轻」档的中值。
+   ⚠️ 放在 ::before（非 ::after）：::after 已被下方的垂直渐隐占用，两者叠起来正好是
+   「整体淡 + 底部融入背景」的双层效果。z-index:1 保证盖在 img 之上、文字之下。
+   ⚠️⚠️ 左边缘必须做「渐入」，不能是硬边。
+   原因：首页里 .care-banner 被绝对定位成 right:0 / width:40% 的一列，而插图在框内是
+   object-fit:contain —— 图并没有铺满这个框（实测框 162×241，图 194×290 且被 overflow 裁掉），
+   于是蒙版矩形的左边界会落在卡片中段，直接切出一条**竖直的色阶线**（截图里很明显）。
+   修法：把 background 从「纯色」换成水平渐变，在最左侧 0→18% 渐入，
+   和下方 ::after 的左侧渐隐用同一段距离，两层叠加后左边缘完全无痕。
+   ⚠️ 渐变里必须用 `transparent` 的等价写法 `color-mix(... 0%, transparent)`：
+   直接写 transparent 在部分内核里会与 --care-background 做预乘、出现发灰的过渡带。 */
+.care-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--care-background) 0%, transparent) 0%,
+    color-mix(in srgb, var(--care-background) 18%, transparent) 38%,
+    color-mix(in srgb, var(--care-background) 18%, transparent) 100%
+  );
+}
+.care-banner::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .75; background: linear-gradient(180deg, color-mix(in srgb, var(--care-veil) 10%, transparent), transparent 45%, color-mix(in srgb, var(--care-veil) 48%, transparent)); }
+.care-banner img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
+/* ⚠️ 这里原本有一条 `transform: scale(1.35) translateY(-8%)`。
+   已删除 —— 见下方 `.home-care-stack .care-banner img` 的踩坑说明：
+   对这两张「大片透明区且 0-alpha 像素带色值」的 PNG 施加 transform，
+   会让浏览器提升合成层并压出一层可见薄膜（用户反馈的「白蒙版边界」）。
+   首页卡片一律由 `.home-care-stack` 那条规则接管（含 transform: none）。 */
+.todo-care-card .care-banner img { object-fit: contain; object-position: center; }
+.pet-care-card .care-banner img { object-fit: contain; object-position: center; }
+.care-count { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
+.care-count strong { font-size: 46px; font-weight: 900; line-height: 1; background: linear-gradient(180deg, var(--care-number-start), var(--care-number-end)); background-clip: text; -webkit-background-clip: text; color: transparent; }
+.care-count span { font-size: 17px; color: var(--care-muted); }
+.care-subtitle { display: flex; align-items: baseline; gap: 8px; margin: 0 0 10px; font-size: 13px; color: var(--care-muted); line-height: 1.65; }
+/* 副标题前的小图标（订单 / 宠物档案），颜色跟随暖橙 */
+.care-subtitle svg { width: 16px; height: 16px; flex-shrink: 0; align-self: center; color: var(--care-orange); }
+.care-description { margin: 0; font-size: 13px; color: var(--care-muted); line-height: 1.75; }
+@media (max-width: 850px) { .status-grid:has(.care-card) { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 380px) { .care-card { padding: 16px; } .care-title-row { gap: 6px; } .care-title-row h2 { font-size: 15px; } .care-order-button { padding: 9px 10px; font-size: 12px; } }
+@media (prefers-reduced-motion: reduce) { .care-pulse { animation: none; } .care-order-button { transition: none; } }
+.shortcut-caption { font-size: 10px; color: var(--muted-foreground); }
+.shortcut-grid { display: flex; flex-wrap: nowrap; gap: 10px; margin-top: 18px; padding: 4px; overflow-x: auto; scrollbar-width: none; }
+.shortcut-grid::-webkit-scrollbar { display: none; }
+.shortcut { flex-shrink: 0; text-align: center; white-space: nowrap; border: 1px solid var(--border); background: var(--card); border-radius: var(--radius-sm); padding: 10px 16px; font-size: 12px; font-weight: 500; transition: background .2s, border-color .2s, color .2s; color: var(--foreground); }
+.shortcut:hover { border-color: var(--ring); background: var(--muted); color: var(--primary); }
+
+/* ============================================================
+   首页「待办 / 在店宠物 + 快捷入口」两栏工作区（按设计稿还原）
+   左栏：两张 care 卡片上下堆叠，插图贴右侧、文案占左侧 62%
+   右栏：快捷入口 3×2 网格，每格一个 SVG 裁剪插图 + 文案
+   ============================================================ */
+.shortcuts-card { position: relative; isolation: isolate; overflow: hidden; border-radius: var(--radius-2xl); background: linear-gradient(110deg, var(--card) 75%, var(--muted)); }
+.shortcuts-card .card-heading svg { width: 18px; height: 18px; color: var(--primary); }
+.shortcuts-card .card-heading p { margin-left: 27px; }
+.shortcuts-card .paw-decoration { width: 80px; height: 80px; right: 28px; bottom: 16px; }
+.shortcuts-card .shortcut-grid { padding: 4px; margin-top: 12px; gap: 10px; }
+.shortcuts-card .shortcut { gap: 8px; border-radius: var(--radius-pill); }
+.shortcut svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--primary); }
+/* 左右两栏宽度：左 = care-card 栈（今日待办 / 在店宠物状态），右 = 快捷入口。
+   比例按需求互换过 —— 原来是「左宽右窄」(1.85fr/1fr)，现改为「左窄右宽」。 */
+.home-work-grid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(0, 1.85fr); gap: 24px; }
+.home-care-stack { display: grid; gap: 20px; min-width: 0; }
+.home-care-stack .care-card { position: relative; isolation: isolate; overflow: hidden; min-height: 224px; padding: 24px; border: 1px solid color-mix(in srgb, var(--care-background) 75%, var(--border)); background: linear-gradient(115deg, var(--care-background) 35%, var(--care-badge)); }
+.home-care-stack .care-title-row { position: relative; z-index: 2; margin-bottom: 20px; flex-wrap: nowrap; }
+/* 插图绝对定位到卡片右侧；::after 用背景色做左侧渐隐，让文字压在图上不糊。
+   ⚠️ 宽度与下方文字的 max-width 必须满足「插图% + 文字% ≤ 100%」：
+   原设计稿是「插图 58% + 文字 62% = 120%」，在宽栏下插图被文字盖住看不出来，
+   但两栏宽度互换后左栏变窄，文字就直接压在插图上（实测重叠 76~96px）。
+   现改为「插图 40% + 文字 68% = 108%」仍留了一点交叠给渐隐过渡，但视觉区不再相撞。 */
+.home-care-stack .care-banner { position: absolute; z-index: -1; inset: 32px 0 auto auto; width: 40%; height: calc(100% - 32px); margin: 0; border-radius: 0; }
+.home-care-stack .care-banner::after { background: linear-gradient(90deg, var(--care-background), transparent 40%, transparent 80%, color-mix(in srgb, var(--care-veil) 20%, transparent)); }
+/* ⚠️⚠️ 不要用 transform: scale() 放大插图！
+   踩坑记录：首页这两张插图原本写的是 `transform: scale(1.2) translateY(-5%)`
+   （另外还有一条全局的 `.todo-care-card .care-banner img { transform: scale(1.35) translateY(-8%) }`
+   也会命中首页这张卡 —— 它的特异性与本规则相同，且两条规则都声明了 transform）。
+   由于这两张 PNG 有 ~59.5% 是全透明区域，且透明像素的 RGB **不是 0**
+   （实测四角是 (1,1,1,0) / (1,0,0,0) 这类带色值的 0-alpha），
+   一旦对 <img> 施加 transform，浏览器会把它提升成独立的合成层，
+   缩放时对透明区做重采样，于是在整个 banner 矩形上压出一层**极淡的彩色薄膜**。
+   那层薄膜的矩形边界 = 用户看到的「白蒙版边界」/ 竖直硬边。
+   验证方式（探针脚本逐层开关）：只把 img 的 transform 去掉 → 硬边立刻消失；
+   单独关掉 ::before / ::after / overflow 都不影响 → 证明与半透明蒙版无关。
+   ⚠️ 所以这里必须**显式写 transform: none**：只改尺寸而不重置 transform 是压不住上面那条
+   `.todo-care-card ... scale(1.35)` 的（CSS 不会因为你没提 transform 就清掉它）。
+   正确做法：改用「布局尺寸 + object-fit」放大 —— 同样达到放大观感，但不产生合成层。 */
+/* 主体是**横向**构图，而 banner 是**竖向**窄条（实测 162×241）：
+   · todo-illustration 主体 bbox 占 x 13.3%~90.2% / y 28.8%~84.4%，宽高比 2.07:1
+   · pet-status-illustration 主体 bbox 占 x 8.1%~94.8% / y 23.3%~80.5%，宽高比 1.52:1
+   竖向框里用 cover 会「按高度铺满 → 横向裁掉一大半」（实测只剩狗头）。
+   所以这里用 contain（按宽度自适应，主体完整），再靠 object-position 把主体
+   抬到框的视觉重心上：宽度给到 108% 让主体略大于框、边缘被 overflow 自然裁切，
+   观感与原 scale 近似，但没有合成层、也就没有那层薄膜。 */
+.home-care-stack .care-banner img {
+  transform: none;
+  width: 108%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 42%;
+}
+/* 透明背景PNG不需要渐变蒙版，否则蒙版会在透明区显示出矩形边界 */
+.home-care-stack .care-banner::before,
+.home-care-stack .care-banner::after { background: none; }
+.home-care-stack .pet-care-card .care-banner img { object-position: 52% 40%; }
+.home-care-stack .care-count { position: relative; z-index: 1; gap: 12px; margin-bottom: 14px; }
+.home-care-stack .care-count strong { display: grid; place-items: center; width: 64px; height: 64px; font-size: 48px; font-weight: 800; color: var(--care-orange); background: radial-gradient(circle, var(--care-badge), transparent); border-radius: var(--radius-pill); }
+.home-care-stack .care-count span { color: var(--care-heading); font-size: 15px; }
+.home-care-stack .care-subtitle { max-width: 68%; font-size: 12px; color: var(--care-heading); margin-bottom: 8px; }
+.home-care-stack .care-description { max-width: 68%; font-size: 11px; color: #B8A89E; font-weight: 300; opacity: 0.65; }
+
+.home-quick-card { display: flex; flex-direction: column; min-width: 0; padding: 24px; }
+.home-quick-card .card-heading h2 { color: var(--secondary-foreground); }
+.home-quick-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 8px; flex: 1; margin-top: 20px; position: relative; z-index: 1; }
+.home-quick-action { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; min-width: 0; min-height: 88px; padding: 10px 4px; border: 0; border-radius: var(--radius-md); background: transparent; text-align: center; color: var(--secondary-foreground); transition: background .2s; }
+.home-quick-action:hover { border-color: var(--ring); background: var(--muted); }
+.home-quick-copy { display: grid; gap: 5px; min-width: 0; }
+.home-quick-copy strong { font-size: 11px; font-weight: 600; line-height: 1.6; overflow-wrap: anywhere; }
+.home-quick-copy small { font-size: 10px; color: var(--muted-foreground); line-height: 1.5; }
+.home-quick-arrow { margin-left: auto; color: var(--primary); }
+.home-quick-note { margin: auto 0 0; padding-top: 24px; font-size: 10px; color: var(--muted-foreground); line-height: 1.8; }
+@media (max-width: 1100px) { .home-work-grid { grid-template-columns: minmax(240px, 1fr) minmax(0, 1.6fr); gap: 16px; } .home-care-stack .care-card { padding: 20px; } .home-quick-card { padding: 20px; } .home-care-stack .care-title-row h2 { font-size: 14px; } }
+@media (max-width: 1000px) { .home-work-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 480px) { .home-care-stack .care-banner { width: 52%; opacity: .6; } .home-care-stack .care-subtitle, .home-care-stack .care-description { max-width: 75%; } .home-care-stack .care-title-row { gap: 8px; } .home-quick-icon { width: 52px; height: 52px; } }
+@media (prefers-reduced-motion: reduce) { .home-quick-action { transition: none; } }
+@media (min-width: 851px) and (max-width: 1100px) {
+  .home-stat-grid .stat-card { gap: 8px; padding: 16px 12px; }
+  .home-stat-grid .stat-top { font-size: 11px; }
+  .home-stat-grid .stat-value { font-size: 24px; }
+  .care-title-row { flex-wrap: wrap; }
+}
+@media (max-width: 600px) {
+  .home-stat-grid .stat-card { gap: 8px; padding: 16px 12px; }
+  .home-stat-grid .stat-top { font-size: 11px; }
+  .home-stat-grid .stat-value { font-size: 24px; }
+}
+
+/* --- 首页专用紧凑档（覆盖上面通用档，靠后声明 + 更高特异性生效） ---
+   .home-dashboard-body} 由页面根节点挂上，只有首页才吃到这套规则。 */
+.home-dashboard-body { overflow-x: hidden; }
+/* 左右栏宽度互换：care-card 栈在左（窄），快捷入口在右（宽）。
+   注意 minmax 的下限也要跟着换 —— minmax(300px,1fr) 是给「窄栏」定的最小宽度，
+   互换后窄栏变成左栏，所以下限挪到左边。 */
+.home-dashboard-body .home-work-grid { grid-template-columns: minmax(300px, 1fr) minmax(0, 1.65fr); }
+.home-dashboard-body .home-care-stack { gap: 16px; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+.home-dashboard-body .care-card { min-height: 192px; padding: 20px; }
+.home-dashboard-body .care-title-row { margin-bottom: 8px; }
+.home-dashboard-body .care-count { margin-bottom: 8px; }
+.home-dashboard-body .care-count strong { width: 52px; height: 52px; font-size: 40px; }
+.home-quick-card {
+  --quick-background: var(--card);
+  --quick-heading: var(--secondary-foreground);
+  --quick-accent: var(--primary);
+  background: var(--quick-background);
+  border-color: var(--border);
+  box-shadow: none;
+}
+.home-quick-card .card-heading h2 { color: var(--quick-heading); }
+.home-quick-card .home-quick-list { gap: 12px; margin-top: 16px; }
+/* 卡片高度被左栏（两张 care-card）拉到 566px，而快捷入口现在是**宽栏**。
+   之前用 grid-auto-rows:min-content + align-content:center 把两行居中，
+   在窄栏下正好；换成宽栏后卡片更宽更高，两行居中会在上下留出大片空白。
+   现改为两行各占一半（repeat(2, minmax(0,1fr))），格子跟着卡片高度铺满。
+   ⚠️ 但 1fr 的格子仍有「内容最小高度」（插图 + 标签 + padding ≈ 180px），
+   矮屏下 2×180 + gap 会把卡片撑高 → 首页重新溢出（实测 650px 高时差 2px、测试环境更多）。
+   故给格子 min-height:0，并让插图用「容器高度」约束自己，高度不够时图先缩、而不是撑破布局。 */
+.home-quick-card .home-quick-list {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  align-content: stretch;
+  flex: 1;
+  min-height: 0;
+}
+.home-quick-card .home-quick-action { min-height: 0; }
+.home-quick-card .home-quick-action {
+  min-height: 0;
+  padding: 16px 4px;
+  gap: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+  color: var(--quick-heading);
+  /* 容器查询单位：让插图能读到「格子实际拿到了多大」，从而按高度收缩 */
+  container-type: size;
+}
+.home-quick-card .home-quick-action:hover { background: var(--muted); border-color: transparent; box-shadow: none; }
+/* 快捷入口插图：public/images/quick-entry/*.png，**实测原始 2508×1672（3:2 = 1.500）**。
+   ⚠️ 曾误按 440×258（1.705）写死 aspect-ratio —— 那是早期离线裁剪件的尺寸，
+   后来素材被换成了更高清的 3:2 版本，比例没跟着改 → 图被横向压扁。
+   教训：`aspect-ratio` 必须与**当前磁盘上文件的实际尺寸**一致，
+   别信注释里的旧数字，用 naturalWidth/naturalHeight 或读 PNG 头复核。
+   ⚠️ 也不能「定宽 + max-height」：max-height 砍高度时宽度不跟着缩，比例同样会被破坏。
+   做法：把「宽」和「高」都写成 min(可用值, 上限)，两边用同一比例天然自洽：
+     · 宽度上限 200px（宽栏时能长大）
+     · 高度上限 = 格子高 - 标签区预留（约 44px），即 calc((100cqh - 44px) * 3 / 2)，
+       矮屏时先缩图、不撑破卡片
+   浏览器取两者交集后仍受 aspect-ratio 约束，故永不拉伸。 */
+.quick-illustration {
+  display: block;
+  width: min(100%, 200px, calc((100cqh - 44px) * 3 / 2));
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+.home-quick-card .home-quick-copy strong { font-size: 13px; font-weight: 500; }
+.quick-heading-bar { display: block; flex-shrink: 0; width: 4px; height: 20px; border-radius: var(--radius-xs); background: var(--quick-accent); }
+@media (min-width: 1001px) and (min-height: 720px) {
+  .home-dashboard-body { display: flex; flex-direction: column; gap: 0; padding-top: 34px; padding-bottom: 20px; height: 100%; }
+  .home-dashboard-body .dashboard-welcome { flex-shrink: 0; margin-bottom: 28px; }
+  .home-dashboard-body .home-stat-grid { flex-shrink: 0; margin: 0 0 16px; }
+  .home-dashboard-body .dashboard-footer { flex-shrink: 0; margin: auto 0 0; }
+  .home-dashboard-body .home-stat-grid .stat-card { padding: 16px 20px; gap: 6px; }
+  .home-dashboard-body .home-stat-grid .stat-top { font-size: 13px; }
+  .home-dashboard-body .home-stat-grid .stat-value { margin: 10px 0 6px; font-size: 28px; }
+  .home-dashboard-body .home-stat-grid .stat-card p { font-size: 12px; }
+  .home-dashboard-body .home-work-grid { flex: 1 1 auto; min-height: 0; }
+  .home-dashboard-body .home-care-stack { height: 100%; grid-template-rows: repeat(2, minmax(0, 1fr)); }
+  .home-dashboard-body .home-quick-card { height: 100%; }
+  .home-dashboard-body .home-care-stack .care-card { min-height: 0; padding: 20px 24px; justify-content: center; }
+}
+@media (max-width: 1000px) { .home-dashboard-body .home-work-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-height: 719px) and (min-width: 1001px) {
+  .home-dashboard-body { padding-top: 16px; }
+  .home-dashboard-body .dashboard-welcome { margin-bottom: 12px; }
+  /* ⚠️ 标题区字号/行距必须与其他页面完全一致（用户明确要求「边距、字号、排版保持一致」）。
+     这里**不再**改 h1/p 的 font-size —— 一致性优先于省那几像素高度；
+     需要省空间时只压「外边距」和其它模块（统计卡/页脚/卡片），不动标题排版。
+     对照参考页「客户档案」：kicker 10px / h1 27px/600/40.5px/0.035em / p 12px/21.6px。
+     回归测试见 pages.spec.ts › 「首页标题区排版与其它页面一致」。 */
+  .home-dashboard-body .dashboard-welcome h1 { margin: 10px 0; }
+  .home-dashboard-body .home-stat-grid { margin-bottom: 12px; }
+  .home-dashboard-body .home-stat-grid .stat-card { padding: 12px 16px; }
+  .home-dashboard-body .home-stat-grid .stat-value { font-size: 26px; margin: 8px 0; }
+  .home-dashboard-body .care-card { min-height: 140px; padding: 14px 16px; }
+  .home-dashboard-body .care-description { line-height: 1.5; }
+  .home-dashboard-body .dashboard-footer { margin-top: 12px; }
+}
+/* 极矮屏（≤680px 高）再收一档：650px 下原本还差 18px，页脚会被切掉。
+   把页脚藏掉 + 压掉统计卡与卡片的留白，让 .home-work-grid 有足够空间。
+   ⚠️ 同样**不缩标题字号**（见上方说明）—— 只收外边距与其它模块。 */
+@media (max-height: 680px) and (min-width: 1001px) {
+  .home-dashboard-body { padding-top: 14px; padding-bottom: 12px; }
+  .home-dashboard-body .dashboard-welcome { margin-bottom: 10px; }
+  .home-dashboard-body .home-stat-grid { margin-bottom: 10px; }
+  .home-dashboard-body .home-stat-grid .stat-card { padding: 10px 14px; }
+  .home-dashboard-body .home-stat-grid .stat-value { font-size: 20px; margin: 4px 0 4px; }
+  .home-dashboard-body .home-stat-grid .stat-card p { display: none; }
+  .home-dashboard-body .dashboard-footer { display: none; }
+  .home-dashboard-body .home-care-stack .care-card { min-height: 118px; padding: 12px 14px; }
+  .home-dashboard-body .care-description { display: none; }
+}
+
+/* === 设计稿最终卡片布局：grid 两列 + 插画绝对定位右下角 === */
+.home-dashboard-body .home-care-stack .care-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .8fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  column-gap: 12px;
+  row-gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.home-dashboard-body .home-care-stack .care-title-row {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.home-dashboard-body .home-care-stack .care-title-row h2 { font-size: 17px; }
+.home-dashboard-body .home-care-stack .care-count,
+.home-dashboard-body .home-care-stack .pet-care-card .care-count {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: center;
+  align-items: flex-start;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: none;
+  margin: 0;
+}
+.home-dashboard-body .home-care-stack .care-count strong,
+.home-dashboard-body .home-care-stack .pet-care-card .care-count strong {
+  display: block;
+  width: auto;
+  height: auto;
+  font-size: clamp(48px, 4.5vw, 64px);
+  line-height: 1;
+  font-weight: 600;
+  color: var(--care-orange);
+  background: none;
+  border-radius: 0;
+}
+.home-dashboard-body .home-care-stack .care-count span,
+.home-dashboard-body .home-care-stack .todo-care-card .care-count span,
+.home-dashboard-body .home-care-stack .pet-care-card .care-count span {
+  color: var(--care-heading);
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+.home-dashboard-body .home-care-stack .care-banner,
+.home-dashboard-body .home-care-stack .todo-care-card .care-banner,
+.home-dashboard-body .home-care-stack .pet-care-card .care-banner {
+  position: absolute;
+  inset: auto -4% 0 auto;
+  width: 64%;
+  height: 78%;
+  margin: 0;
+  opacity: 1;
+  overflow: visible;
+  pointer-events: none;
+  mask-image: linear-gradient(to right, transparent, black 18%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 18%);
+}
+.home-dashboard-body .home-care-stack .care-banner img {
+  object-position: right bottom;
+  width: 118%;
+}
+.home-dashboard-body .home-care-stack .pet-care-card .care-banner {
+  width: 60%;
+  height: 88%;
+}
+.home-dashboard-body .home-care-stack .todo-care-card .care-banner {
+  width: 60%;
+  height: 78%;
+  right: -8%;
+  overflow: hidden;
+}
+@media (max-width: 480px) {
+  .home-dashboard-body .home-care-stack .care-banner,
+  .home-dashboard-body .home-care-stack .pet-care-card .care-banner {
+    width: 60%;
+  }
+}
+
+/* --- 统计分析页专用「一屏装下」档 -------------------------------------------------
+   问题：统计页原本没有任何高度约束，矮屏（1440×720）下内容比可用区高出 131px，
+   650px 高时高出 201px → 底部图例被截断、要滚才能看全。
+   做法：与首页同一套思路 —— 页面根节点挂 .stats-dashboard-body 后变成 flex 列，
+   导航头/统计卡/页脚 flex-shrink:0 固定，.analytics-grid 吃剩余高度（flex:1 + min-height:0），
+   图表再用 container query 按「实际拿到的盒子」定尺寸，于是窗口越矮图越小、永不溢出。 */
+.stats-dashboard-body { --stats-gap: 20px; }
+
+/* 只有宽屏才切换「一屏」模式；窄屏单列时内容天然是纵向堆叠，交给滚动更合理 */
+@media (min-width: 1001px) {
+  .stats-dashboard-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--stats-gap);
+    padding-top: 24px;
+    padding-bottom: 16px;
+  }
+  .stats-dashboard-body .statistics-page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--stats-gap);
+    flex: 1;
+    min-height: 0;
+  }
+  .stats-dashboard-body .dashboard-welcome,
+  .stats-dashboard-body .home-stat-grid,
+  .stats-dashboard-body .dashboard-footer,
+  .stats-dashboard-body .customer-notice { flex-shrink: 0; margin: 0; }
+  .stats-dashboard-body .dashboard-welcome h1 { margin: 6px 0; }
+  .stats-dashboard-body .home-stat-grid .stat-value { margin: 12px 0 8px; }
+  /* 图表区：吃满剩余高度；min-height:0 是关键，否则 grid 会被内容顶开、flex 失效 */
+  .stats-dashboard-body .analytics-grid {
+    flex: 1;
+    min-height: 0;
+  }
+  /* 每张卡片内部也变成 flex 列，图表容器才有「可分配的高度」可拿 */
+  .stats-dashboard-body .analytics-grid .dashboard-card {
+    min-height: 0;
+    overflow: hidden;
+  }
+  /* 环形图：容器高度由 flex 决定，画布边长 = min(可用宽, 可用高, 上限) */
+  .stats-dashboard-body .analytics-grid .donut-wrap {
+    min-height: 0;
+    margin: 6px 0;
+  }
+  .stats-dashboard-body .analytics-grid .donut-wrap > [data-chart] {
+    width: min(100cqw, 100cqh, 280px);
+  }
+  /* 趋势图：高度跟随卡片剩余空间，去掉固定 max-height 造成的「矮屏不缩」 */
+  .stats-dashboard-body .analytics-grid .dashboard-card > [data-chart] {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    height: auto;
+  }
+  .stats-dashboard-body .analytics-grid .dashboard-card > [data-chart] > * { height: 100%; }
+  .stats-dashboard-body .chart-legend { margin: 10px 0 8px; flex-shrink: 0; }
+  .stats-dashboard-body .breed-legend { padding-top: 12px; }
+}
+
+/* 矮屏（≤800px 高）再压一档：标题、卡片留白、统计卡都收紧 */
+@media (min-width: 1001px) and (max-height: 800px) {
+  .stats-dashboard-body { --stats-gap: 14px; padding-top: 20px; padding-bottom: 14px; }
+  .stats-dashboard-body .dashboard-welcome h1 { font-size: 22px; margin: 4px 0; }
+  .stats-dashboard-body .dashboard-welcome p { font-size: 11px; line-height: 1.6; }
+  .stats-dashboard-body .home-stat-grid .stat-card { padding: 12px 16px; }
+  .stats-dashboard-body .home-stat-grid .stat-value { font-size: 24px; margin: 8px 0 6px; }
+  .stats-dashboard-body .home-stat-grid .stat-card p { font-size: 10px; line-height: 1.4; }
+  .stats-dashboard-body .analytics-grid .dashboard-card { padding: 16px 18px; }
+  .stats-dashboard-body .analytics-grid .card-heading h2 { font-size: 14px; }
+  .stats-dashboard-body .chart-legend { margin: 8px 0 6px; }
+  .stats-dashboard-body .breed-legend { padding-top: 10px; gap: 8px; }
+  .stats-dashboard-body .breed-legend > div { font-size: 10px; }
+}
+
+/* 极矮屏（≤680px 高）：统计卡压成一行紧凑版，页脚隐藏，把高度全让给图表 */
+@media (min-width: 1001px) and (max-height: 680px) {
+  .stats-dashboard-body { --stats-gap: 10px; padding-top: 14px; padding-bottom: 10px; }
+  .stats-dashboard-body .dashboard-welcome h1 { font-size: 19px; }
+  .stats-dashboard-body .dashboard-welcome p { display: none; }
+  .stats-dashboard-body .home-stat-grid .stat-card { padding: 10px 14px; }
+  .stats-dashboard-body .home-stat-grid .stat-value { font-size: 20px; margin: 4px 0 4px; }
+  .stats-dashboard-body .home-stat-grid .stat-card p { display: none; }
+  .stats-dashboard-body .dashboard-footer { display: none; }
+  .stats-dashboard-body .analytics-grid .dashboard-card { padding: 12px 16px; }
+  .stats-dashboard-body .breed-legend { padding-top: 8px; gap: 6px; }
+}
+
+/* 窄屏（≤1000px）：不锁一屏，走自然文档流 + 滚动；图表给合理静态尺寸 */
+@media (max-width: 1000px) {
+  .stats-dashboard-body .analytics-grid .donut-wrap { min-height: 240px; }
+  .stats-dashboard-body .analytics-grid .dashboard-card > [data-chart] { max-height: 320px; }
+}
+
+/* 注意：下面这条是设计稿遗留的按钮尺寸兜底（含 var(--button-height/padding/font-size)）。
+   弹窗底部按钮需要更大的点击区，且不能被它的 padding 覆盖，
+   故显式排除 .dialog-actions 内的按钮 */
+.primary-action, .secondary-action, .danger-action, .shortcut, .care-order-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.primary-action:not(.dialog-actions *) ,
+.secondary-action:not(.dialog-actions *),
+.danger-action:not(.dialog-actions *) {
+  min-height: var(--button-height);
+  padding: var(--button-padding);
+  font-size: var(--button-font-size);
+  line-height: 1.4;
+}
+.system-tabs button { min-height: var(--button-height); padding: 7px 10px; font-size: var(--button-font-size); }
+.dashboard-footer { display: flex; justify-content: space-between; margin-top: 24px; color: var(--muted-foreground); font-size: 9px; letter-spacing: .05em; }
+.module-preview { text-align: center; padding: 80px 24px; }
+.module-preview > svg { width: 40px; height: 40px; margin: auto; color: var(--primary); }
+.module-preview h1 { font-size: 24px; margin: 24px 0 12px; }
+.module-preview p { font-size: 13px; color: var(--muted-foreground); margin-bottom: 28px; }
+.modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 24px; background: color-mix(in oklch, var(--foreground) 35%, transparent); backdrop-filter: blur(3px); }
+.action-dialog { width: 100%; max-width: 420px; background: var(--card); border: 1px solid var(--border); padding: 32px; border-radius: var(--radius-xl); }
+.action-dialog h2 { font-size: 20px; margin: 0 0 16px; }
+.action-dialog p { font-size: 13px; line-height: 1.8; color: var(--muted-foreground); margin-bottom: 24px; }
+@media (max-width: 1150px) { .sidebar { width: 220px; padding: 20px 12px; } .sidebar-brand strong { font-size: 13px; } .dashboard-body { padding: 28px 24px; } .stat-grid { gap: 12px; } .stat-card { padding: 17px; } .dashboard-welcome h1 { font-size: 23px; } }
+@media (max-width: 850px) { .sidebar { width: 190px; } .sidebar-brand { flex-direction: column; text-align: center; } .nav-item { font-size: 11px; padding: 11px 9px; gap: 9px; } .workspace-header { padding: 0 24px; } .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .status-grid { grid-template-columns: 1fr; gap: 18px; } .dashboard-welcome { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 600px) { .workspace { flex-direction: column; } .sidebar { position: relative; top: auto; width: calc(100% - 16px); height: auto; padding: 12px; } .sidebar-brand { flex-direction: row; text-align: left; margin-bottom: 12px; } .sidebar-brand img { width: 42px; height: 42px; } .sidebar nav { display: flex; overflow-x: auto; gap: 5px; } .nav-group { display: flex; margin: 0; gap: 4px; } .nav-group > p { display: none; } .nav-item { width: auto; white-space: nowrap; margin: 0; } .nav-dot { display: none; } .sidebar-bottom { display: none; } .workspace-header { height: 58px; padding: 0 18px; } .workspace-header .header-divider, .workspace-header .header-divider + span { display: none; } .dashboard-body { padding: 24px 16px; } .dashboard-welcome h1 { font-size: 22px; } .dashboard-card { padding: 20px; } .shortcut-caption { display: none; } .stat-value { font-size: 30px; } .dashboard-footer { font-size: 8px; gap: 12px; } }
+
+@media (max-height: 800px) and (min-width: 601px) {
+  .sidebar { padding-top: 16px; padding-bottom: 12px; }
+  .sidebar-brand { margin-bottom: 20px; }
+  .nav-group { margin-bottom: 16px; }
+  .nav-group > p { margin-bottom: 7px; }
+  .nav-item { padding-top: 9px; padding-bottom: 9px; margin-bottom: 2px; }
+  .sidebar-bottom { padding-top: 12px; }
+  .sidebar-bottom > p { margin-top: 10px; }
+  .workspace-header { height: 64px; }
+  .dashboard-body { padding-top: 22px; padding-bottom: 16px; }
+  .dashboard-welcome { margin-bottom: 20px; }
+  .stat-grid, .status-grid { margin-bottom: 18px; }
+  .stat-card, .dashboard-card { padding: 18px; }
+  .empty-state { padding-top: 20px; padding-bottom: 10px; }
+  .shortcut-grid { margin-top: 18px; }
+  .dashboard-footer { margin-top: 18px; }
+}
+@media (max-height: 650px) and (min-width: 601px) {
+  .sidebar-brand { flex-direction: row; text-align: left; margin-bottom: 12px; }
+  .sidebar-brand img { width: 40px; height: 40px; }
+  .sidebar-brand strong { font-size: 12px; }
+  .sidebar-brand p { font-size: 9px; }
+  .nav-group { margin-bottom: 10px; }
+  .nav-item { padding-top: 7px; padding-bottom: 7px; }
+  .sidebar-bottom > p { display: none; }
+}
+
+.sidebar-logo-toggle { display: grid; place-items: center; flex: 0 0 auto; padding: 0; border: 0; border-radius: var(--radius-sm); background: transparent; }
+.sidebar-logo-toggle img { display: block; flex-shrink: 0; }
+.sidebar { transition: width .24s cubic-bezier(.22, 1, .36, 1); }
+.sidebar-brand > div, .nav-label, .nav-group > p, .profile > div, .sidebar-bottom > p { white-space: nowrap; transition: opacity .14s ease; }
+.sidebar-brand > div, .nav-label { flex-shrink: 0; }
+.sidebar.text-hidden .sidebar-brand > div,
+.sidebar.text-hidden .nav-label,
+.sidebar.text-hidden .nav-group > p,
+.sidebar.text-hidden .profile > div,
+.sidebar.text-hidden .sidebar-bottom > p { opacity: 0; }
+.sidebar.is-collapsed .sidebar-brand { flex-direction: row; justify-content: center; gap: 0; }
+.sidebar.is-collapsed .sidebar-brand > div,
+.sidebar.is-collapsed .nav-label,
+.sidebar.is-collapsed .nav-group > p,
+.sidebar.is-collapsed .profile > div,
+.sidebar.is-collapsed .sidebar-bottom > p { display: none; }
+.sidebar.is-collapsed .nav-item { position: relative; justify-content: center; gap: 0; }
+.sidebar.is-collapsed .nav-dot { position: absolute; top: 6px; right: 6px; margin: 0; flex-shrink: 0; }
+.sidebar.is-collapsed .profile { flex-direction: column; gap: 6px; padding: 8px 4px; }
+.sidebar.is-collapsed .profile button { margin: 0; }
+@media (min-width: 601px) {
+  .sidebar.is-collapsed { width: 80px; padding-left: 12px; padding-right: 12px; }
+  .sidebar.is-collapsed .nav-group { margin-bottom: 16px; }
+  .sidebar.is-collapsed .nav-item { width: 44px; min-height: 40px; margin: 0 auto 4px; padding: 10px; }
+}
+@media (max-width: 600px) {
+  .sidebar.is-collapsed .sidebar-brand { justify-content: flex-start; }
+  .sidebar.is-collapsed .nav-item { width: 40px; min-height: 40px; padding: 10px; flex-shrink: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .sidebar, .sidebar-brand > div, .nav-label, .nav-group > p, .profile > div, .sidebar-bottom > p { transition: none; } }
+
+/* ============================================================
+   悬浮窗统一风格（下拉菜单 / 对话框 / AlertDialog）
+   规范：圆角 16px、1px 统一色描边、浮起阴影、点击外部关闭、入场轻微缩放
+   仅覆盖外观，不改动 Base UI 的定位与焦点管理行为
+   ============================================================ */
+
+/* --- 下拉菜单（角色切换 / 更多操作） --- */
+[data-slot="dropdown-menu-content"] {
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--popover);
+  box-shadow: var(--surface-shadow);
+  transition: opacity var(--surface-duration), transform var(--surface-duration);
+}
+[data-slot="dropdown-menu-content"][data-starting-style],
+[data-slot="dropdown-menu-content"][data-ending-style] {
+  opacity: 0;
+  transform: scale(.96);
+}
+/* 分组标题（当前角色）与菜单项内边距跟随新圆角 */
+[data-slot="dropdown-menu-label"] {
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--foreground);
+}
+[data-slot="dropdown-menu-item"] {
+  padding: 9px 10px;
+  gap: 8px;
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  transition: background .15s, color .15s;
+}
+/* 当前角色项：去掉灰底，仅用文字变浅 + 右侧「当前」表达不可选 */
+[data-slot="dropdown-menu-item"][data-disabled] {
+  opacity: 1;
+  background: transparent;
+  color: color-mix(in oklch, var(--foreground) 45%, var(--popover));
+}
+/* 右侧标注（快捷键 / 当前）更淡一档。
+   ⚠️⚠️ 千万不要写成 `> span:last-child`！
+   角色菜单里「非当前」那一项只有一个 <span>（就是它的标题文字），
+   它同时命中 :last-child → 被这条「标注」规则一起刷淡，
+   于是出现「当前账号置灰是对的，但其他账号也变灰了」的问题。
+   而当前项有两个 span，只有末尾的「当前」被刷淡 —— 正是这个不对称暴露了 bug。
+   更麻烦的是：这里刷淡的是**内层 span**，不是在 item 上，
+   所以 `.sidebar-menu ... { color: var(--foreground) !important }` 那条根本救不回来（color 不继承于外层 !important）。
+   → 只认真正的标注节点：Shortcut slot 与 .current-role-tag。 */
+[data-slot="dropdown-menu-item"] [data-slot="dropdown-menu-shortcut"],
+[data-slot="dropdown-menu-item"] .current-role-tag {
+  font-size: 12px;
+  color: color-mix(in oklch, var(--foreground) 35%, var(--popover));
+}
+[data-slot="dropdown-menu-separator"] {
+  margin: 6px -6px;
+  background: var(--border);
+}
+
+/* 侧边栏底部「更多操作」菜单：右边界必须与侧边栏内容右边界齐平。
+   定位靠 JS 侧的 anchor={profileRef} + align="end" 完成（见 AppLayout.tsx）：
+     · anchor=.profile  ⇒ --anchor-width 变成卡片的 219px
+     · align="end"      ⇒ 菜单右边界 = 卡片右边界 = 侧边栏内容右边界
+   宽度沿用 Popup 自带的 w-(--anchor-width)，即「与 .profile 同宽」，
+   这样侧边栏宽度变化时菜单会跟着变，不需要在这里写死数值。
+   ⚠️ 但收起态 .profile 只有 55px，纯按锚点宽度会把菜单压成一条、文字全被挤换行，
+   所以补一个 min-width 兜底（208px 足够放下「当前角色：管理员」等文案）。
+   展开态锚点宽 219px > 208px，所以取 219px，仍是左右边界与卡片严丝合缝。 */
+[data-slot="dropdown-menu-content"].sidebar-menu {
+  width: 220px !important;
+  min-width: 220px;
+  max-width: 220px;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border));
+  border-radius: 16px;
+  box-shadow: 0 8px 30px color-mix(in srgb, var(--foreground) 12%, transparent);
+  padding: 6px;
+  overflow: hidden;
+}
+[data-slot="dropdown-menu-content"].sidebar-menu [data-slot="dropdown-menu-label"] {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+  border-bottom: 1px solid color-mix(in srgb, var(--primary) 12%, transparent);
+}
+[data-slot="dropdown-menu-content"].sidebar-menu [data-slot="dropdown-menu-item"] {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--foreground);
+  transition: background .15s;
+  margin: 2px 0;
+}
+[data-slot="dropdown-menu-content"].sidebar-menu [data-slot="dropdown-menu-item"]:hover,
+[data-slot="dropdown-menu-content"].sidebar-menu [data-slot="dropdown-menu-item"][data-highlighted] {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+}
+/* 非当前角色项：正常前景色，可选中。
+   ⚠️ 必须显式写死颜色，不能指望「不写就继承」——上面那条按选择器特异性更高的
+   `... [data-slot="dropdown-menu-item"]`（0,3,0）会把颜色统一压成 foreground，
+   而 .role-item-disabled 只有 0,2,0。这里用 !important 保证两态泾渭分明。 */
+.sidebar-menu [data-slot="dropdown-menu-item"]:not(.role-item-disabled) {
+  color: var(--foreground) !important;
+}
+/* 当前角色项：置灰 + 降透明度，且不可点（JS 侧同时传了 disabled，见 AppLayout.tsx）。
+   ⚠️ !important 不能省：line ~1195 的 `[data-slot="dropdown-menu-content"].sidebar-menu
+   [data-slot="dropdown-menu-item"]`（0,3,0）会以更高特异性把颜色刷回 foreground，
+   仅靠顺序是压不住的。
+   ⚠️ 只作用于「当前项」本身，不要用 `> span:last-child` 之类的后代选择器去刷文字：
+   非当前项只有一个 <span>（标题），会被误伤 —— 这就是「其他账号也变灰」的成因。 */
+.sidebar-menu .role-item-disabled {
+  color: var(--muted-foreground) !important;
+  opacity: 0.6 !important;
+  cursor: default !important;
+}
+.sidebar-menu .role-item-disabled:hover {
+  background: transparent !important;
+  color: var(--muted-foreground) !important;
+}
+[data-slot="dropdown-menu-content"].sidebar-menu [data-slot="dropdown-menu-separator"] {
+  height: 1px;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  margin: 4px 8px;
+}
+.sidebar-menu .current-role-tag {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+/* --- 对话框（密码校验浮窗 / AlertDialog） --- */
+/* 定位方式：Base UI 不给 popup 注入任何定位样式（它只负责焦点/无障碍），
+   所以定位完全由这里接管。当前方案 = 「fixed 铺满视口 + margin:auto 居中」：
+     · position:fixed + inset:0      → 四边约束到视口，作为居中参考系
+     · margin:auto                   → 四边等距 ⇒ 水平 + 垂直双居中
+     · width:100% + max-w-[440px]    → 宽度撑满可用空间后被 max-w 收住
+     · height:fit-content            → 高度按内容收缩（不会被拉伸成整屏）
+   ⚠️ 三个必须避开的坑（都是实测踩出来的）：
+     1) 不要再写 translate(-50%,-50%)：会在 inset 定位之上再叠一次位移，
+        把浮窗顶到左上角（实测偏移 dx=-220 / dy=-214，正好是自身宽高的一半）。
+     2) 不要用 display:grid 配 inset:0：grid 会把 100% 高度平均分给各行，
+        白底容器被撑满整屏（实测 440x900），max-height 也随之失效。
+     3) 入场动画只叠 scale，不要写 transform:none —— 否则会把居中所依赖的
+        位移一并清掉。 */
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"] {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  height: fit-content;
+  max-height: calc(100svh - 48px);
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--surface-shadow-lg);
+  padding: 24px;
+  gap: 16px;
+  transition: opacity var(--surface-duration), transform var(--surface-duration);
+}
+/* 入场/退场只缩放 + 淡入淡出。
+   注意：不能写 translate(-50%,-50%)，也不能写 transform:none —— 只叠一层 scale 即可。 */
+[data-slot="dialog-content"][data-starting-style],
+[data-slot="dialog-content"][data-ending-style],
+[data-slot="alert-dialog-content"][data-starting-style],
+[data-slot="alert-dialog-content"][data-ending-style] {
+  opacity: 0;
+  transform: scale(.96);
+}
+[data-slot="dialog-content"][data-open],
+[data-slot="alert-dialog-content"][data-open] {
+  transform: scale(1);
+}
+/* 头图：标题与说明，标题加粗、说明行距放宽 */
+[data-slot="dialog-header"] {
+  gap: 10px;
+}
+[data-slot="dialog-title"],
+[data-slot="alert-dialog-title"] {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+[data-slot="dialog-description"],
+[data-slot="alert-dialog-description"] {
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--muted-foreground);
+}
+/* 底部按钮区：通栏浅底，与内容区分隔 */
+[data-slot="dialog-footer"],
+[data-slot="alert-dialog-footer"] {
+  margin: 24px -24px -24px;
+  padding: 16px 24px;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: color-mix(in oklch, var(--muted) 45%, var(--popover));
+}
+[data-slot="dialog-content"] [data-slot="field"] {
+  gap: 8px;
+}
+[data-slot="dialog-content"] [data-slot="field"] [data-slot="field-label"] {
+  font-size: 13px;
+  font-weight: 500;
+}
+/* 输入框：聚焦时用主色描边 + 光晕（设计稿里的橙色高亮框） */
+[data-slot="dialog-content"] [data-slot="input"] {
+  height: 40px;
+  font-size: 13px;
+}
+[data-slot="dialog-content"] [data-slot="input"]:focus-visible,
+[data-slot="dialog-content"] [data-slot="input"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent);
+}
+/* 对话框内的按钮更饱满一些，和设计稿的取消 / 确认切换一致 */
+[data-slot="dialog-footer"] [data-slot="button"],
+[data-slot="alert-dialog-footer"] [data-slot="button"] {
+  height: 38px;
+  padding: 0 22px;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+}
+/* 主操作（确认切换）：暖橙实心，轻微压暗反馈。
+   注意 Button 的 cva 里 outline 变体与 default 变体可能共生（tw-merge 去不掉的
+   bg-background / border-border），所以这里对主操作显式补 border-color:transparent，
+   取消按钮则显式提升优先级回白底。 */
+[data-slot="dialog-footer"] [data-slot="button"]:not(.bg-transparent),
+[data-slot="alert-dialog-footer"] [data-slot="button"]:not(.bg-transparent) {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border-color: transparent;
+}
+[data-slot="dialog-footer"] [data-slot="button"]:not(.bg-transparent):hover,
+[data-slot="alert-dialog-footer"] [data-slot="button"]:not(.bg-transparent):hover {
+  filter: brightness(.93);
+}
+/* 取消按钮：白底 + 统一描边（设计稿里的次要按钮） */
+[data-slot="dialog-footer"] [data-slot="button"].bg-background,
+[data-slot="alert-dialog-footer"] [data-slot="button"].bg-background {
+  background: var(--popover) !important;
+  color: var(--foreground);
+  border-color: var(--border);
+}
+[data-slot="dialog-footer"] [data-slot="button"].bg-background:hover,
+[data-slot="alert-dialog-footer"] [data-slot="button"].bg-background:hover {
+  background: var(--muted) !important;
+}
+
+/* 关闭按钮：右上角，悬停浅底 */
+[data-slot="dialog-content"] > [data-slot="dialog-close"] {
+  top: 16px;
+  right: 16px;
+}
+
+/* ============================================================
+   登录页（按设计稿还原：左侧照片故事板 + 右侧表单）
+   独立于应用内的 Tailwind 工具类，样式只作用于登录页自身
+   ============================================================ */
+
+.login-shell {
+  /* 严格一屏：高度锁死视口，内部超出不再产生页面滚动 */
+  height: 100svh;
+  height: 100dvh;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  overflow: hidden;
+  background: var(--background);
+}
+
+/* --- 左：照片故事板 --- */
+.story-panel {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  border-radius: 24px;
+  background: var(--muted);
+  color: var(--photo-foreground);
+}
+/* 登录页左栏背景：原为静态图 pets.jpg，现改为动态展示视频 pets.mp4。
+   <video> 同样吃 object-fit:cover，铺满行为与图片一致，样式无需改。
+   视频为竖屏素材、面板比例随视口变化，靠 cover 裁切填充，不会出现黑边。 */
+.pet-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photo-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--photo-shadow) 32%, transparent),
+    transparent 30%,
+    transparent 55%,
+    color-mix(in oklch, var(--photo-shadow) 83%, transparent)
+  );
+}
+.brand {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 40px;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.brand-logo {
+  display: block;
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.brand small {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  opacity: 0.85;
+}
+.story-copy {
+  position: absolute;
+  bottom: 72px;
+  left: 48px;
+  right: 32px;
+}
+.story-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--photo-foreground);
+}
+.story-eyebrow > span {
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+}
+.story-copy h1 {
+  margin: 22px 0;
+  font-size: clamp(40px, 4vw, 62px);
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+  font-weight: 650;
+}
+.story-footer {
+  position: absolute;
+  bottom: 30px;
+  left: 48px;
+  right: 40px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid color-mix(in oklch, var(--photo-foreground) 15%, transparent);
+  padding-top: 20px;
+  color: color-mix(in oklch, var(--photo-foreground) 75%, transparent);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+/* --- 右：登录表单 --- */
+.form-panel {
+  align-self: stretch;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 54px 56px;
+}
+.login-content {
+  width: 100%;
+  max-width: 410px;
+}
+/* 「欢迎登录」上方的 logo：88px × 1.2（用户要求调大 1.2 倍） */
+.welcome-icon {
+  width: 106px;
+  height: 106px;
+  margin: 0 auto 20px;
+}
+.welcome-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.welcome-copy {
+  text-align: center;
+}
+.welcome-copy h2 {
+  margin: 0 0 14px;
+  font-size: 34px;
+  letter-spacing: 0.045em;
+  font-weight: 650;
+  line-height: 1.35;
+}
+.welcome-copy p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--muted-foreground);
+}
+.welcome-copy p span {
+  font-size: 12px;
+}
+.login-content form {
+  margin-top: 36px;
+}
+.login-content form label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid var(--input);
+  background: var(--card);
+  border-radius: 10px;
+  height: 52px;
+  padding: 0 16px;
+  margin-bottom: 24px;
+  color: var(--muted-foreground);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-wrap svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.input-wrap:focus-within {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 15%, transparent);
+}
+.input-wrap input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  color: var(--foreground);
+}
+.input-wrap input::placeholder {
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 52px;
+  margin-top: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.login-button span {
+  position: absolute;
+  right: 20px;
+  font-size: 20px;
+  font-weight: 400;
+}
+.login-button:hover:not(:disabled) {
+  background: color-mix(in oklch, var(--primary) 88%, var(--foreground));
+}
+.login-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.login-button:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 3px;
+}
+.login-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.form-message {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--destructive);
+}
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  margin: 24px 0 0;
+}
+.form-footer svg {
+  width: 12px;
+  height: 12px;
+}
+
+@media (min-width: 1600px) {
+  .login-shell {
+    max-width: 1680px;
+    margin: auto;
+  }
+}
+@media (max-width: 1000px) {
+  .brand {
+    padding: 28px;
+    font-size: 15px;
+  }
+  .story-copy {
+    left: 30px;
+  }
+  .story-footer {
+    left: 30px;
+    right: 30px;
+  }
+  .story-footer span:last-child {
+    display: none;
+  }
+  .form-panel {
+    padding: 40px 32px;
+  }
+}
+@media (max-width: 700px) {
+  .login-shell {
+    padding: 12px;
+    grid-template-columns: 1fr;
+    /* 单列同样保证一屏：上方照片占 34vh，表单吃掉剩余高度 */
+    grid-template-rows: minmax(0, 34svh) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 34dvh) minmax(0, 1fr);
+  }
+  .story-panel {
+    border-radius: 18px;
+  }
+  .brand {
+    padding: 24px;
+  }
+  .story-copy {
+    bottom: 20px;
+    left: 26px;
+  }
+  .story-copy h1 {
+    font-size: 32px;
+    margin: 12px 0;
+  }
+  .story-eyebrow {
+    font-size: 10px;
+  }
+  .story-footer {
+    display: none;
+  }
+  .form-panel {
+    padding: 38px 24px;
+  }
+  .welcome-icon {
+    display: none;
+  }
+  .welcome-copy h2 {
+    font-size: 28px;
+  }
+}
+
+/* 桌面/平板：视口偏矮（如 1366×768）时压缩留白，保证一屏塞得下 */
+@media (min-width: 701px) and (max-height: 800px) {
+  .form-panel {
+    padding: 32px 40px;
+  }
+  .welcome-icon {
+    width: 82px;
+    height: 82px;
+    margin-bottom: 14px;
+  }
+  .welcome-copy h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .login-content form {
+    margin-top: 24px;
+  }
+  .story-copy {
+    bottom: 56px;
+  }
+  .brand {
+    padding: 30px;
+  }
+}
+
+/* 桌面窗口很矮（浏览器窗口被拉小）时进一步压缩，
+   避免表单面板自身出现竖向滚动条 */
+@media (min-width: 701px) and (max-height: 620px) {
+  .form-panel {
+    padding: 16px 36px;
+  }
+  .welcome-icon {
+    width: 68px;
+    height: 68px;
+    margin-bottom: 10px;
+  }
+  .welcome-copy h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .welcome-copy p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .login-content form {
+    margin-top: 18px;
+  }
+  .login-content form label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  .input-wrap {
+    height: 44px;
+    margin-bottom: 14px;
+  }
+  .login-button {
+    height: 44px;
+    margin-top: 4px;
+  }
+  .form-footer {
+    margin-top: 14px;
+  }
+  .brand {
+    padding: 24px;
+    font-size: 16px;
+  }
+  .brand-logo {
+    width: 52px;
+    height: 52px;
+  }
+  .story-copy {
+    bottom: 40px;
+  }
+  .story-copy h1 {
+    font-size: clamp(30px, 3vw, 44px);
+    margin: 14px 0;
+  }
+  .story-footer {
+    bottom: 18px;
+    left: 36px;
+    right: 36px;
+    padding-top: 14px;
+  }
+}
+
+/* 手机窄屏 + 矮屏：照片让位给表单，进一步压缩控件高度 */
+@media (max-width: 700px) and (max-height: 720px) {
+  .login-shell {
+    grid-template-rows: minmax(0, 28svh) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 28dvh) minmax(0, 1fr);
+  }
+  .brand {
+    padding: 18px;
+    font-size: 14px;
+  }
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+  }
+  .story-copy {
+    bottom: 14px;
+    left: 22px;
+  }
+  .story-copy h1 {
+    font-size: 22px;
+    margin: 8px 0;
+  }
+  .story-eyebrow {
+    display: none;
+  }
+  .form-panel {
+    padding: 24px 20px;
+  }
+  .welcome-copy h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+  .welcome-copy p {
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .login-content form {
+    margin-top: 18px;
+  }
+  .input-wrap {
+    height: 46px;
+    margin-bottom: 16px;
+  }
+  .login-button {
+    height: 46px;
+  }
+  .form-footer {
+    margin-top: 16px;
+  }
+}
+
+/* ===== 加载页 ===== */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, var(--muted) 0%, var(--secondary) 100%);
+  animation: loading-fade-out 0.5s ease 1.6s forwards;
+}
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.loading-illustration {
+  width: 280px;
+  height: auto;
+  object-fit: contain;
+  animation: loading-breathe 2s ease-in-out infinite;
+}
+.loading-brand {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 8px 0 0;
+  letter-spacing: 0.02em;
+}
+.loading-slogan {
+  font-size: 13px;
+  color: var(--muted-foreground);
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+.paw-progress {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.paw-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border);
+  animation: paw-light 0.9s ease-in-out infinite;
+}
+@keyframes paw-light {
+  0%, 100% { background: var(--border); transform: scale(1); }
+  50% { background: var(--primary); transform: scale(1.25); }
+}
+@keyframes loading-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+@keyframes loading-fade-out {
+  to { opacity: 0; visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading-illustration, .paw-dot { animation: none; }
+  .loading-screen { animation: loading-fade-out 0.3s ease 1.6s forwards; }
+}
