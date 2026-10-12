@@ -65,3 +65,14 @@ Thumbs.db
 *.tmp
 *.temp
 batch_*.txt
+
+# 图片原图备份
+**/public/images/_original/
+
+# 工作记忆
+.workbuddy/
+
+# 测试结果
+test-results/
+playwright-report/
+playwright/.cache/

@@ -83,7 +83,7 @@ const SHORTCUT_ICONS: Record<PageKey, string> = {
 }
 
 function ShortcutIllustration({ page }: { page: PageKey }) {
-  return <img className="quick-illustration" src={SHORTCUT_ICONS[page]} alt="" />
+  return <img className="quick-illustration" src={SHORTCUT_ICONS[page]} alt="" loading="lazy" decoding="async" />
 }
 
 export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps) {
@@ -203,7 +203,7 @@ export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps)
               <h2>今日待办</h2>
             </div>
             <div className="care-banner">
-              <img src="/images/todo-illustration.png" width="1536" height="1024" alt="" />
+              <img src="/images/todo-illustration.png" width="1000" height="667" alt="" fetchpriority="high" decoding="async" />
             </div>
             <div className="care-count">
               <strong>{pendingOrders.length}</strong>
@@ -216,7 +216,7 @@ export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps)
               <h2>在店宠物状态</h2>
             </div>
             <div className="care-banner">
-              <img src="/images/pet-status-illustration.png" width="1280" height="1280" alt="" />
+              <img src="/images/pet-status-illustration.png" width="1000" height="1000" alt="" fetchpriority="high" decoding="async" />
             </div>
             <div className="care-count">
               <strong>{fosteringOrders.length}</strong>

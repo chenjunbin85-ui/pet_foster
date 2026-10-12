@@ -51,6 +51,8 @@ export function LoadingScreen({ onDone, minDuration = 800, maxDuration = 3000 }:
           src="/images/loading-illustration.png"
           alt="护宠宝"
           className="loading-illustration"
+          fetchpriority="high"
+          decoding="async"
         />
         <h1 className="loading-brand">护宠宝</h1>
         <p className="loading-slogan">每一份托付，都用心守护</p>

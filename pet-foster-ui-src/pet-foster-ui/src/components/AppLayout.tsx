@@ -137,7 +137,7 @@ export function AppLayout({
             aria-controls="sidebar-navigation"
             title={collapseRequested ? "展开侧边栏" : "收起侧边栏"}
           >
-            <img src="./images/logo.png" alt="" />
+            <img src="./images/logo.png" alt="" decoding="async" />
           </button>
           <div>
             <strong>护宠宝</strong>

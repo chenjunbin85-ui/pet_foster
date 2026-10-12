@@ -47,6 +47,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             width="1400"
             height="1866"
             alt="温暖的寄养空间里，一只金毛犬与橘猫相伴休息"
+            decoding="async"
           />
         ) : (
           <video
@@ -64,7 +65,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         )}
         <div className="photo-shade" />
         <div className="brand">
-          <img className="brand-logo" src="./images/logo.png" alt="护宠宝标志" />
+          <img className="brand-logo" src="./images/logo.png" alt="护宠宝标志" fetchpriority="high" decoding="async" />
           <span>
             护宠宝
             <small>每一份托付，都用心守护</small>
@@ -87,7 +88,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <section className="form-panel">
         <div className="login-content">
           <div className="welcome-icon">
-            <img src="./images/logo.png" alt="护宠宝标志" />
+            <img src="./images/logo.png" alt="护宠宝标志" fetchpriority="high" decoding="async" />
           </div>
           <header className="welcome-copy">
             <h2>欢迎登录</h2>
