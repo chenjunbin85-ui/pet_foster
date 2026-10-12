@@ -65,7 +65,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         )}
         <div className="photo-shade" />
         <div className="brand">
-          <img className="brand-logo" src="./images/logo.png" alt="护宠宝标志" fetchpriority="high" decoding="async" />
+          <img className="brand-logo" src="./images/logo.png" alt="护宠宝标志" fetchPriority="high" decoding="async" />
           <span>
             护宠宝
             <small>每一份托付，都用心守护</small>
@@ -88,7 +88,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <section className="form-panel">
         <div className="login-content">
           <div className="welcome-icon">
-            <img src="./images/logo.png" alt="护宠宝标志" fetchpriority="high" decoding="async" />
+            <img src="./images/logo.png" alt="护宠宝标志" fetchPriority="high" decoding="async" />
           </div>
           <header className="welcome-copy">
             <h2>欢迎登录</h2>
