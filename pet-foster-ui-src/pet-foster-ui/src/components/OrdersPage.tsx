@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { Eye, Search } from "reicon-react"
+import { formatDateTime } from "@/lib/utils"
 import {
   customerPage,
   healthPage,
@@ -8,6 +9,7 @@ import {
   orderCheckOut,
   orderCreate,
   orderPage,
+  orderPay,
   petListByCustomer,
   servicePage,
   type CustomerVO,
@@ -65,10 +67,14 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
   const [saving, setSaving] = useState(false)
   const [mode, setMode] = useState<Mode>(null)
   const [selected, setSelected] = useState<OrderVO | null>(null)
+  const [payOrder, setPayOrder] = useState<OrderVO | null>(null)
+  const [payMethod, setPayMethod] = useState("微信")
+  const [paying, setPaying] = useState(false)
   const [detailHealth, setDetailHealth] = useState<HealthRecordVO[]>([])
   const [detailServices, setDetailServices] = useState<ServiceRecordVO[]>([])
   const [draft, setDraft] = useState(EMPTY)
   const dialog = useRef<HTMLDialogElement>(null)
+  const payDialogRef = useRef<HTMLDialogElement>(null)
   const timer = useRef<number | undefined>(undefined)
 
   const load = useCallback(
@@ -107,6 +113,11 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
   useEffect(() => {
     if (mode) dialog.current?.showModal()
   }, [mode])
+
+  useEffect(() => {
+    if (payOrder) payDialogRef.current?.showModal()
+    else payDialogRef.current?.close()
+  }, [payOrder])
 
   // 首页快捷入口触发：自动打开新增弹窗
   useEffect(() => {
@@ -182,7 +193,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
     }
     setSaving(true)
     try {
-      await orderCreate({
+      const created = await orderCreate({
         customerId: draft.customerId,
         petId: draft.petId,
         startDate: draft.startDate,
@@ -190,10 +201,16 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
         pricePerDay: Number(draft.pricePerDay),
         totalFee: calcFee(draft.startDate, draft.endDate, draft.pricePerDay),
         remark: draft.remark.trim(),
-      })
-      setNotice("订单已创建，待宠物入店。")
+      }) as OrderVO
+      setNotice("订单已创建，请完成支付。")
       close()
       await load(page, query, statusFilter)
+      // 自动弹出支付弹窗
+      if (created && created.id) {
+        setPayOrder(created)
+        setPayMethod("微信")
+        setDialogError("")
+      }
     } catch (e) {
       setDialogError(e instanceof Error ? e.message : "创建失败")
     } finally {
@@ -212,6 +229,24 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
       await load(page, query, statusFilter)
     } catch (e) {
       setError(e instanceof Error ? e.message : "操作失败")
+    }
+  }
+
+  const doPay = async () => {
+    if (!payOrder) return
+    setPaying(true)
+    setDialogError("")
+    // 模拟支付过程
+    await new Promise((r) => setTimeout(r, 1500))
+    try {
+      await orderPay(payOrder.id, payMethod)
+      setNotice(`订单 ${payOrder.orderNo} 支付成功（${payMethod}）`)
+      setPayOrder(null)
+      setPaying(false)
+      await load(page, query, statusFilter)
+    } catch (e) {
+      setPaying(false)
+      setDialogError(e instanceof Error ? e.message : "支付失败")
     }
   }
 
@@ -315,9 +350,31 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                   </td>
                   <td>{Number(row.totalFee).toLocaleString("zh-CN")}</td>
                   <td>
-                    <span className="soft-badge">{row.status}</span>
+                    <div className="order-status-col">
+                      <span className="soft-badge">{row.status}</span>
+                      {/* 已收款是默认期待状态，不占第二行；只有待收款才提示，且带上金额 */}
+                      {row.paymentStatus !== "已支付" && row.status !== "已取消" && (
+                        <button
+                          type="button"
+                          className={`pay-due-tag${row.status === "已完成" ? " overdue" : ""}`}
+                          title={
+                            row.status === "已完成"
+                              ? `已完成但尚未收款，点击补收 ¥${Number(row.totalFee).toLocaleString("zh-CN")}`
+                              : `点击打开收银台，收取 ¥${Number(row.totalFee).toLocaleString("zh-CN")}`
+                          }
+                          onClick={() => {
+                            setPayOrder(row)
+                            setPayMethod("微信")
+                            setDialogError("")
+                          }}
+                        >
+                          <span className="pay-due-dot"></span>
+                          待收款 ¥{Number(row.totalFee).toLocaleString("zh-CN")}
+                        </button>
+                      )}
+                    </div>
                   </td>
-                  <td className="customer-created">{row.createdAt}</td>
+                  <td className="customer-created">{formatDateTime(row.createdAt)}</td>
                   <td>
                     <div className="row-actions">
                       <button title="查看详情" aria-label={`查看${row.orderNo}`} onClick={() => openDetail(row)}>
@@ -421,8 +478,11 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                   ["每日单价", `${selected?.pricePerDay ?? ""} 元`],
                   ["总费用", `${selected?.totalFee ?? ""} 元`],
                   ["状态", selected?.status],
+                  ["支付状态", selected?.paymentStatus || "未支付"],
+                  ["支付方式", selected?.paymentMethod || "—"],
+                  ["支付时间", selected?.paymentTime ? formatDateTime(selected.paymentTime) : "—"],
                   ["特殊备注", selected?.remark || "—"],
-                  ["创建时间", selected?.createdAt],
+                  ["创建时间", selected?.createdAt ? formatDateTime(selected.createdAt) : "—"],
                 ].map(([label, value]) => (
                   <div key={String(label)}>
                     <dt>{label}</dt>
@@ -478,6 +538,13 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                 <div className="dialog-actions">
                   <button className="primary-action" onClick={() => doAction(selected.id, "check-out", `订单 ${selected.orderNo} 已完成离店。`)}>
                     完成离店
+                  </button>
+                </div>
+              )}
+              {selected?.paymentStatus !== "已支付" && selected?.status !== "已取消" && (
+                <div className="dialog-actions">
+                  <button className="primary-action pay-dialog-btn" onClick={() => { setPayOrder(selected); setPayMethod("微信"); setDialogError("") }}>
+                    立即支付 ¥{selected?.totalFee}
                   </button>
                 </div>
               )}
@@ -596,6 +663,99 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
               </div>
             </form>
           )}
+        </dialog>
+      )}
+
+      {/* 支付弹窗 - 收银台 */}
+      {payOrder && (
+        <dialog ref={payDialogRef} className="pay-dialog-modal" onClick={(e) => { if (e.target === e.currentTarget) setPayOrder(null) }}>
+          <div className="pay-checkout">
+            {/* 顶部标题栏 */}
+            <div className="pay-header">
+              <div className="pay-header-left">
+                <img src="./images/logo.png" alt="" className="pay-header-logo" />
+                <div>
+                  <h3>收银台</h3>
+                  <p>毛球旅馆 · 订单支付</p>
+                </div>
+              </div>
+              <button className="pay-close" onClick={() => setPayOrder(null)} disabled={paying}>×</button>
+            </div>
+
+            {/* 金额展示 */}
+            <div className="pay-amount-section">
+              <span className="pay-amount-label">应付金额</span>
+              <div className="pay-amount-value">
+                <span className="pay-currency">¥</span>
+                <span className="pay-number">{payOrder.totalFee}</span>
+              </div>
+              <div className="pay-order-meta">
+                <span>订单号：{payOrder.orderNo}</span>
+                <span>{payOrder.customerName} · {payOrder.petName}</span>
+              </div>
+            </div>
+
+            {/* 支付方式切换 */}
+            <div className="pay-method-tabs">
+              <button
+                type="button"
+                className={`pay-method-tab wechat ${payMethod === "微信" ? "active" : ""}`}
+                onClick={() => setPayMethod("微信")}
+                aria-label="微信支付"
+                title="微信支付"
+              >
+                <img src="./images/wechat-icon.png" alt="微信支付" className="pay-method-icon-img" />
+              </button>
+              <button
+                type="button"
+                className={`pay-method-tab alipay ${payMethod === "支付宝" ? "active" : ""}`}
+                onClick={() => setPayMethod("支付宝")}
+                aria-label="支付宝支付"
+                title="支付宝支付"
+              >
+                <img src="./images/alipay-icon.png" alt="支付宝支付" className="pay-method-icon-img" />
+              </button>
+            </div>
+
+            {/* 二维码扫码区域 */}
+            {!paying && (
+              <div className="pay-qr-section">
+                <div className="pay-qr-wrapper">
+                  <img
+                    src={payMethod === "微信" ? "./images/wechat-qr.png" : "./images/alipay-qr.png"}
+                    alt={`${payMethod}支付二维码`}
+                    className="pay-qr-image"
+                  />
+                  <div className="pay-qr-scan-line"></div>
+                </div>
+                <p className="pay-qr-tip">
+                  请使用<span style={{ color: payMethod === "微信" ? "#07C160" : "#1677FF", fontWeight: 600 }}>{payMethod}</span>扫码支付
+                </p>
+                <button className="pay-simulate-btn" onClick={doPay}>
+                  模拟扫码完成支付
+                </button>
+              </div>
+            )}
+
+            {/* 支付中动画 */}
+            {paying && (
+              <div className="pay-processing">
+                <div className="pay-processing-ring"></div>
+                <p>正在处理支付...</p>
+                <span>请稍候，勿关闭窗口</span>
+              </div>
+            )}
+
+            {/* 错误提示 */}
+            {dialogError && <p role="alert" className="pay-error-text">{dialogError}</p>}
+
+            {/* 底部 */}
+            <div className="pay-footer">
+              <button className="pay-later" onClick={() => setPayOrder(null)} disabled={paying}>
+                稍后支付
+              </button>
+            </div>
+          </div>
         </dialog>
       )}
     </section>

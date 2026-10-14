@@ -9,6 +9,7 @@ import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.FosterOrderVO;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -37,10 +38,9 @@ public class FosterOrderController {
 
     @PostMapping
     @Log(module = "寄养订单", content = "新增订单")
-    public Result<Void> create(@Valid @RequestBody FosterOrderDTO dto) {
+    public Result<FosterOrderVO> create(@Valid @RequestBody FosterOrderDTO dto) {
         Long creatorId = SecurityUtil.getCurrentUserId();
-        fosterOrderService.create(dto, creatorId);
-        return Result.success();
+        return Result.success(fosterOrderService.create(dto, creatorId));
     }
 
     @PutMapping("/{id}")
@@ -76,5 +76,12 @@ public class FosterOrderController {
     public Result<Void> cancel(@PathVariable Long id) {
         fosterOrderService.cancel(id);
         return Result.success();
+    }
+
+    @PostMapping("/{id}/pay")
+    @Log(module = "寄养订单", content = "模拟支付")
+    public Result<FosterOrderVO> pay(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String paymentMethod = body.getOrDefault("paymentMethod", "微信");
+        return Result.success(fosterOrderService.pay(id, paymentMethod));
     }
 }

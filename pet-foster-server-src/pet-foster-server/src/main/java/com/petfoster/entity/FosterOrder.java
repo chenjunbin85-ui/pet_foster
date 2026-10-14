@@ -20,6 +20,10 @@ public class FosterOrder {
     private BigDecimal totalFee;
     private String status;
     private String remark;
+    private String paymentStatus;
+    private String paymentMethod;
+    private LocalDateTime paymentTime;
+    private BigDecimal paidAmount;
     private Long creatorId;
     private LocalDateTime createTime;
 }

@@ -33,7 +33,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   return (
     <main className="login-shell">
-      <section className="story-panel" aria-label="护宠宝">
+      <section className="story-panel" aria-label="毛球旅馆">
         {/* 左栏背景：动态展示视频 pets.mp4；加载/解码失败则退回原静态图 pets.jpg。
             · muted 必须有，否则浏览器自动播放策略会拦下来（实测去掉 muted 就不播）
             · loop：循环播放，播完自动从头开始
@@ -65,30 +65,30 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         )}
         <div className="photo-shade" />
         <div className="brand">
-          <img className="brand-logo" src="./images/logo.png" alt="护宠宝标志" fetchPriority="high" decoding="async" />
+          <img className="brand-logo" src="./images/logo.png" alt="毛球旅馆标志" fetchPriority="high" decoding="async" />
           <span>
-            护宠宝
-            <small>每一份托付，都用心守护</small>
+            毛球旅馆
+            <small>毛孩子的专属旅馆</small>
           </span>
         </div>
         <div className="story-copy">
           <span className="story-eyebrow">
-            <span /> 每一份托付，都用心守护
+            <span /> 专业照护 · 温暖相伴
           </span>
           <h1>
-            安心寄养，<br />健康守护。
+            毛孩子的<br />第二个家。
           </h1>
         </div>
         <div className="story-footer">
           <span>专业照护 · 温暖相伴</span>
-          <span>守护每一位小伙伴</span>
+          <span>每一次入住，都像回家</span>
         </div>
       </section>
 
       <section className="form-panel">
         <div className="login-content">
           <div className="welcome-icon">
-            <img src="./images/logo.png" alt="护宠宝标志" fetchPriority="high" decoding="async" />
+            <img src="./images/logo.png" alt="毛球旅馆标志" fetchPriority="high" decoding="async" />
           </div>
           <header className="welcome-copy">
             <h2>欢迎登录</h2>

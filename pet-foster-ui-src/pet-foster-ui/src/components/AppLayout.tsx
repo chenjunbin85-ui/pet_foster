@@ -140,8 +140,8 @@ export function AppLayout({
             <img src="./images/logo.png" alt="" decoding="async" />
           </button>
           <div>
-            <strong>护宠宝</strong>
-            <p>每一份托付，都用心守护</p>
+            <strong>毛球旅馆</strong>
+            <p>毛孩子的专属旅馆</p>
           </div>
         </div>
 

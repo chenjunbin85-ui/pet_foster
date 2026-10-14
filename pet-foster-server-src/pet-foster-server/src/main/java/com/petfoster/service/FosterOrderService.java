@@ -60,7 +60,7 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         return toVO(o);
     }
 
-    public void create(FosterOrderDTO dto, Long creatorId) {
+    public FosterOrderVO create(FosterOrderDTO dto, Long creatorId) {
         FosterOrder o = new FosterOrder();
         o.setOrderNo(generateOrderNo());
         o.setCustomerId(dto.getCustomerId());
@@ -75,6 +75,8 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         // 自动计算总费用
         o.setTotalFee(calcTotalFee(dto.getStartDate(), dto.getEndDate(), dto.getPricePerDay()));
         save(o);
+        // 返回新订单完整信息，供前端创建后自动弹出收银台
+        return toVO(o);
     }
 
     public void update(Long id, FosterOrderDTO dto) {
@@ -141,6 +143,19 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         return "FO" + datePart + seq;
     }
 
+    public FosterOrderVO pay(Long id, String paymentMethod) {
+        FosterOrder o = getById(id);
+        if (o == null) throw new BusinessException("订单不存在");
+        if ("已支付".equals(o.getPaymentStatus())) throw new BusinessException("订单已支付，请勿重复支付");
+        if ("已取消".equals(o.getStatus())) throw new BusinessException("已取消订单无法支付");
+        o.setPaymentStatus("已支付");
+        o.setPaymentMethod(paymentMethod);
+        o.setPaymentTime(LocalDateTime.now());
+        o.setPaidAmount(o.getTotalFee());
+        updateById(o);
+        return toVO(o);
+    }
+
     public FosterOrderVO toVO(FosterOrder o) {
         FosterOrderVO vo = new FosterOrderVO();
         vo.setId(String.valueOf(o.getOrderId()));
@@ -153,6 +168,10 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         vo.setTotalFee(o.getTotalFee());
         vo.setStatus(o.getStatus());
         vo.setRemark(o.getRemark());
+        vo.setPaymentStatus(o.getPaymentStatus());
+        vo.setPaymentMethod(o.getPaymentMethod());
+        vo.setPaymentTime(o.getPaymentTime());
+        vo.setPaidAmount(o.getPaidAmount());
         vo.setCreatorId(o.getCreatorId() != null ? String.valueOf(o.getCreatorId()) : null);
         vo.setCreatedAt(o.getCreateTime());
         // 填充客户姓名和宠物名

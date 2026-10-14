@@ -358,7 +358,7 @@
 .customer-name strong { color: var(--foreground); font-size: 12px; font-weight: 500; }
 .customer-phone { font-variant-numeric: tabular-nums; letter-spacing: .025em; white-space: nowrap; }
 .customer-created { font-size: 11px !important; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.row-actions { display: flex; align-items: center; gap: 6px; }
+.row-actions { display: flex; align-items: center; gap: 10px; }
 .row-actions button { display: grid; place-items: center; width: 30px; height: 30px; border: 0; background: transparent; color: var(--muted-foreground); border-radius: var(--radius-sm); transition: background .2s, color .2s; }
 .row-actions svg { width: 16px; height: 16px; }
 .row-actions button:hover { background: var(--secondary); color: var(--primary); }
@@ -1895,3 +1895,249 @@
   .loading-illustration, .paw-dot { animation: none; }
   .loading-screen { animation: loading-fade-out 0.3s ease 1.6s forwards; }
 }
+
+/* --- 支付收银台 --- */
+/* 收款入口收敛到状态列的「待收款」标签（可点击直接开收银台），操作列不再放「去支付」按钮 */
+
+/* 待收款提示：只在未收款时出现（已收款是默认期待状态，每行都标是噪音），
+   带金额让店员一眼知道该收多少，本身可点击直接开收银台。
+   外框描边，圆角与 .soft-badge 一致（--radius-xl，4px 的整数倍），hover 只加深底色不写下划线。 */
+.pay-due-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: color-mix(in srgb, var(--primary) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  /* 与订单状态徽标（.soft-badge，如「寄养中」）同款圆角，两者并列时不打架 */
+  border-radius: var(--radius-xl);
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--primary);
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.pay-due-tag:hover {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+}
+.pay-due-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--primary);
+  border-radius: 50%;
+  flex: none;
+}
+/* 已完成但仍未收款 = 异常组合（宠物已离店、钱还没收到），转成警示色 */
+.pay-due-tag.overdue {
+  color: var(--destructive);
+  background: color-mix(in srgb, var(--destructive) 6%, transparent);
+  border-color: color-mix(in srgb, var(--destructive) 35%, transparent);
+}
+.pay-due-tag.overdue:hover {
+  background: color-mix(in srgb, var(--destructive) 12%, transparent);
+  border-color: color-mix(in srgb, var(--destructive) 55%, transparent);
+}
+.pay-due-tag.overdue .pay-due-dot { background: var(--destructive); }
+
+/* 支付弹窗 */
+.pay-dialog-modal {
+  border: none;
+  border-radius: 16px;
+  padding: 0;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0,0,0,.15);
+  width: 420px;
+  max-width: 92vw;
+  overflow: hidden;
+  margin: auto;
+  inset: 0;
+}
+.pay-dialog-modal::backdrop { background: rgba(0,0,0,.45); backdrop-filter: blur(2px); }
+
+.pay-checkout { font-family: inherit; }
+
+/* 顶部标题栏 */
+.pay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #FFF8F0, #FFF1E0);
+  border-bottom: 1px solid #F5E6D3;
+}
+.pay-header-left { display: flex; align-items: center; gap: 12px; }
+.pay-header-logo { width: 40px; height: 40px; border-radius: 10px; }
+.pay-header h3 { margin: 0; font-size: 17px; color: #1a1a1a; }
+.pay-header p { margin: 2px 0 0; font-size: 12px; color: #999; }
+.pay-close {
+  width: 32px; height: 32px;
+  border: none; background: transparent;
+  font-size: 22px; color: #999;
+  cursor: pointer; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pay-close:hover { background: rgba(0,0,0,.05); color: #333; }
+
+/* 金额展示 */
+.pay-amount-section {
+  text-align: center;
+  padding: 28px 24px 20px;
+}
+.pay-amount-label { font-size: 13px; color: #999; }
+.pay-amount-value {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  margin: 8px 0 12px;
+}
+.pay-currency { font-size: 24px; color: #B64E10; font-weight: 600; margin-right: 2px; }
+.pay-number { font-size: 42px; color: #B64E10; font-weight: 700; line-height: 1; }
+.pay-order-meta {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #999;
+}
+
+/* 订单状态列：主状态徽标 + 支付状态同行排列。
+   不再上下堆两枚徽标 —— 那会把行高撑到其它列表的两倍，且两枚彩色胶囊互相抢视觉。 */
+.order-status-col {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 支付方式Tab - 纯图标 */
+.pay-method-tabs {
+  display: flex;
+  gap: 12px;
+  padding: 0 24px;
+  margin-bottom: 20px;
+  justify-content: center;
+}
+.pay-method-tab {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f8f8;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .2s;
+  padding: 8px;
+}
+.pay-method-tab:hover { background: #f0f0f0; }
+.pay-method-tab.active {
+  background: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+.pay-method-icon-img {
+  object-fit: contain;
+  /* 未选中去色 + 降透明度：渠道图标本身是绿/蓝高饱和色，
+     不去色的话「微信绿 + 支付宝蓝 + 选中橙」三色打架，橙色边框也看不出。 */
+  filter: grayscale(1);
+  opacity: .55;
+  transition: filter .2s, opacity .2s;
+}
+.pay-method-tab.active .pay-method-icon-img { filter: none; opacity: 1; }
+.pay-method-tab:hover .pay-method-icon-img { opacity: .8; }
+/* 两张官方图内容占比不同（微信 60%、支付宝 76%），contain 到同尺寸框里会一大一小，
+   这里按视觉重量反算：微信放大、支付宝缩小，使两个 logo 看起来一样大。 */
+.pay-method-tab.wechat .pay-method-icon-img { width: 52px; height: 52px; }
+.pay-method-tab.alipay .pay-method-icon-img { width: 40px; height: 40px; }
+
+/* 二维码区域 */
+.pay-qr-section {
+  text-align: center;
+  padding: 0 24px 24px;
+}
+.pay-qr-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto 16px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+.pay-qr-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+/* 扫码动画线 */
+.pay-qr-scan-line {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #07C160, transparent);
+  animation: qr-scan 2s ease-in-out infinite;
+}
+@keyframes qr-scan {
+  0%, 100% { top: 12px; opacity: 1; }
+  50% { top: calc(100% - 14px); opacity: .6; }
+}
+.pay-qr-tip { font-size: 14px; color: #666; margin: 0 0 16px; }
+
+/* 模拟支付按钮 */
+.pay-simulate-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #B64E10, #D4691A);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+.pay-simulate-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(182,78,16,.3); }
+
+/* 支付中动画 */
+.pay-processing {
+  text-align: center;
+  padding: 40px 24px;
+}
+.pay-processing-ring {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  border: 3px solid #f0f0f0;
+  border-top-color: #B64E10;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.pay-processing p { margin: 0 0 4px; font-size: 15px; color: #333; font-weight: 500; }
+.pay-processing span { font-size: 12px; color: #999; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.pay-error-text { color: #dc2626; font-size: 13px; text-align: center; margin: 0 24px 12px; }
+
+/* 底部 */
+.pay-footer {
+  padding: 14px 24px;
+  border-top: 1px solid #f0f0f0;
+  text-align: center;
+}
+.pay-later {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 13px;
+  cursor: pointer;
+}
+.pay-later:hover { color: #666; }

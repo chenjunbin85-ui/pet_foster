@@ -1,4 +1,4 @@
-# 宠物寄养登记与健康档案管理系统 —— 前端原型（React + shadcn/ui）
+# 毛球旅馆 · 宠物旅馆管理系统 —— 前端原型（React + shadcn/ui）
 
 基于 Vite + React 19 + TypeScript + Tailwind CSS 4 + shadcn/ui（base-nova 风格）构建的高保真可交互原型。
 

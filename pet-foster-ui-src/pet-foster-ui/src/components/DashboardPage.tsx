@@ -247,7 +247,7 @@ export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps)
 
       <footer className="dashboard-footer">
         <span>专业照护 · 温暖相伴</span>
-        <span>护宠宝</span>
+        <span>毛球旅馆</span>
       </footer>
     </>
   )

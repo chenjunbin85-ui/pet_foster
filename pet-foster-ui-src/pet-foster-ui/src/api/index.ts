@@ -57,6 +57,7 @@ export interface OrderVO {
   id: string; orderNo: string; customerId: string; petId: string; customerName?: string; petName?: string
   startDate: string; endDate: string; pricePerDay: number; totalFee: number
   status: string; remark?: string; creatorId?: string; createdAt: string
+  paymentStatus?: string; paymentMethod?: string; paymentTime?: string; paidAmount?: number
 }
 export const orderPage = (page: number, size: number, status?: string, customerId?: string, orderNo?: string) =>
   get<PageResult<OrderVO>>(`/api/orders?page=${page}&size=${size}${status ? `&status=${encodeURIComponent(status)}` : ""}${customerId ? `&customerId=${customerId}` : ""}${orderNo ? `&orderNo=${orderNo}` : ""}`)
@@ -66,6 +67,7 @@ export const orderDelete = (id: string) => del(`/api/orders/${id}`)
 export const orderCheckIn = (id: string) => put(`/api/orders/${id}/check-in`)
 export const orderCheckOut = (id: string) => put(`/api/orders/${id}/check-out`)
 export const orderCancel = (id: string) => put(`/api/orders/${id}/cancel`)
+export const orderPay = (id: string, paymentMethod: string) => post(`/api/orders/${id}/pay`, { paymentMethod })
 
 // ===== 健康记录 =====
 export interface HealthRecordVO {

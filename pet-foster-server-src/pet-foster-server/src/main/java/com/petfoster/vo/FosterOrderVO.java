@@ -17,6 +17,10 @@ public class FosterOrderVO {
     private BigDecimal totalFee;
     private String status;
     private String remark;
+    private String paymentStatus;
+    private String paymentMethod;
+    private LocalDateTime paymentTime;
+    private BigDecimal paidAmount;
     private String creatorId;
     private LocalDateTime createdAt;
     private String customerName;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { Eye, Pen, Search, Trash2 } from "reicon-react"
+import { formatDateTime } from "@/lib/utils"
 import {
   customerCreate,
   customerDelete,
@@ -234,7 +235,7 @@ export function CustomersPage({ quickAction, onQuickActionDone }: CustomersPageP
                   <td className="customer-phone">{customer.phone}</td>
                   <td>{customer.address || "暂未填写"}</td>
                   <td>{customer.remark || "—"}</td>
-                  <td className="customer-created">{customer.createdAt}</td>
+                  <td className="customer-created">{formatDateTime(customer.createdAt)}</td>
                   <td>
                     <div className="row-actions">
                       <button aria-label={`查看${customer.name}`} title="查看详情" onClick={() => open("view", customer)}>

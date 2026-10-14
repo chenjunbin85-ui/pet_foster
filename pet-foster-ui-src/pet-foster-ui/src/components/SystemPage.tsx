@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
+import { formatDateTime } from "@/lib/utils"
 import {
   dictPage,
   operLogPage,
@@ -294,7 +295,7 @@ export function SystemPage({ role }: { role: Role }) {
                     {log.content}
                     {log.ip ? ` · ${log.ip}` : ""}
                   </p>
-                  <span className="soft-badge">{log.requestTime}</span>
+                  <span className="soft-badge">{formatDateTime(log.requestTime)}</span>
                 </div>
               ))
             ) : (

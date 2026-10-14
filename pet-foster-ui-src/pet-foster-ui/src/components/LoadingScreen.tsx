@@ -9,7 +9,7 @@ interface LoadingScreenProps {
 }
 
 /**
- * 护宠宝加载页
+ * 毛球旅馆加载页
  * - 出现时机：首次进入应用，等待关键资源加载完成
  * - 策略：window.onload + 最短800ms防闪烁，最长3秒兜底
  * - 刷新/已有登录态时由调用方决定是否跳过
@@ -49,13 +49,13 @@ export function LoadingScreen({ onDone, minDuration = 800, maxDuration = 3000 }:
       <div className="loading-content">
         <img
           src="/images/loading-illustration.png"
-          alt="护宠宝"
+          alt="毛球旅馆"
           className="loading-illustration"
           fetchPriority="high"
           decoding="async"
         />
-        <h1 className="loading-brand">护宠宝</h1>
-        <p className="loading-slogan">每一份托付，都用心守护</p>
+        <h1 className="loading-brand">毛球旅馆</h1>
+        <p className="loading-slogan">毛孩子的专属旅馆</p>
         <div className="paw-progress" aria-hidden="true">
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <span
