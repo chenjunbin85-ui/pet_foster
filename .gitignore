@@ -76,3 +76,12 @@ batch_*.txt
 test-results/
 playwright-report/
 playwright/.cache/
+
+# 临时工作目录（不提交）
+_diagram_work/
+_thesis_work/
+_ui_check/
+pet-foster-ui-src/pet-foster-ui/_shots/
+pet-foster-ui-src/pet-foster-ui/_verify.mjs
+护宠宝-项目源码/
+论文配图/

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import { Eye, Search } from "reicon-react"
+import { toast } from "sonner"
 import { formatDateTime } from "@/lib/utils"
 import {
   customerPage,
@@ -240,9 +241,14 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
     await new Promise((r) => setTimeout(r, 1500))
     try {
       await orderPay(payOrder.id, payMethod)
-      setNotice(`订单 ${payOrder.orderNo} 支付成功（${payMethod}）`)
+      const paid = payOrder
+      // 先关掉收银台再弹提示：<dialog> 处于 top layer，会盖住 toast
       setPayOrder(null)
       setPaying(false)
+      setNotice("")
+      toast.success("支付成功", {
+        description: `订单 ${paid.orderNo} 已通过${payMethod}收款 ¥${Number(paid.totalFee).toLocaleString("zh-CN")}`,
+      })
       await load(page, query, statusFilter)
     } catch (e) {
       setPaying(false)
