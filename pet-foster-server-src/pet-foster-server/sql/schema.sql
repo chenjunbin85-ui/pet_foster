@@ -58,6 +58,10 @@ CREATE TABLE foster_order (
     total_fee      DECIMAL(10,2) COMMENT '总费用',
     status         VARCHAR(20) NOT NULL DEFAULT '待入店' COMMENT '状态: 待入店/寄养中/已完成/已取消',
     remark         VARCHAR(255) COMMENT '备注',
+    payment_status VARCHAR(20) DEFAULT '未支付' COMMENT '支付状态: 未支付/已支付',
+    payment_method VARCHAR(20) COMMENT '支付方式: 微信/支付宝/现金',
+    payment_time   DATETIME COMMENT '支付时间',
+    paid_amount    DECIMAL(10,2) COMMENT '实付金额',
     creator_id     BIGINT COMMENT '创建人ID',
     create_time    DATETIME COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='寄养订单表';
