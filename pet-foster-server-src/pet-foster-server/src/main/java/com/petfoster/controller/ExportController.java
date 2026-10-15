@@ -8,6 +8,7 @@ import com.petfoster.entity.Pet;
 import com.petfoster.mapper.CustomerMapper;
 import com.petfoster.mapper.FosterOrderMapper;
 import com.petfoster.mapper.PetMapper;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+@Tag(name = "数据导出", description = "客户、宠物、订单Excel导出")
 @RestController
 @RequestMapping("/api/export")
 public class ExportController {

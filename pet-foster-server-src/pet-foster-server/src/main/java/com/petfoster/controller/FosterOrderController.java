@@ -7,10 +7,12 @@ import com.petfoster.dto.FosterOrderDTO;
 import com.petfoster.service.FosterOrderService;
 import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.FosterOrderVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+@Tag(name = "寄养订单管理", description = "订单增删改查、确认入店/离店/取消、模拟支付")
 @RestController
 @RequestMapping("/api/orders")
 public class FosterOrderController {

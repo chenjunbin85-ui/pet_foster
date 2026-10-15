@@ -1,5 +1,6 @@
 package com.petfoster.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,6 +10,7 @@ import java.util.Map;
 /**
  * 健康检查接口（无需认证，供UptimeRobot等监控服务调用）
  */
+@Tag(name = "健康检查", description = "服务探活接口，供监控服务调用")
 @RestController
 public class HealthController {
 

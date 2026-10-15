@@ -5,10 +5,12 @@ import com.petfoster.service.StatsService;
 import com.petfoster.vo.BreedDistributionVO;
 import com.petfoster.vo.DashboardVO;
 import com.petfoster.vo.OrderTrendVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "统计分析", description = "首页仪表盘、订单趋势、品种分布等统计接口")
 @RestController
 @RequestMapping("/api/stats")
 public class StatsController {

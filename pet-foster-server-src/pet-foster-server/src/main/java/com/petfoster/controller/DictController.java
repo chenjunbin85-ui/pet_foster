@@ -6,12 +6,14 @@ import com.petfoster.common.Result;
 import com.petfoster.dto.DictDTO;
 import com.petfoster.service.DictService;
 import com.petfoster.vo.DictVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "数据字典", description = "管理员：订单状态、宠物性别等字典项管理")
 @RestController
 @RequestMapping("/api/dicts")
 @PreAuthorize("hasRole('ADMIN')")

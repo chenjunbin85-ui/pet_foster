@@ -6,11 +6,13 @@ import com.petfoster.service.AuthService;
 import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.LoginVO;
 import com.petfoster.vo.SysUserVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Tag(name = "认证管理", description = "登录、当前用户信息、修改密码")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

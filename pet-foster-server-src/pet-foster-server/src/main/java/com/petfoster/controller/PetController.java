@@ -6,11 +6,13 @@ import com.petfoster.common.Result;
 import com.petfoster.dto.PetDTO;
 import com.petfoster.service.PetService;
 import com.petfoster.vo.PetVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "宠物档案管理", description = "宠物档案的增删改查与分页查询")
 @RestController
 @RequestMapping("/api/pets")
 public class PetController {

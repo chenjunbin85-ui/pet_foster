@@ -7,9 +7,11 @@ import com.petfoster.dto.HealthRecordDTO;
 import com.petfoster.service.HealthRecordService;
 import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.HealthRecordVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "健康记录管理", description = "入店记录、寄养观测记录、离店记录")
 @RestController
 @RequestMapping("/api/health-records")
 public class HealthRecordController {

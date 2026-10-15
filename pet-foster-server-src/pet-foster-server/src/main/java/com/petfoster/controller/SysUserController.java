@@ -6,10 +6,12 @@ import com.petfoster.common.Result;
 import com.petfoster.dto.SysUserDTO;
 import com.petfoster.service.SysUserService;
 import com.petfoster.vo.SysUserVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "系统用户管理", description = "管理员：系统账号的增删改查与启用禁用")
 @RestController
 @RequestMapping("/api/users")
 @PreAuthorize("hasRole('ADMIN')")

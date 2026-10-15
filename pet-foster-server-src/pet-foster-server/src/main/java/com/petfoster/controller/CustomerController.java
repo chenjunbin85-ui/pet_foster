@@ -6,9 +6,11 @@ import com.petfoster.common.Result;
 import com.petfoster.dto.CustomerDTO;
 import com.petfoster.service.CustomerService;
 import com.petfoster.vo.CustomerVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "客户管理", description = "客户信息的增删改查与分页查询")
 @RestController
 @RequestMapping("/api/customers")
 public class CustomerController {

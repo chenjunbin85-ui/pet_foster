@@ -7,9 +7,11 @@ import com.petfoster.dto.ServiceRecordDTO;
 import com.petfoster.service.ServiceRecordService;
 import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.ServiceRecordVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "服务记录管理", description = "寄养期间的服务项目记录（洗澡、遛弯、喂食等）")
 @RestController
 @RequestMapping("/api/service-records")
 public class ServiceRecordController {
