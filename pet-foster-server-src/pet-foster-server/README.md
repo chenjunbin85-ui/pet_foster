@@ -41,46 +41,74 @@ mvn clean package -DskipTests
 java -jar target/pet-foster-server-1.0.0.jar
 ```
 
-服务默认启动在 **8080** 端口。
+服务默认启动在 **8090** 端口。
 
 ## 默认账号
 
 | 用户名 | 密码 | 角色 | 权限 |
 |--------|------|------|------|
-| admin  | admin123 | admin | 全部模块 + 系统管理 |
-| staff01 | staff123 | staff | 业务模块（客户/宠物/订单/健康/服务/统计） |
+| admin  | admin123 | admin | 全部模块 + 统计分析 + 系统管理（用户/价位）+ 订单流水导出 |
+| staff01 | staff123 | staff | 业务模块（客户/宠物/订单/健康/服务）+ 本月寄养金额（轻量口径） |
 
 ## 接口文档
 
-启动后访问 Swagger UI：
+启动后访问 Swagger UI（服务端口为 8090）：
 
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
+- **Swagger UI**: http://localhost:8090/swagger-ui.html
+- **OpenAPI JSON**: http://localhost:8090/v3/api-docs
+
+> 注：数据字典（`/api/dicts`）与操作日志（`/api/oper-logs`）相关接口已随功能移除，OpenAPI 文档中不存在。
 
 ## 核心接口
 
+> 权限标注：`[ADMIN]`=仅管理员，`[STAFF]`=仅工作人员，`[登录]`=登录即可访问，`[公开]`=无需登录。
+
 ### 认证
-- `POST /api/auth/login` — 登录，返回 JWT token
-- `GET /api/auth/info` — 获取当前登录用户信息
+- `POST /api/auth/login` — 登录，返回 JWT token `[公开]`
+- `GET /api/auth/info` — 获取当前登录用户信息 `[登录]`
+- `PUT /api/auth/password` — 修改当前用户密码 `[登录]`
 
-### 业务模块
-- `GET/POST/PUT/DELETE /api/customers` — 客户管理
-- `GET/POST/PUT/DELETE /api/pets` — 宠物档案
-- `GET/POST/PUT/DELETE /api/orders` — 寄养订单
-- `PUT /api/orders/{id}/check-in` — 确认入店（待入店→寄养中）
-- `PUT /api/orders/{id}/check-out` — 确认离店（寄养中→已完成）
-- `PUT /api/orders/{id}/cancel` — 取消订单
-- `GET/POST/PUT/DELETE /api/health-records` — 健康档案
-- `GET/POST/PUT/DELETE /api/service-records` — 服务记录
+### 健康检查
+- `GET /health` — 服务存活检查 `[公开]`
 
-### 统计分析
-- `GET /api/stats/dashboard` — 首页看板数据
-- `GET /api/stats/order-trend` — 近5个月订单趋势
-- `GET /api/stats/breed-distribution` — 宠物品种分布
+### 客户管理（工作人员）
+- `GET/POST/PUT/DELETE /api/customers`、`GET /api/customers/{id}` — 客户信息增删改查 `[STAFF]`
 
-### 系统管理（仅 admin）
-- `GET/POST/PUT/DELETE /api/users` — 用户管理
-- `GET/POST/PUT/DELETE /api/dicts` — 数据字典
+### 宠物档案（工作人员）
+- `GET /api/pets`、`GET /api/pets/{id}`、`GET /api/pets/customer/{customerId}` — 查询 `[STAFF]`
+- `POST/PUT/DELETE /api/pets`、`/api/pets/{id}` — 增删改（删除受订单引用保护）`[STAFF]`
+
+### 寄养订单（读=双方，写=工作人员）
+- `GET /api/orders`、`GET /api/orders/{id}` — 查询订单流水 `[登录]`
+- `POST /api/orders` — 创建订单（固定价位下单，停用档位被拒绝）`[STAFF]`
+- `PUT /api/orders/{id}` — 修改订单 `[STAFF]`
+- `DELETE /api/orders/{id}` — 取消删除（软删除，deleted=1 页面不显示）`[STAFF]`
+- `PUT /api/orders/{id}/check-in` — 确认入店（待入店→寄养中）`[STAFF]`
+- `PUT /api/orders/{id}/check-out` — 确认离店（寄养中→已完成）`[STAFF]`
+- `PUT /api/orders/{id}/cancel` — 取消订单 `[STAFF]`
+- `POST /api/orders/{id}/pay` — 模拟支付 `[STAFF]`
+
+### 健康档案 / 服务记录（工作人员）
+- `GET/POST/PUT/DELETE /api/health-records`、`/api/health-records/{id}` — 健康档案管理 `[STAFF]`
+- `GET/POST/PUT/DELETE /api/service-records`、`/api/service-records/{id}` — 寄养服务记录 `[STAFF]`
+
+### 统计分析（管理员）
+- `GET /api/stats/dashboard` — 首页看板/统计四卡数据 `[ADMIN]`
+- `GET /api/stats/order-trend` — 近 5 个月订单数与收入趋势（可选 startDate/endDate）`[ADMIN]`
+- `GET /api/stats/breed-distribution` — 宠物品种分布 `[ADMIN]`
+- `GET /api/stats/monthly-revenue` — 本月寄养金额（本月非已取消订单费用合计，员工首页金额卡用）`[登录]`
+
+> 统计口径：全部统计 SQL 显式过滤软删订单（deleted=0）；趋势收入、总营收与本月寄养金额口径一致（均排除已取消订单）。
+
+### 系统管理（仅管理员）
+- `GET/POST/PUT/DELETE /api/users`、`/api/users/{id}` — 用户账号管理 `[ADMIN]`
+- `GET /api/prices/options` — 启用档位下拉选项（下单用）`[登录]`
+- `GET/POST/PUT/DELETE /api/prices`、`/api/prices/{id}` — 寄养固定价位管理（管理员可改）`[ADMIN]`
+
+### 数据导出
+- `GET /api/export/customers` — 客户列表导出 `[STAFF]`
+- `GET /api/export/pets` — 宠物档案导出 `[STAFF]`
+- `GET /api/export/orders` — 门店经营数据导出 `[ADMIN]`（文件名「门店经营数据.xlsx」，sheet1 经营数据 / sheet2 订单数据）
 
 ## 认证方式
 

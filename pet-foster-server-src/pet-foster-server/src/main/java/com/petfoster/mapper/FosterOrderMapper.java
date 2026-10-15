@@ -21,7 +21,7 @@ public interface FosterOrderMapper extends BaseMapper<FosterOrder> {
     @Select("SELECT COUNT(*) FROM foster_order WHERE deleted = 0 AND DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')")
     long countMonthlyOrders();
 
-    @Select("SELECT COALESCE(SUM(total_fee), 0) FROM foster_order WHERE deleted = 0 AND status = '已完成' AND DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')")
+    @Select("SELECT COALESCE(SUM(total_fee), 0) FROM foster_order WHERE deleted = 0 AND status != '已取消' AND DATE_FORMAT(create_time, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')")
     java.math.BigDecimal sumMonthlyRevenue();
 
     @Select("<script>" +

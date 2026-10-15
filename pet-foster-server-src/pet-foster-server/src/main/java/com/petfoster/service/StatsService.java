@@ -34,7 +34,7 @@ public class StatsService {
         return vo;
     }
 
-    /** 本月寄养金额（已完成订单合计）——首页展示用，工作人员亦可见（轻量口径） */
+    /** 本月寄养金额（本月非已取消订单合计，口径与总营收一致）——首页展示用，工作人员亦可见（轻量口径） */
     public BigDecimal monthlyRevenue() {
         BigDecimal revenue = fosterOrderMapper.sumMonthlyRevenue();
         return revenue != null ? revenue : BigDecimal.ZERO;
