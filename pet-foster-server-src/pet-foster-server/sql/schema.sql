@@ -110,17 +110,6 @@ CREATE TABLE foster_service_record (
     keeper_id    BIGINT COMMENT '看护人ID'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='寄养服务记录表';
 
--- 7. 操作日志表
-DROP TABLE IF EXISTS sys_oper_log;
-CREATE TABLE sys_oper_log (
-    log_id       BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '日志ID',
-    user_id      BIGINT COMMENT '操作人ID',
-    module       VARCHAR(50) COMMENT '操作模块',
-    content      VARCHAR(255) COMMENT '操作内容',
-    request_time DATETIME COMMENT '请求时间',
-    ip           VARCHAR(50) COMMENT 'IP地址'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
-
 -- ============================================
 -- 初始数据
 -- ============================================

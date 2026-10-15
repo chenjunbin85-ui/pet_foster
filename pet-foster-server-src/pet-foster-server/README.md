@@ -57,8 +57,6 @@ java -jar target/pet-foster-server-1.0.0.jar
 - **Swagger UI**: http://localhost:8090/swagger-ui.html
 - **OpenAPI JSON**: http://localhost:8090/v3/api-docs
 
-> 注：数据字典（`/api/dicts`）与操作日志（`/api/oper-logs`）相关接口已随功能移除，OpenAPI 文档中不存在。
-
 ## 核心接口
 
 > 权限标注：`[ADMIN]`=仅管理员，`[STAFF]`=仅工作人员，`[登录]`=登录即可访问，`[公开]`=无需登录。
