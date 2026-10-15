@@ -15,7 +15,7 @@ import {
 const API_BASE = "http://127.0.0.1:8090"
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
 
-export function StatsPage() {
+export function StatsPage({ onNavigate }: { onNavigate?: (status?: string) => void }) {
   const [trend, setTrend] = useState<OrderTrend[]>([])
   const [breed, setBreed] = useState<BreedDistribution[]>([])
   const [orders, setOrders] = useState<OrderVO[]>([])
@@ -120,7 +120,7 @@ export function StatsPage() {
         const url = URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        a.download = "寄养订单.xlsx"
+        a.download = "门店经营数据.xlsx"
         a.click()
         URL.revokeObjectURL(url)
         toast.success("订单数据已导出")
@@ -128,12 +128,17 @@ export function StatsPage() {
       .catch(() => toast.error("导出失败"))
   }
 
-  const cards = [
-    ["订单总数", String(orders.length), "单"],
-    ["已完成订单", String(completed), "单"],
-    ["已取消订单", String(cancelled), "单"],
-    ["总营收", revenue.toLocaleString("zh-CN"), "元"],
+  // 四卡点击跳转到订单流水页并预设状态筛选：已完成/已取消 → 对应筛选；订单总数/总营收 → 全部流水
+  const cards: Array<{ title: string; value: string; unit: string; status?: string }> = [
+    { title: "订单总数", value: String(orders.length), unit: "单" },
+    { title: "已完成订单", value: String(completed), unit: "单", status: "已完成" },
+    { title: "已取消订单", value: String(cancelled), unit: "单", status: "已取消" },
+    { title: "总营收", value: revenue.toLocaleString("zh-CN"), unit: "元" },
   ]
+
+  const openCard = (status?: string) => {
+    if (onNavigate) onNavigate(status)
+  }
 
   return (
     <section className="statistics-page">
@@ -173,12 +178,25 @@ export function StatsPage() {
       </div>
 
       <div className="stat-grid home-stat-grid">
-        {cards.map(([title, value, unit]) => (
-          <article className="stat-card" key={title}>
-            <h2 className="stat-top">{title}</h2>
+        {cards.map((card) => (
+          <article
+            className="stat-card"
+            key={card.title}
+            onClick={() => openCard(card.status)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                openCard(card.status)
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label={`查看${card.title}对应的订单流水`}
+          >
+            <h2 className="stat-top">{card.title}</h2>
             <div className="stat-value">
-              {value}
-              <small>{unit}</small>
+              {card.value}
+              <small>{card.unit}</small>
             </div>
             <p>{periodLabel}</p>
           </article>
@@ -209,9 +227,9 @@ export function StatsPage() {
               收入（元）
             </span>
           </div>
-          <ChartContainer config={{ 订单数: { label: "订单数", color: "var(--chart-1)" }, 金额: { label: "金额", color: "var(--chart-2)" } }}>
+          <ChartContainer config={{ 订单数: { label: "订单数", color: "var(--chart-1)" }, 金额: { label: "金额", color: "var(--chart-income)" } }}>
             <ComposedChart data={trendData} accessibilityLayer>
-              <CartesianGrid vertical={false} />
+              <CartesianGrid stroke="#e2e8f0" strokeDasharray="4 4" />
               <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
               <YAxis yAxisId="left" tickLine={false} axisLine={false} tickMargin={8} allowDecimals={false} />
               <YAxis yAxisId="right" orientation="right" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(v) => `¥${v}`} />

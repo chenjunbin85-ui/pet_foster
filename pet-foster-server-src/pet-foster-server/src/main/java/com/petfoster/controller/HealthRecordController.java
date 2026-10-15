@@ -1,6 +1,5 @@
 package com.petfoster.controller;
 
-import com.petfoster.aspect.Log;
 import com.petfoster.common.PageResult;
 import com.petfoster.common.Result;
 import com.petfoster.dto.HealthRecordDTO;
@@ -9,11 +8,13 @@ import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.HealthRecordVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "健康记录管理", description = "入店记录、寄养观测记录、离店记录")
+@Tag(name = "健康记录管理", description = "入店记录、寄养观测记录、离店记录（仅工作人员）")
 @RestController
 @RequestMapping("/api/health-records")
+@PreAuthorize("hasRole('STAFF')")
 public class HealthRecordController {
 
     private final HealthRecordService healthRecordService;
@@ -37,11 +38,6 @@ public class HealthRecordController {
     }
 
     @PostMapping
-
-
-    @Log(module = "健康记录", content = "新增")
-
-
     public Result<Void> create(@Valid @RequestBody HealthRecordDTO dto) {
         Long recorderId = SecurityUtil.getCurrentUserId();
         healthRecordService.create(dto, recorderId);
@@ -49,19 +45,10 @@ public class HealthRecordController {
     }
 
     @PutMapping("/{id}")
-
-
-    @Log(module = "健康记录", content = "修改")
-
-
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody HealthRecordDTO dto) {
         healthRecordService.update(id, dto);
         return Result.success();
     }
-
-    
-
-    @Log(module = "健康记录", content = "删除")
 @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         healthRecordService.removeById(id);

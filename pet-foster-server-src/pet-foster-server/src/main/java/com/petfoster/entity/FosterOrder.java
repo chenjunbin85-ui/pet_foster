@@ -16,6 +16,7 @@ public class FosterOrder {
     private Long petId;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Long priceId;
     private BigDecimal pricePerDay;
     private BigDecimal totalFee;
     private String status;
@@ -26,4 +27,6 @@ public class FosterOrder {
     private BigDecimal paidAmount;
     private Long creatorId;
     private LocalDateTime createTime;
+    @TableLogic
+    private Integer deleted;
 }

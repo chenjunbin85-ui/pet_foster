@@ -211,7 +211,7 @@ export function CustomersPage({ quickAction, onQuickActionDone }: CustomersPageP
         </div>
 
         <div className="customer-table-scroll">
-          <table className="customer-table">
+          <table className="customer-table business-table customers-table">
             <thead>
               <tr>
                 {["客户编号", "姓名", "联系电话", "居住地址", "备注", "创建时间", "操作"].map((text) => (

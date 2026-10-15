@@ -29,18 +29,26 @@ export function App() {
   const [userName, setUserName] = useState(() => localStorage.getItem(LS.userName) || "系统管理员")
   const [page, setPage] = useState<PageKey>(() => {
     const saved = localStorage.getItem(LS.page) as PageKey | null
-    // 工作人员不能停留在系统管理页
-    if (saved === "system" && localStorage.getItem(LS.role) !== "admin") return "dashboard"
+    const savedRole = localStorage.getItem(LS.role)
+    if (savedRole === "admin") {
+      // 管理员默认展示界面为统计分析（侧边栏仅统计/系统管理，登录后默认进统计）
+      return saved === "stats" || saved === "system" ? saved : "stats"
+    }
+    // 工作人员不能停留在系统管理页或统计分析页（经营数据仅管理员可见）
+    if (saved === "system" || saved === "stats") return "dashboard"
     return saved || "dashboard"
   })
   // 待切换的目标角色，非空时展示密码校验浮窗
   const [switchTarget, setSwitchTarget] = useState<Role | null>(null)
   // 快捷操作：从首页快捷入口点击后，导航到对应页面并自动打开新增弹窗
   const [quickAction, setQuickAction] = useState<PageKey | null>(null)
+  // 从统计分析卡片点击进入订单流水时的初始状态筛选
+  const [ordersStatus, setOrdersStatus] = useState("")
 
-  const navigate = (p: PageKey) => {
+  const navigate = (p: PageKey, status?: string) => {
     setPage(p)
     localStorage.setItem(LS.page, p)
+    if (p === "orders") setOrdersStatus(status ?? "")
   }
 
   /** 首页快捷入口：导航到对应页面并自动打开新增弹窗 */
@@ -61,9 +69,11 @@ export function App() {
     setUserName(name)
     localStorage.setItem(LS.role, r)
     localStorage.setItem(LS.userName, name)
-    localStorage.setItem(LS.page, "dashboard")
+    // 管理员默认展示界面为统计分析，工作人员为系统首页
+    const landing: PageKey = r === "admin" ? "stats" : "dashboard"
+    localStorage.setItem(LS.page, landing)
     setLoggedIn(true)
-    setPage("dashboard")
+    setPage(landing)
     toast.success("登录成功")
   }
 
@@ -96,8 +106,9 @@ export function App() {
     setUserName(name)
     localStorage.setItem(LS.role, realRole)
     localStorage.setItem(LS.userName, name)
-    // 切换到非管理员后不能再停留在系统管理页
-    if (realRole !== "admin" && page === "system") navigate("dashboard")
+    // 切换角色后进入对应默认界面：管理员→统计分析，工作人员→系统首页
+    if (realRole === "admin") navigate("stats")
+    else if (page === "system" || page === "stats") navigate("dashboard")
     setSwitchTarget(null)
     toast.success(`已切换为${ROLE_LABELS[realRole]}：${name}`)
   }
@@ -126,13 +137,13 @@ export function App() {
   return (
     <>
       <AppLayout role={role} userName={userName} page={page} onNavigate={navigate} onRequestSwitchRole={handleRequestSwitchRole} onLogout={handleLogout} bodyClassName={page === "dashboard" ? "home-dashboard-body" : page === "stats" ? "stats-dashboard-body" : undefined}>
-        {page === "dashboard" && <DashboardPage onNavigate={navigate} onQuickAction={handleQuickAction} />}
+        {page === "dashboard" && <DashboardPage role={role} onNavigate={navigate} onQuickAction={handleQuickAction} />}
         {page === "customers" && <CustomersPage quickAction={quickAction === "customers" ? "add" : null} onQuickActionDone={clearQuickAction} />}
         {page === "pets" && <PetsPage quickAction={quickAction === "pets" ? "add" : null} onQuickActionDone={clearQuickAction} />}
-        {page === "orders" && <OrdersPage role={role} quickAction={quickAction === "orders" ? "add" : null} onQuickActionDone={clearQuickAction} />}
+        {page === "orders" && <OrdersPage role={role} initialStatus={ordersStatus} onBack={() => navigate(role === "admin" ? "stats" : "dashboard")} quickAction={quickAction === "orders" ? "add" : null} onQuickActionDone={clearQuickAction} />}
         {page === "health" && <HealthPage quickAction={quickAction === "health" ? "add" : null} onQuickActionDone={clearQuickAction} />}
         {page === "services" && <ServicesPage quickAction={quickAction === "services" ? "add" : null} onQuickActionDone={clearQuickAction} />}
-        {page === "stats" && <StatsPage />}
+        {page === "stats" && <StatsPage onNavigate={(status?: string) => navigate("orders", status)} />}
         {page === "system" && <SystemPage role={role} />}
       </AppLayout>
       <RoleSwitchDialog

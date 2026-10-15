@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
-import { formatDateTime } from "@/lib/utils"
 import {
-  dictPage,
-  operLogPage,
+  priceCreate,
+  priceDelete,
+  pricePage,
+  priceUpdate,
   userCreate,
   userPage,
   userUpdate,
-  type DictVO,
-  type OperLogVO,
+  type FosterPriceVO,
   type Role,
   type SysUserVO,
 } from "@/api"
 
-const TABS = ["用户账号", "操作日志", "数据字典"] as const
+const TABS = ["用户账号", "寄养价位"] as const
 type Tab = (typeof TABS)[number]
 
 /** 后端 SysUserDTO：realName / password / status(Integer)，与列表 VO 字段不同，调用处显式转换 */
@@ -25,12 +25,19 @@ type UserPayload = {
   remark?: string
 }
 
+type PricePayload = {
+  levelName?: string
+  pricePerDay?: number
+  status?: number
+  sort?: number
+  remark?: string
+}
+
 export function SystemPage({ role }: { role: Role }) {
   const [tab, setTab] = useState<Tab>("用户账号")
   const [users, setUsers] = useState<SysUserVO[]>([])
   const [total, setTotal] = useState(0)
-  const [logs, setLogs] = useState<OperLogVO[]>([])
-  const [dicts, setDicts] = useState<DictVO[]>([])
+  const [prices, setPrices] = useState<FosterPriceVO[]>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState("")
   const [error, setError] = useState("")
@@ -38,16 +45,17 @@ export function SystemPage({ role }: { role: Role }) {
   const [saving, setSaving] = useState(false)
   const [adding, setAdding] = useState(false)
   const [editingUser, setEditingUser] = useState<SysUserVO | null>(null)
+  const [editingPrice, setEditingPrice] = useState<FosterPriceVO | null>(null)
+  const [priceFormOpen, setPriceFormOpen] = useState(false)
   const dialog = useRef<HTMLDialogElement>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const [u, l, d] = await Promise.all([userPage(1, 100), operLogPage(1, 100), dictPage(1, 200)])
+      const [u, p] = await Promise.all([userPage(1, 100), pricePage(1, 200)])
       setUsers(u.records)
       setTotal(u.total)
-      setLogs(l.records)
-      setDicts(d.records)
+      setPrices(p.records)
       setError("")
     } catch (e) {
       setError(e instanceof Error ? e.message : "系统数据加载失败")
@@ -61,13 +69,15 @@ export function SystemPage({ role }: { role: Role }) {
   }, [load, role])
 
   useEffect(() => {
-    if (adding || editingUser) dialog.current?.showModal()
-  }, [adding, editingUser])
+    if (adding || editingUser || editingPrice) dialog.current?.showModal()
+  }, [adding, editingUser, editingPrice])
 
   const closeDialog = () => {
     dialog.current?.close()
     setAdding(false)
     setEditingUser(null)
+    setEditingPrice(null)
+    setPriceFormOpen(false)
   }
 
   const saveUser = async (event: FormEvent<HTMLFormElement>) => {
@@ -128,6 +138,68 @@ export function SystemPage({ role }: { role: Role }) {
     }
   }
 
+  const savePrice = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const data = new FormData(event.currentTarget)
+    const payload: PricePayload = {
+      levelName: String(data.get("levelName") ?? "").trim(),
+      pricePerDay: Number(data.get("pricePerDay")),
+      status: Number(data.get("status") ?? 1),
+      sort: Number(data.get("sort") ?? 0),
+      remark: String(data.get("remark") ?? "").trim(),
+    }
+    if (!payload.levelName || !payload.pricePerDay || payload.pricePerDay <= 0) {
+      setDialogError("请填写档位名称与大于 0 的单日价格")
+      return
+    }
+    setSaving(true)
+    try {
+      if (editingPrice) {
+        await priceUpdate(editingPrice.id, payload)
+        setNotice(`已更新价位档位：${payload.levelName}。`)
+      } else {
+        await priceCreate(payload)
+        setNotice(`新增价位档位：${payload.levelName}。`)
+      }
+      closeDialog()
+      await load()
+    } catch (e) {
+      setDialogError(e instanceof Error ? e.message : "保存失败")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const togglePrice = async (price: FosterPriceVO) => {
+    const next = price.status === 1 ? 0 : 1
+    try {
+      await priceUpdate(price.id, {
+        levelName: price.levelName,
+        pricePerDay: price.pricePerDay,
+        status: next,
+        sort: price.sort,
+        remark: price.remark,
+      })
+      setNotice(`${next === 1 ? "启用" : "停用"}价位档位：${price.levelName}。`)
+      setError("")
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "操作失败")
+    }
+  }
+
+  const removePrice = async (price: FosterPriceVO) => {
+    if (!window.confirm(`确认删除价位档位「${price.levelName}」？删除后历史订单不受影响。`)) return
+    try {
+      await priceDelete(price.id)
+      setNotice(`已删除价位档位：${price.levelName}。`)
+      setError("")
+      await load()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "操作失败")
+    }
+  }
+
   if (role !== "admin") {
     return (
       <section className="dashboard-card module-preview">
@@ -142,22 +214,13 @@ export function SystemPage({ role }: { role: Role }) {
     )
   }
 
-  const dictGroups = Array.from(
-    dicts.reduce((map, d) => {
-      const list = map.get(d.typeCode) ?? []
-      list.push(d)
-      map.set(d.typeCode, list)
-      return map
-    }, new Map<string, DictVO[]>())
-  )
-
   return (
     <section>
       <div className="dashboard-welcome">
         <div>
           <span className="section-kicker">系统管理</span>
           <h1>安全有序，让管理更安心。</h1>
-          <p>管理用户权限、查看操作日志与数据字典。</p>
+          <p>管理用户权限与维护寄养价位。</p>
         </div>
         <span className="soft-badge">管理员专属</span>
       </div>
@@ -184,9 +247,22 @@ export function SystemPage({ role }: { role: Role }) {
             onClick={() => {
               setDialogError("")
               setAdding(true)
+              setPriceFormOpen(false)
             }}
           >
             ＋ 新增用户
+          </button>
+        )}
+        {tab === "寄养价位" && (
+          <button
+            className="primary-action"
+            onClick={() => {
+              setDialogError("")
+              setAdding(true)
+              setPriceFormOpen(true)
+            }}
+          >
+            ＋ 新增档位
           </button>
         )}
       </div>
@@ -197,15 +273,13 @@ export function SystemPage({ role }: { role: Role }) {
             <h2>
               {tab}
               <span className="count-badge">
-                {tab === "用户账号" ? total : tab === "操作日志" ? logs.length : dicts.length}
+                {tab === "用户账号" ? total : prices.length}
               </span>
             </h2>
             <p>
               {tab === "用户账号"
                 ? "合理分配权限，协同完成日常照护"
-                : tab === "操作日志"
-                  ? "系统操作留痕，便于追溯"
-                  : "统一业务字段与状态定义"}
+                : "固定价位档位，由管理员统一维护"}
             </p>
           </div>
         </div>
@@ -285,46 +359,93 @@ export function SystemPage({ role }: { role: Role }) {
               </tbody>
             </table>
           </div>
-        ) : tab === "操作日志" ? (
-          <div className="system-log">
-            {logs.length ? (
-              logs.map((log) => (
-                <div key={log.id}>
-                  <span className="count-badge">{log.module}</span>
-                  <p>
-                    {log.content}
-                    {log.ip ? ` · ${log.ip}` : ""}
-                  </p>
-                  <span className="soft-badge">{formatDateTime(log.requestTime)}</span>
-                </div>
-              ))
-            ) : (
-              <div className="empty-state">
-                <h3>暂无操作日志</h3>
-                <p>新增用户或切换账号状态后，操作将在这里显示。</p>
-              </div>
-            )}
-          </div>
         ) : (
-          <div className="dictionary-list">
-            {dictGroups.length ? (
-              dictGroups.map(([typeCode, items]) => (
-                <div key={typeCode}>
-                  <strong>{typeCode}</strong>
-                  <p>{items.map((d) => d.label).join("、")}</p>
-                </div>
-              ))
-            ) : (
-              <div className="empty-state">
-                <h3>暂无数据字典</h3>
-              </div>
-            )}
+          <div className="customer-table-scroll">
+            <table className="customer-table system-user-table system-price-table">
+              <colgroup>
+                <col style={{ width: "20%" }} />
+                <col style={{ width: "14%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "24%" }} />
+                <col style={{ width: "20%" }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  {["档位名称", "单日价格（元）", "排序", "状态", "备注", "操作"].map((label) => (
+                    <th scope="col" key={label}>
+                      {label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {prices.map((price) => (
+                  <tr key={price.id}>
+                    <td>
+                      <div className="customer-name">
+                        <strong>{price.levelName}</strong>
+                      </div>
+                    </td>
+                    <td>¥{Number(price.pricePerDay)}</td>
+                    <td>{price.sort}</td>
+                    <td>
+                      <span className={`status-badge ${price.status === 1 ? "enabled" : "disabled"}`}>
+                        {price.status === 1 ? "● 启用" : "○ 停用"}
+                      </span>
+                    </td>
+                    <td>{price.remark || "—"}</td>
+                    <td>
+                      <div className="system-actions">
+                        <button
+                          className="system-action-btn edit"
+                          onClick={() => {
+                            setDialogError("")
+                            setEditingPrice(price)
+                            setAdding(false)
+                          }}
+                          aria-label={`编辑${price.levelName}`}
+                        >
+                          编辑
+                        </button>
+                        <button
+                          role="switch"
+                          aria-checked={price.status === 1}
+                          aria-label={`${price.status === 1 ? "停用" : "启用"}${price.levelName}`}
+                          className={`account-switch ${price.status === 1 ? "enabled" : ""}`}
+                          onClick={() => togglePrice(price)}
+                        >
+                          <span />
+                        </button>
+                        <button
+                          className="system-action-btn danger"
+                          onClick={() => removePrice(price)}
+                          aria-label={`删除${price.levelName}`}
+                        >
+                          删除
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {!loading && prices.length === 0 && (
+                  <tr>
+                    <td colSpan={6}>
+                      <div className="empty-state">
+                        <h3>暂无价位档位</h3>
+                        <p>新增档位后，工作人员开单时即可选择。</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         )}
 
         <div className="customer-table-footer">
           <span>系统管理 · 数据实时同步自服务端</span>
-          <span>{tab === "用户账号" ? `共 ${total} 个账号` : tab === "操作日志" ? `共 ${logs.length} 条日志` : `共 ${dictGroups.length} 类字典`}</span>
+          <span>{tab === "用户账号" ? `共 ${total} 个账号` : `共 ${prices.length} 个价位档位`}</span>
         </div>
       </div>
 
@@ -337,39 +458,80 @@ export function SystemPage({ role }: { role: Role }) {
         <span>用心管理每一份信任</span>
       </footer>
 
-      {(adding || editingUser) && (
-        <dialog ref={dialog} className="customer-dialog" onCancel={() => { setAdding(false); setEditingUser(null); }} onClose={() => { setAdding(false); setEditingUser(null); }}>
+      {(adding || editingUser || editingPrice) && (
+        <dialog
+          ref={dialog}
+          className="customer-dialog"
+          onCancel={() => { setAdding(false); setEditingUser(null); setEditingPrice(null); setPriceFormOpen(false); }}
+          onClose={() => { setAdding(false); setEditingUser(null); setEditingPrice(null); setPriceFormOpen(false); }}
+        >
           <div className="customer-dialog-heading">
-            <h2>{editingUser ? "编辑用户" : "新增用户"}</h2>
+            <h2>
+              {editingUser
+                ? "编辑用户"
+                : editingPrice
+                  ? "编辑价位档位"
+                  : priceFormOpen
+                    ? "新增价位档位"
+                    : "新增用户"}
+            </h2>
             <button aria-label="关闭弹窗" onClick={closeDialog}>
               ×
             </button>
           </div>
-          <form className="customer-form" onSubmit={saveUser}>
-            <p>{editingUser ? "修改用户信息，留空密码则不更改。" : "创建后可用新账号登录系统，请牢记密码。"}</p>
-            <label htmlFor="new-username">用户名</label>
-            <input id="new-username" name="username" required maxLength={30} placeholder="请输入用户名" defaultValue={editingUser?.username} />
-            <label htmlFor="new-password">密码{editingUser ? "（留空不修改）" : ""}</label>
-            <input id="new-password" name="password" type="password" minLength={editingUser ? 0 : 6} maxLength={30} placeholder={editingUser ? "留空则保持原密码" : "请输入密码（至少 6 位）"} />
-            <label htmlFor="new-real-name">真实姓名</label>
-            <input id="new-real-name" name="realName" required maxLength={30} placeholder="请输入真实姓名" defaultValue={editingUser?.name} />
-            <label htmlFor="new-role">角色</label>
-            <select className="business-select form-select" id="new-role" name="role" defaultValue={editingUser?.role ?? "staff"}>
-              <option value="staff">工作人员</option>
-              <option value="admin">管理员</option>
-            </select>
-            <label htmlFor="new-remark">备注</label>
-            <input id="new-remark" name="remark" maxLength={100} placeholder="补充说明（选填）" defaultValue={editingUser?.remark} />
-            {dialogError && <p role="alert">{dialogError}</p>}
-            <div className="dialog-actions">
-              <button type="button" className="secondary-action" onClick={closeDialog}>
-                取消
-              </button>
-              <button className="primary-action" type="submit" disabled={saving}>
-                {editingUser ? "保存修改" : "保存用户"}
-              </button>
-            </div>
-          </form>
+          {editingUser || (!priceFormOpen && !editingPrice) ? (
+            <form className="customer-form" onSubmit={saveUser}>
+              <p>{editingUser ? "修改用户信息，留空密码则不更改。" : "创建后可用新账号登录系统，请牢记密码。"}</p>
+              <label htmlFor="new-username">用户名</label>
+              <input id="new-username" name="username" required maxLength={30} placeholder="请输入用户名" defaultValue={editingUser?.username} />
+              <label htmlFor="new-password">密码{editingUser ? "（留空不修改）" : ""}</label>
+              <input id="new-password" name="password" type="password" minLength={editingUser ? 0 : 6} maxLength={30} placeholder={editingUser ? "留空则保持原密码" : "请输入密码（至少 6 位）"} />
+              <label htmlFor="new-real-name">真实姓名</label>
+              <input id="new-real-name" name="realName" required maxLength={30} placeholder="请输入真实姓名" defaultValue={editingUser?.name} />
+              <label htmlFor="new-role">角色</label>
+              <select className="business-select form-select" id="new-role" name="role" defaultValue={editingUser?.role ?? "staff"}>
+                <option value="staff">工作人员</option>
+                <option value="admin">管理员</option>
+              </select>
+              <label htmlFor="new-remark">备注</label>
+              <input id="new-remark" name="remark" maxLength={100} placeholder="补充说明（选填）" defaultValue={editingUser?.remark} />
+              {dialogError && <p role="alert">{dialogError}</p>}
+              <div className="dialog-actions">
+                <button type="button" className="secondary-action" onClick={closeDialog}>
+                  取消
+                </button>
+                <button className="primary-action" type="submit" disabled={saving}>
+                  {editingUser ? "保存修改" : "保存用户"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <form className="customer-form" onSubmit={savePrice}>
+              <p>{editingPrice ? "修改价位档位信息。" : "新增档位后，工作人员开单时可选择该价位。"}</p>
+              <label htmlFor="new-level-name">档位名称</label>
+              <input id="new-level-name" name="levelName" required maxLength={30} placeholder="如：标准间、舒适间" defaultValue={editingPrice?.levelName} />
+              <label htmlFor="new-price-per-day">单日价格（元）</label>
+              <input id="new-price-per-day" name="pricePerDay" type="number" min="1" step="any" required placeholder="请输入单日价格" defaultValue={editingPrice?.pricePerDay} />
+              <label htmlFor="new-price-status">状态</label>
+              <select className="business-select form-select" id="new-price-status" name="status" defaultValue={editingPrice?.status ?? 1}>
+                <option value={1}>启用</option>
+                <option value={0}>停用</option>
+              </select>
+              <label htmlFor="new-price-sort">排序（数字越小越靠前）</label>
+              <input id="new-price-sort" name="sort" type="number" min="0" defaultValue={editingPrice?.sort ?? 0} />
+              <label htmlFor="new-price-remark">备注</label>
+              <input id="new-price-remark" name="remark" maxLength={100} placeholder="补充说明（选填）" defaultValue={editingPrice?.remark} />
+              {dialogError && <p role="alert">{dialogError}</p>}
+              <div className="dialog-actions">
+                <button type="button" className="secondary-action" onClick={closeDialog}>
+                  取消
+                </button>
+                <button className="primary-action" type="submit" disabled={saving}>
+                  {editingPrice ? "保存修改" : "保存档位"}
+                </button>
+              </div>
+            </form>
+          )}
         </dialog>
       )}
     </section>

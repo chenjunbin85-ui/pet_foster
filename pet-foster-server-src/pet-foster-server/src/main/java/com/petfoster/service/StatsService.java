@@ -2,6 +2,7 @@ package com.petfoster.service;
 
 import com.petfoster.mapper.FosterOrderMapper;
 import com.petfoster.mapper.PetMapper;
+import com.petfoster.enums.OrderStatus;
 import com.petfoster.vo.BreedDistributionVO;
 import com.petfoster.vo.DashboardVO;
 import com.petfoster.vo.OrderTrendVO;
@@ -25,12 +26,18 @@ public class StatsService {
 
     public DashboardVO dashboard() {
         DashboardVO vo = new DashboardVO();
-        vo.setFosteringCount(fosterOrderMapper.countByStatus("寄养中"));
-        vo.setPendingCount(fosterOrderMapper.countByStatus("待入店"));
+        vo.setFosteringCount(fosterOrderMapper.countByStatus(OrderStatus.FOSTERING.getValue()));
+        vo.setPendingCount(fosterOrderMapper.countByStatus(OrderStatus.PENDING.getValue()));
         vo.setMonthlyOrderCount(fosterOrderMapper.countMonthlyOrders());
         BigDecimal revenue = fosterOrderMapper.sumMonthlyRevenue();
         vo.setMonthlyRevenue(revenue != null ? revenue : BigDecimal.ZERO);
         return vo;
+    }
+
+    /** 本月寄养金额（已完成订单合计）——首页展示用，工作人员亦可见（轻量口径） */
+    public BigDecimal monthlyRevenue() {
+        BigDecimal revenue = fosterOrderMapper.sumMonthlyRevenue();
+        return revenue != null ? revenue : BigDecimal.ZERO;
     }
 
     public List<OrderTrendVO> orderTrend(String startDate, String endDate) {

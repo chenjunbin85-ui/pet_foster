@@ -1,6 +1,5 @@
 package com.petfoster.controller;
 
-import com.petfoster.aspect.Log;
 import com.petfoster.common.PageResult;
 import com.petfoster.common.Result;
 import com.petfoster.dto.PetDTO;
@@ -8,13 +7,15 @@ import com.petfoster.service.PetService;
 import com.petfoster.vo.PetVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "宠物档案管理", description = "宠物档案的增删改查与分页查询")
+@Tag(name = "宠物档案管理", description = "宠物档案的增删改查与分页查询（仅工作人员）")
 @RestController
 @RequestMapping("/api/pets")
+@PreAuthorize("hasRole('STAFF')")
 public class PetController {
 
     private final PetService petService;
@@ -43,30 +44,16 @@ public class PetController {
     }
 
     @PostMapping
-
-
-    @Log(module = "宠物档案", content = "新增")
-
-
     public Result<Void> create(@Valid @RequestBody PetDTO dto) {
         petService.create(dto);
         return Result.success();
     }
 
     @PutMapping("/{id}")
-
-
-    @Log(module = "宠物档案", content = "修改")
-
-
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody PetDTO dto) {
         petService.update(id, dto);
         return Result.success();
     }
-
-    
-
-    @Log(module = "宠物档案", content = "删除")
 @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         petService.delete(id);

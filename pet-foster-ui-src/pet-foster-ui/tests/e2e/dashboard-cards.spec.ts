@@ -1,9 +1,10 @@
 import { test, expect } from "@playwright/test"
-import { login } from "./helpers/auth"
+import { login, relogin } from "./helpers/auth"
 
 test.describe("首页卡片数据展示", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "admin", "admin123")
+    // 首页工作台面向工作人员（管理员默认进入统计分析页）
+    await login(page, "staff01", "staff123")
   })
 
   test("四个统计卡片数据完整展示", async ({ page }) => {
@@ -68,28 +69,29 @@ test.describe("首页卡片数据展示", () => {
   })
 
   test("统计卡片数值与后端数据一致", async ({ page }) => {
-    // 调用后端API获取统计数据
+    // 员工首页金额卡数据来自轻量接口 /api/stats/monthly-revenue（与后端口径一致：本月已完成订单合计）
     const token = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
-    const response = await page.request.get("http://127.0.0.1:8090/api/stats/dashboard", {
+    const response = await page.request.get("http://127.0.0.1:8090/api/stats/monthly-revenue", {
       headers: { Authorization: `Bearer ${token}` },
     })
     expect(response.ok()).toBeTruthy()
     const data = await response.json()
-    const stats = data.data || data
-
-    // 验证前端显示与后端数据一致
-    const fosteringCard = page.locator(".stat-card", { hasText: "寄养中宠物" })
-    await expect(fosteringCard.locator(".stat-value")).toContainText(String(stats.fosteringCount))
-
-    const pendingCard = page.locator(".stat-card", { hasText: "待入店订单" })
-    await expect(pendingCard.locator(".stat-value")).toContainText(String(stats.pendingCount))
-
-    const monthlyCard = page.locator(".stat-card", { hasText: "本月订单" })
-    await expect(monthlyCard.locator(".stat-value")).toContainText(String(stats.monthlyOrderCount))
+    const expectedRevenue = Number(data.data).toLocaleString("zh-CN")
 
     const revenueCard = page.locator(".stat-card", { hasText: "本月寄养金额" })
-    const expectedRevenue = Number(stats.monthlyRevenue).toLocaleString("zh-CN")
     await expect(revenueCard.locator(".stat-value")).toContainText(expectedRevenue)
+  })
+
+  test("工作人员首页同样展示四卡（含本月寄养金额）", async ({ page }) => {
+    // 新需求：工作人员系统首页也展示「本月寄养金额」卡（轻量口径接口双方可见）
+    await expect(page.locator(".stat-card")).toHaveCount(4)
+    const revenueCard = page.locator(".stat-card", { hasText: "本月寄养金额" })
+    await expect(revenueCard).toBeVisible()
+    const value = revenueCard.locator(".stat-value")
+    await expect(value).toBeVisible()
+    const valueText = await value.textContent()
+    expect(valueText, "员工可见的金额不应为占位符").not.toBe("—")
+    expect(valueText, "员工可见的金额不应为空").toBeTruthy()
   })
 
   test("卡片可点击跳转", async ({ page }) => {

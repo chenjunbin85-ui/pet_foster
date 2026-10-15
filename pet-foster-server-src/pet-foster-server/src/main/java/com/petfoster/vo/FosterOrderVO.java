@@ -13,6 +13,7 @@ public class FosterOrderVO {
     private String petId;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String priceId;
     private BigDecimal pricePerDay;
     private BigDecimal totalFee;
     private String status;

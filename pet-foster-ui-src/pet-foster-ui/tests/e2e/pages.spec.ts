@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test"
-import { login, navigateTo } from "./helpers/auth"
+import { login, relogin, navigateTo } from "./helpers/auth"
 
 test.describe("页面加载与数据展示", () => {
   test.beforeEach(async ({ page }) => {
@@ -7,6 +7,8 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("仪表盘统计卡片加载", async ({ page }) => {
+    // 首页工作台面向工作人员（管理员默认进入统计分析页）
+    await relogin(page, "staff01", "staff123")
     await expect(page.getByRole("heading", { name: "寄养中宠物" })).toBeVisible()
     await expect(page.getByRole("heading", { name: "待入店订单" })).toBeVisible()
     await expect(page.getByRole("heading", { name: "本月订单" })).toBeVisible()
@@ -38,7 +40,8 @@ test.describe("页面加载与数据展示", () => {
       await page.goto("/")
       await page.evaluate(() => localStorage.clear())
       await page.goto("/login")
-      await login(page, "admin", "admin123")
+      // 对照页为客户页（执行层业务），用工作人员账号登录
+      await login(page, "staff01", "staff123")
       await expect(page.locator(".dashboard-welcome")).toBeVisible()
       const home = await readHeader(page)
 
@@ -53,6 +56,8 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("仪表盘天气面板显示真实天气且无占位符", async ({ page }) => {
+    // 首页工作台面向工作人员（管理员默认进入统计分析页）
+    await relogin(page, "staff01", "staff123")
     // 断网兜底：外部天气/定位接口在 CI 里可能不可达，此时应显示「天气获取失败」，
     // 而不是退回旧的「天气暂未获取 / —」占位符。
     await expect(page.locator(".weather-status")).toBeVisible()
@@ -75,6 +80,7 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("客户管理页加载真实数据", async ({ page }) => {
+    await relogin(page, "staff01", "staff123")
     await navigateTo(page, "客户信息管理")
     await expect(page.locator(".section-kicker")).toHaveText("客户档案")
     const rows = page.locator("table tbody tr:not(.empty-row)")
@@ -82,6 +88,7 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("宠物档案页加载真实数据", async ({ page }) => {
+    await relogin(page, "staff01", "staff123")
     await navigateTo(page, "宠物档案管理")
     await expect(page.locator(".section-kicker")).toHaveText("宠物档案管理")
     const rows = page.locator("table tbody tr:not(.empty-row)")
@@ -89,6 +96,7 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("寄养订单页加载真实数据", async ({ page }) => {
+    await relogin(page, "staff01", "staff123")
     await navigateTo(page, "寄养订单管理")
     await expect(page.locator(".section-kicker")).toHaveText("寄养订单管理")
     const rowCount = await page.locator(".customer-table tbody tr").count()
@@ -96,6 +104,7 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("健康档案页加载真实数据", async ({ page }) => {
+    await relogin(page, "staff01", "staff123")
     await navigateTo(page, "健康档案管理")
     await expect(page.locator(".section-kicker")).toHaveText("健康档案管理")
     const rowCount = await page.locator(".customer-table tbody tr").count()
@@ -103,6 +112,7 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("寄养服务记录页加载", async ({ page }) => {
+    await relogin(page, "staff01", "staff123")
     await navigateTo(page, "寄养服务记录")
     await expect(page.locator(".section-kicker")).toHaveText("寄养服务记录")
   })
@@ -152,13 +162,15 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("快捷入口插图保持原始宽高比不变形", async ({ page }) => {
+    // 工作人员首页快捷入口：新建订单 / 新增客户 / 新增宠物 / 健康 / 服务，共 5 项
+    await relogin(page, "staff01", "staff123")
     // 曾照抄设计稿的 width:100% + height:clamp(56px,6vw,100px) 双定尺寸，
     // 1440 视口下容器被压成 93×86（≈1.08:1），而原图是 440×258（≈1.70:1）→ 纵向拉伸变形。
     await expect(page.locator(".quick-illustration").first()).toBeVisible()
     // 等待所有插图加载完成（naturalWidth > 0），避免竞态
     await page.waitForFunction(() => {
       const imgs = document.querySelectorAll(".quick-illustration")
-      return imgs.length === 6 && Array.from(imgs).every((img) => (img as HTMLImageElement).naturalWidth > 0)
+      return imgs.length === 5 && Array.from(imgs).every((img) => (img as HTMLImageElement).naturalWidth > 0)
     }, null, { timeout: 15000 })
     const rows = await page.locator(".quick-illustration").evaluateAll((els) =>
       els.map((el) => {
@@ -167,7 +179,7 @@ test.describe("页面加载与数据展示", () => {
         return { w: r.width, h: r.height, nw: img.naturalWidth, nh: img.naturalHeight }
       }),
     )
-    expect(rows.length, "快捷入口插图数量不对").toBe(6)
+    expect(rows.length, "快捷入口插图数量不对").toBe(5)
     for (const r of rows) {
       expect(r.nw, "插图未加载").toBeGreaterThan(0)
       const render = r.w / r.h
@@ -243,6 +255,8 @@ test.describe("页面加载与数据展示", () => {
   })
 
   test("今日待办/在店宠物插图不出现蒙版硬边", async ({ page }) => {
+    // 首页工作台面向工作人员
+    await relogin(page, "staff01", "staff123")
     /* 踩坑：卡片右侧插图曾出现一条竖直硬边（用户反馈「白蒙版边界露出来了」）。
        排查方式：用探针脚本逐层开关 ::before / ::after / overflow / img 的 transform，
        发现只有「去掉 img 的 transform」能让硬边消失，蒙版与 overflow 都无关。
@@ -287,7 +301,8 @@ test.describe("宽屏不超屏（响应式高度）", () => {
   for (const height of NO_SCROLL_HEIGHTS) {
     test(`首页在 1440×${height} 不出现纵向溢出`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height })
-      await login(page, "admin", "admin123")
+      // 首页工作台面向工作人员（管理员默认进入统计分析页）
+      await login(page, "staff01", "staff123")
       await expect(page.locator(".home-work-grid")).toBeVisible()
       await page.waitForTimeout(600)
       const overflow = await page.evaluate(() => {

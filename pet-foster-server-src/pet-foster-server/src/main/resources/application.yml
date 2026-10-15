@@ -18,7 +18,8 @@ spring:
     redis:
       host: ${REDIS_HOST:127.0.0.1}
       port: ${REDIS_PORT:6379}
-      username: ${REDIS_USERNAME:default}
+      # 本地 Redis 无 ACL 密码：username 留空，避免 Lettuce 发送 AUTH default 被拒
+      username: ${REDIS_USERNAME:}
       password: ${REDIS_PASSWORD:}
       database: 0
       timeout: 2000ms

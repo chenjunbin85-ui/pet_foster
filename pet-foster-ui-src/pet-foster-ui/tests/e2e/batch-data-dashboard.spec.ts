@@ -13,7 +13,8 @@ test.describe("批量录入数据与数据面板验证", () => {
 
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage()
-    await login(page, "admin", "admin123")
+    // 业务数据由工作人员录入（执行层）
+    await login(page, "staff01", "staff123")
     token = await page.evaluate(() => localStorage.getItem("pet_foster_token") || "")
     await page.close()
     expect(token, "登录获取token失败").toBeTruthy()
@@ -68,14 +69,19 @@ test.describe("批量录入数据与数据面板验证", () => {
     createdIds.pets = petRecords.filter((p: any) => petNames.includes(p.name)).map((p: any) => Number(p.petId || p.id))
     expect(createdIds.pets.length).toBe(3)
 
-    // 3. 创建2个寄养订单
+    // 3. 创建2个寄养订单（按固定价位档位计价）
+    const priceRes = await request.get(`${API}/api/prices/options`, { headers })
+    const priceBody = await priceRes.json()
+    const priceRecords = priceBody.data || []
+    const priceId = Number(priceRecords.find((p: any) => p.status === 1)?.id)
+    expect(priceId, "未找到启用中的价位档位").toBeTruthy()
     for (let i = 0; i < 2; i++) {
       const today = new Date()
       const end = new Date(today)
       end.setDate(end.getDate() + 3)
       const res = await request.post(`${API}/api/orders`, {
         headers,
-        data: { customerId: createdIds.customers[i], petId: createdIds.pets[i], startDate: fmt(today), endDate: fmt(end), pricePerDay: 100, totalFee: 300, remark: "批量测试订单" },
+        data: { customerId: createdIds.customers[i], petId: createdIds.pets[i], startDate: fmt(today), endDate: fmt(end), priceId, remark: "批量测试订单" },
       })
       expect(res.ok()).toBeTruthy()
     }
@@ -87,7 +93,8 @@ test.describe("批量录入数据与数据面板验证", () => {
   })
 
   test("首页统计卡片数据正确反映批量录入", async ({ page }) => {
-    await login(page, "admin", "admin123")
+    // 首页工作台面向工作人员（管理员默认进入统计分析页）
+    await login(page, "staff01", "staff123")
     await page.waitForTimeout(2000)
 
     // 验证四个统计卡片存在且有数值
@@ -101,7 +108,8 @@ test.describe("批量录入数据与数据面板验证", () => {
 
   test("统计分析页数据面板正确展示", async ({ page }) => {
     await login(page, "admin", "admin123")
-    await page.getByText("统计分析", { exact: true }).click()
+    // 管理员默认即统计分析页；用侧边栏按钮导航（页面 kicker 与按钮同名，避免文本匹配歧义）
+    await page.locator('.nav-item[data-nav="stats"]').click()
     await expect(page.locator(".section-kicker", { hasText: "统计分析" })).toBeVisible()
 
     // 验证图表容器存在

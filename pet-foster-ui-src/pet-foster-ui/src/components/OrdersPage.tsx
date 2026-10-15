@@ -12,8 +12,10 @@ import {
   orderPage,
   orderPay,
   petListByCustomer,
+  priceOptions,
   servicePage,
   type CustomerVO,
+  type FosterPriceVO,
   type HealthRecordVO,
   type OrderVO,
   type PetVO,
@@ -31,11 +33,11 @@ const EMPTY = {
   petId: "",
   startDate: "",
   endDate: "",
-  pricePerDay: "",
+  priceId: "",
   remark: "",
 }
 
-function calcFee(startDate: string, endDate: string, pricePerDay: string): number {
+function calcFee(startDate: string, endDate: string, pricePerDay: number): number {
   const price = Number(pricePerDay)
   if (!startDate || !endDate || !price || price <= 0) return 0
   const start = new Date(startDate).getTime()
@@ -47,20 +49,25 @@ function calcFee(startDate: string, endDate: string, pricePerDay: string): numbe
 
 interface OrdersPageProps {
   role: Role
+  /** 从统计分析卡片跳转时预设的状态筛选（已完成/已取消/空=全部） */
+  initialStatus?: string
+  /** 返回键回调：管理员返回统计分析页，工作人员返回系统首页 */
+  onBack?: () => void
   quickAction?: "add" | null
   onQuickActionDone?: () => void
 }
 
-export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageProps) {
+export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickActionDone }: OrdersPageProps) {
   const pageSize = useDynamicPageSize()
   const [rows, setRows] = useState<OrderVO[]>([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
   const [input, setInput] = useState("")
   const [query, setQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
+  const [statusFilter, setStatusFilter] = useState(initialStatus ?? "")
   const [customers, setCustomers] = useState<CustomerVO[]>([])
   const [formPets, setFormPets] = useState<PetVO[]>([])
+  const [prices, setPrices] = useState<FosterPriceVO[]>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState("")
   const [error, setError] = useState("")
@@ -109,6 +116,9 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
     customerPage(1, 200)
       .then((r) => setCustomers(r.records))
       .catch(() => setCustomers([]))
+    priceOptions()
+      .then(setPrices)
+      .catch(() => setPrices([]))
   }, [])
 
   useEffect(() => {
@@ -184,8 +194,8 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
 
   const save = async (event: FormEvent) => {
     event.preventDefault()
-    if (!draft.customerId || !draft.petId || !draft.startDate || !draft.endDate || !draft.pricePerDay) {
-      setDialogError("请完整填写客户、宠物、寄养时间与单价")
+    if (!draft.customerId || !draft.petId || !draft.startDate || !draft.endDate || !draft.priceId) {
+      setDialogError("请完整填写客户、宠物、寄养时间与价位档位")
       return
     }
     if (new Date(draft.endDate) < new Date(draft.startDate)) {
@@ -199,8 +209,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
         petId: draft.petId,
         startDate: draft.startDate,
         endDate: draft.endDate,
-        pricePerDay: Number(draft.pricePerDay),
-        totalFee: calcFee(draft.startDate, draft.endDate, draft.pricePerDay),
+        priceId: Number(draft.priceId),
         remark: draft.remark.trim(),
       }) as OrderVO
       setNotice("订单已创建，请完成支付。")
@@ -258,6 +267,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
   const isAdmin = role === "admin"
+  const selectedPrice = prices.find((p) => p.id === draft.priceId)
 
   return (
     <section>
@@ -267,15 +277,29 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
           <h1>每一次入住，都安心安排。</h1>
           <p>有序管理寄养计划，轻松掌握每一笔订单。</p>
         </div>
-        <button className="primary-action" onClick={openAdd}>
-          ＋ 新建寄养订单
-        </button>
+        {!isAdmin && (
+          <button className="primary-action" onClick={openAdd}>
+            ＋ 新建寄养订单
+          </button>
+        )}
       </div>
 
       <div className="customer-list">
         <div className="customer-toolbar">
           <div className="customer-list-title">
             <h2>
+              {onBack && (
+                <button
+                  className="page-back-btn"
+                  onClick={onBack}
+                  aria-label="返回上一页"
+                  title="返回"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+              )}
               寄养订单 <span className="count-badge">{total}</span>
             </h2>
             <p>集中管理每一份照护信息</p>
@@ -331,7 +355,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
         </div>
 
         <div className="customer-table-scroll">
-          <table className="customer-table business-table">
+          <table className="customer-table business-table orders-table">
             <thead>
               <tr>
                 {["订单编号", "客户", "宠物", "寄养时间", "总费用（元）", "状态", "创建时间", "操作"].map((col) => (
@@ -358,8 +382,8 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                   <td>
                     <div className="order-status-col">
                       <span className="soft-badge">{row.status}</span>
-                      {/* 已收款是默认期待状态，不占第二行；只有待收款才提示，且带上金额 */}
-                      {row.paymentStatus !== "已支付" && row.status !== "已取消" && (
+                      {/* 已收款是默认期待状态，不占第二行；只有待收款才提示，且带上金额（仅工作人员可操作收银台） */}
+                      {!isAdmin && row.paymentStatus !== "已支付" && row.status !== "已取消" && (
                         <button
                           type="button"
                           className={`pay-due-tag${row.status === "已完成" ? " overdue" : ""}`}
@@ -386,7 +410,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                       <button title="查看详情" aria-label={`查看${row.orderNo}`} onClick={() => openDetail(row)}>
                         <Eye />
                       </button>
-                      {isAdmin && row.status === "待入店" && (
+                      {!isAdmin && row.status === "待入店" && (
                         <>
                           <button
                             className="text-action"
@@ -402,7 +426,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                           </button>
                         </>
                       )}
-                      {isAdmin && row.status === "寄养中" && (
+                      {!isAdmin && row.status === "寄养中" && (
                         <button
                           className="text-action"
                           onClick={() => doAction(row.id, "check-out", `订单 ${row.orderNo} 已完成离店。`)}
@@ -530,7 +554,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                 )}
               </div>
 
-              {isAdmin && selected?.status === "待入店" && (
+              {!isAdmin && selected?.status === "待入店" && (
                 <div className="dialog-actions">
                   <button className="primary-action" onClick={() => doAction(selected.id, "check-in", `订单 ${selected.orderNo} 已确认入店。`)}>
                     确认入店
@@ -540,14 +564,14 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                   </button>
                 </div>
               )}
-              {isAdmin && selected?.status === "寄养中" && (
+              {!isAdmin && selected?.status === "寄养中" && (
                 <div className="dialog-actions">
                   <button className="primary-action" onClick={() => doAction(selected.id, "check-out", `订单 ${selected.orderNo} 已完成离店。`)}>
                     完成离店
                   </button>
                 </div>
               )}
-              {selected?.paymentStatus !== "已支付" && selected?.status !== "已取消" && (
+              {!isAdmin && selected?.paymentStatus !== "已支付" && selected?.status !== "已取消" && (
                 <div className="dialog-actions">
                   <button className="primary-action pay-dialog-btn" onClick={() => { setPayOrder(selected); setPayMethod("微信"); setDialogError("") }}>
                     立即支付 ¥{selected?.totalFee}
@@ -562,7 +586,7 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
             </>
           ) : (
             <form className="customer-form" onSubmit={save}>
-              <p>选择客户后自动带出该客户宠物，系统按寄养天数自动计算总费用。</p>
+              <p>选择客户后自动带出该客户宠物，按固定价位档位与寄养天数自动计算总费用。</p>
               <div>
                 <label htmlFor="order-customer">客户</label>
                 <select
@@ -621,18 +645,21 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                 />
               </div>
               <div>
-                <label htmlFor="order-price">单日单价（元）</label>
-                <input
+                <label htmlFor="order-price">价位档位（元/天）</label>
+                <select
                   id="order-price"
-                  className="business-form-input"
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={draft.pricePerDay}
-                  onChange={(e) => setDraft({ ...draft, pricePerDay: e.target.value })}
+                  className="business-select form-select"
+                  value={draft.priceId}
+                  onChange={(e) => setDraft({ ...draft, priceId: e.target.value })}
                   required
-                  placeholder="请输入单日单价"
-                />
+                >
+                  <option value="">请选择价位档位</option>
+                  {prices.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.levelName} ¥{Number(p.pricePerDay)}/天
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label htmlFor="order-fee">总费用（自动计算）</label>
@@ -640,8 +667,8 @@ export function OrdersPage({ role, quickAction, onQuickActionDone }: OrdersPageP
                   id="order-fee"
                   className="business-form-input"
                   value={
-                    calcFee(draft.startDate, draft.endDate, draft.pricePerDay)
-                      ? `¥${calcFee(draft.startDate, draft.endDate, draft.pricePerDay)}`
+                    selectedPrice && draft.startDate && draft.endDate
+                      ? `¥${calcFee(draft.startDate, draft.endDate, selectedPrice.pricePerDay)}`
                       : "—"
                   }
                   disabled

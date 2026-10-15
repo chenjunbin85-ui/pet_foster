@@ -36,12 +36,23 @@ function fmtDate(d: Date): string {
 }
 
 async function apiLogin(request: APIRequestContext): Promise<string> {
+  // 订单为客户接待执行层业务，由工作人员账号驱动
   const res = await request.post(`${API_BASE}/api/auth/login`, {
-    data: { username: "admin", password: "admin123" },
+    data: { username: "staff01", password: "staff123" },
   })
-  expect(res.status(), "管理员登录失败").toBe(200)
+  expect(res.status(), "工作人员登录失败").toBe(200)
   const body = (await res.json()) as { data: { token: string } }
   return body.data.token
+}
+
+/** 获取第一个启用中的价位档位（后端计价以价位表为准） */
+async function getDefaultPrice(request: APIRequestContext, token: string): Promise<{ id: string; pricePerDay: number }> {
+  const res = await request.get(`${API_BASE}/api/prices/options`, { headers: authHeader(token) })
+  expect(res.status(), "获取价位档位失败").toBe(200)
+  const body = (await res.json()) as { data: Array<{ id: string; levelName: string; pricePerDay: number; status: number }> }
+  const enabled = body.data.filter((p) => p.status === 1)
+  expect(enabled.length, "没有启用中的价位档位").toBeGreaterThan(0)
+  return { id: String(enabled[0].id), pricePerDay: Number(enabled[0].pricePerDay) }
 }
 
 /** 通过后端 API 创建「客户 + 宠物」（不建订单） */
@@ -103,12 +114,13 @@ async function createCustomerPet(
   }
 }
 
-/** 通过后端 API 创建一笔「待支付」订单（3 天 × 100 元/天 = 300 元） */
+/** 通过后端 API 创建一笔「待支付」订单（3 天 × 默认档位价 = 自动计算） */
 async function createPayableOrder(
   request: APIRequestContext,
   token: string
 ): Promise<TestOrder> {
   const base = await createCustomerPet(request, token)
+  const price = await getDefaultPrice(request, token)
   const start = new Date()
   start.setDate(start.getDate() + 1)
   const end = new Date()
@@ -121,7 +133,7 @@ async function createPayableOrder(
       petId: Number(base.petId),
       startDate: fmtDate(start),
       endDate: fmtDate(end),
-      pricePerDay: 100,
+      priceId: Number(price.id),
       remark: "支付模块e2e测试",
     },
   })
@@ -182,7 +194,7 @@ async function cleanup(request: APIRequestContext, token: string, created: TestO
 // ---------- UI helpers ----------
 
 async function openOrders(page: Page) {
-  await login(page, "admin", "admin123")
+  await login(page, "staff01", "staff123")
   await navigateTo(page, "寄养订单管理")
 }
 
@@ -277,10 +289,12 @@ test.describe("模拟支付模块（收银台）", () => {
     await page.locator(".pay-simulate-btn").click()
     // 支付中动画
     await expect(page.locator(".pay-processing")).toBeVisible()
-    // 成功提示 + 收银台关闭 + 列表刷新后待收款消失
-    await expect(page.locator(".customer-notice")).toContainText(`支付成功（微信）`, { timeout: 15000 })
+    // 成功提示（sonner toast）+ 收银台关闭 + 列表刷新后待收款消失
+    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toBeVisible({ timeout: 15000 })
     await expect(page.locator(".pay-dialog-modal")).not.toBeVisible()
     await expect(row.locator(".pay-due-tag")).toHaveCount(0)
+    // 等待 toast 自动消失，避免遮挡详情弹窗操作
+    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toHaveCount(0, { timeout: 10000 })
 
     // 详情弹窗：支付状态 / 支付方式 / 支付时间
     await row.getByRole("button", { name: `查看${order.orderNo}` }).click()
@@ -302,9 +316,10 @@ test.describe("模拟支付模块（收银台）", () => {
     await expect(page.locator(".pay-method-tab.alipay")).toHaveClass(/active/)
     await page.locator(".pay-simulate-btn").click()
 
-    await expect(page.locator(".customer-notice")).toContainText("支付成功（支付宝）", { timeout: 15000 })
+    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toBeVisible({ timeout: 15000 })
     await expect(page.locator(".pay-dialog-modal")).not.toBeVisible()
     await expect(row.locator(".pay-due-tag")).toHaveCount(0)
+    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toHaveCount(0, { timeout: 10000 })
 
     // 后端落库校验
     const res = await request.get(`${API_BASE}/api/orders/${order.orderId}`, { headers: authHeader(token) })
@@ -365,6 +380,8 @@ test.describe("模拟支付模块（收银台）", () => {
     // 先登记客户/宠物资源，保证用例中途失败也能清理（orderId 留空，清理时跳过）
     created.push({ ...base, orderId: "", orderNo: "", totalFee: 0 })
 
+    const price = await getDefaultPrice(request, token)
+
     await openOrders(page)
     await page.locator(".primary-action", { hasText: "新建寄养订单" }).click()
     const dialog = page.locator(".customer-dialog")
@@ -375,14 +392,16 @@ test.describe("模拟支付模块（收银台）", () => {
     await expect(dialog.locator("#order-pet option", { hasText: base.petName })).toHaveCount(1)
     await dialog.locator("#order-pet").selectOption({ label: `${base.petName}（金毛）` })
 
-    // 2 天 × 100 元/天 = 200 元（验证前端自动计算）
+    // 2 天 × 默认档位价 = 前端自动计算
     const start = new Date()
     start.setDate(start.getDate() + 1)
     const end = new Date()
     end.setDate(end.getDate() + 2)
     await dialog.locator("#order-start").fill(fmtDate(start))
     await dialog.locator("#order-end").fill(fmtDate(end))
-    await dialog.locator("#order-price").fill("100")
+    await dialog.locator("#order-price").selectOption({ value: price.id })
+
+    const expectedFee = 2 * price.pricePerDay
 
     await dialog.getByRole("button", { name: "保存订单" }).click()
 
@@ -392,9 +411,9 @@ test.describe("模拟支付模块（收银台）", () => {
     const latest = await fetchLatestOrder(request, token, base.customerId)
     created[created.length - 1] = { ...base, ...latest }
 
-    // 列表出现该订单，且后端按 2 天 × 100 元自动计算总费用 200
+    // 列表出现该订单，且后端按 2 天 × 档位价自动计算总费用
     const row = await searchOrder(page, latest.orderNo)
-    await expect(row.locator(".pay-due-tag")).toContainText("¥200")
+    await expect(row.locator(".pay-due-tag")).toContainText(`¥${expectedFee}`)
   })
 
   test("新建订单保存后自动弹出收银台且金额为自动计算结果", async ({ page, request }) => {
@@ -402,6 +421,8 @@ test.describe("模拟支付模块（收银台）", () => {
     // 「自动弹出支付弹窗」逻辑生效（此前后端返回 data=null，该功能永不触发）。
     const base = await createCustomerPet(request, token)
     created.push({ ...base, orderId: "", orderNo: "", totalFee: 0 })
+
+    const price = await getDefaultPrice(request, token)
 
     await openOrders(page)
     await page.locator(".primary-action", { hasText: "新建寄养订单" }).click()
@@ -412,14 +433,16 @@ test.describe("模拟支付模块（收银台）", () => {
     await expect(dialog.locator("#order-pet option", { hasText: base.petName })).toHaveCount(1)
     await dialog.locator("#order-pet").selectOption({ label: `${base.petName}（金毛）` })
 
-    // 2 天 × 100 元/天 = 200 元（前端自动计算）
+    // 2 天 × 默认档位价 = 前端自动计算
     const start = new Date()
     start.setDate(start.getDate() + 1)
     const end = new Date()
     end.setDate(end.getDate() + 2)
     await dialog.locator("#order-start").fill(fmtDate(start))
     await dialog.locator("#order-end").fill(fmtDate(end))
-    await dialog.locator("#order-price").fill("100")
+    await dialog.locator("#order-price").selectOption({ value: price.id })
+
+    const expectedFee = 2 * price.pricePerDay
 
     await dialog.getByRole("button", { name: "保存订单" }).click()
 
@@ -430,7 +453,7 @@ test.describe("模拟支付模块（收银台）", () => {
     // 保存后自动弹出收银台，金额与自动计算一致
     const payDialog = page.locator(".pay-dialog-modal")
     await expect(payDialog).toBeVisible()
-    await expect(payDialog.locator(".pay-number")).toHaveText("200")
+    await expect(payDialog.locator(".pay-number")).toHaveText(String(expectedFee))
     await expect(payDialog.locator(".pay-order-meta")).toContainText(latest.orderNo)
     await payDialog.locator(".pay-later").click()
     await expect(payDialog).not.toBeVisible()

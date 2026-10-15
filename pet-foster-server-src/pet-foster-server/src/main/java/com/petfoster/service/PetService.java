@@ -8,6 +8,7 @@ import com.petfoster.common.PageResult;
 import com.petfoster.dto.PetDTO;
 import com.petfoster.entity.FosterOrder;
 import com.petfoster.entity.Pet;
+import com.petfoster.enums.PetGender;
 import com.petfoster.mapper.FosterOrderMapper;
 import com.petfoster.mapper.PetMapper;
 import com.petfoster.vo.PetVO;
@@ -54,6 +55,7 @@ public class PetService extends ServiceImpl<PetMapper, Pet> {
     }
 
     public void create(PetDTO dto) {
+        PetGender.checkGender(dto.getGender());
         Pet p = new Pet();
         p.setCustomerId(dto.getCustomerId());
         p.setName(dto.getName());
@@ -71,6 +73,7 @@ public class PetService extends ServiceImpl<PetMapper, Pet> {
     public void update(Long id, PetDTO dto) {
         Pet p = getById(id);
         if (p == null) throw new BusinessException("宠物不存在");
+        PetGender.checkGender(dto.getGender());
         p.setCustomerId(dto.getCustomerId());
         p.setName(dto.getName());
         p.setBreed(dto.getBreed());

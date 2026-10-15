@@ -55,7 +55,7 @@ export const petDelete = (id: string) => del(`/api/pets/${id}`)
 // ===== 订单 =====
 export interface OrderVO {
   id: string; orderNo: string; customerId: string; petId: string; customerName?: string; petName?: string
-  startDate: string; endDate: string; pricePerDay: number; totalFee: number
+  startDate: string; endDate: string; priceId?: number; pricePerDay: number; totalFee: number
   status: string; remark?: string; creatorId?: string; createdAt: string
   paymentStatus?: string; paymentMethod?: string; paymentTime?: string; paidAmount?: number
 }
@@ -97,6 +97,8 @@ export interface DashboardStats {
   fosteringCount: number; pendingCount: number; monthlyOrderCount: number; monthlyRevenue: number
 }
 export const statsDashboard = () => get<DashboardStats>("/api/stats/dashboard")
+/** 本月寄养金额（轻量口径）：首页金额卡双方可见 */
+export const statsMonthlyRevenue = () => get<number>("/api/stats/monthly-revenue")
 
 export interface OrderTrend { month: string; count: number; revenue: number }
 export const statsOrderTrend = (startDate?: string, endDate?: string) => {
@@ -120,18 +122,13 @@ export const userCreate = (data: Partial<SysUserVO>) => post("/api/users", data)
 export const userUpdate = (id: string, data: Partial<SysUserVO>) => put(`/api/users/${id}`, data)
 export const userDelete = (id: string) => del(`/api/users/${id}`)
 
-export interface DictVO {
-  id: string; typeCode: string; label: string; value: string; sort: number
+// ===== 寄养价位（固定价位，仅管理员维护；员工下单选择） =====
+export interface FosterPriceVO {
+  id: string; levelName: string; pricePerDay: number; status: number; sort: number; remark?: string
 }
-export const dictPage = (page: number, size: number, typeCode?: string) =>
-  get<PageResult<DictVO>>(`/api/dicts?page=${page}&size=${size}${typeCode ? `&typeCode=${typeCode}` : ""}`)
-export const dictListByType = (typeCode: string) => get<DictVO[]>(`/api/dicts/type/${typeCode}`)
-export const dictCreate = (data: Partial<DictVO>) => post("/api/dicts", data)
-export const dictUpdate = (id: string, data: Partial<DictVO>) => put(`/api/dicts/${id}`, data)
-export const dictDelete = (id: string) => del(`/api/dicts/${id}`)
-
-export interface OperLogVO {
-  id: string; userId?: string; module: string; content: string; requestTime: string; ip?: string
-}
-export const operLogPage = (page: number, size: number) =>
-  get<PageResult<OperLogVO>>(`/api/oper-logs?page=${page}&size=${size}`)
+export const priceOptions = () => get<FosterPriceVO[]>("/api/prices/options")
+export const pricePage = (page: number, size: number, keyword?: string) =>
+  get<PageResult<FosterPriceVO>>(`/api/prices?page=${page}&size=${size}${keyword ? `&keyword=${encodeURIComponent(keyword)}` : ""}`)
+export const priceCreate = (data: Partial<FosterPriceVO>) => post("/api/prices", data)
+export const priceUpdate = (id: string, data: Partial<FosterPriceVO>) => put(`/api/prices/${id}`, data)
+export const priceDelete = (id: string) => del(`/api/prices/${id}`)

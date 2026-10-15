@@ -1,15 +1,14 @@
 package com.petfoster.service;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.petfoster.common.BusinessException;
-import com.petfoster.dto.FosterOrderDTO;
+import com.petfoster.common.BusinessException;import com.petfoster.dto.FosterOrderDTO;
 import com.petfoster.entity.Customer;
 import com.petfoster.entity.FosterOrder;
+import com.petfoster.entity.FosterPrice;
 import com.petfoster.entity.Pet;
 import com.petfoster.mapper.CustomerMapper;
 import com.petfoster.mapper.FosterOrderMapper;
+import com.petfoster.mapper.FosterPriceMapper;
 import com.petfoster.mapper.PetMapper;
-import com.petfoster.security.LoginUser;
 import com.petfoster.vo.FosterOrderVO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,11 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +27,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +42,9 @@ class FosterOrderServiceTest {
 
     @Mock
     private PetMapper petMapper;
+
+    @Mock
+    private FosterPriceMapper fosterPriceMapper;
 
     @InjectMocks
     private FosterOrderService orderService;
@@ -66,6 +65,7 @@ class FosterOrderServiceTest {
         o.setPetId(1L);
         o.setStartDate(LocalDate.of(2026, 10, 1));
         o.setEndDate(LocalDate.of(2026, 10, 5));
+        o.setPriceId(1L);
         o.setPricePerDay(new BigDecimal("100"));
         o.setTotalFee(new BigDecimal("500"));
         o.setStatus(status);
@@ -80,16 +80,23 @@ class FosterOrderServiceTest {
         dto.setPetId(1L);
         dto.setStartDate(LocalDate.of(2026, 10, 1));
         dto.setEndDate(LocalDate.of(2026, 10, 5));
-        dto.setPricePerDay(new BigDecimal("100"));
+        dto.setPriceId(1L);
         dto.setRemark("测试订单");
         return dto;
     }
 
-    private void setCurrentUser(String role) {
-        LoginUser user = new LoginUser(1L, "admin", role);
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                user, null, List.of(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase())));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+    /** 当天订单号前缀，如 FO20261015 */
+    private static String todayPrefix() {
+        return "FO" + LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+    }
+
+    /** mock 价位档位：单价 + 启用状态 */
+    private void mockPrice(Long id, String price, int status) {
+        FosterPrice p = new FosterPrice();
+        p.setPriceId(id);
+        p.setPricePerDay(new BigDecimal(price));
+        p.setStatus(status);
+        when(fosterPriceMapper.selectById(id)).thenReturn(p);
     }
 
     @Nested
@@ -97,34 +104,37 @@ class FosterOrderServiceTest {
     class CreateOrder {
 
         @Test
-        @DisplayName("创建订单成功 - 自动计算总费用")
+        @DisplayName("创建订单成功 - 以价位表计价，自动计算总费用")
         void createSuccess() {
+            mockPrice(1L, "100", 1);
             FosterOrderDTO dto = buildDTO();
             when(orderMapper.insert(any(FosterOrder.class))).thenReturn(1);
-            when(orderMapper.selectCount(any(Wrapper.class))).thenReturn(0L);
 
             assertDoesNotThrow(() -> orderService.create(dto, 1L));
 
             verify(orderMapper, times(1)).insert(argThat(o -> {
                 // 5天 * 100 = 500
                 assertEquals(new BigDecimal("500"), o.getTotalFee());
+                assertEquals(new BigDecimal("100"), o.getPricePerDay());
+                assertEquals(1L, o.getPriceId());
                 assertEquals("待入店", o.getStatus());
-                assertEquals("FO20261011001", o.getOrderNo());
+                assertEquals(todayPrefix() + "001", o.getOrderNo());
                 return true;
             }));
         }
 
         @Test
-        @DisplayName("创建订单 - 订单号递增")
+        @DisplayName("创建订单 - 订单号递增（物理计数，含逻辑删除）")
         void createOrderNoIncrement() {
+            mockPrice(1L, "100", 1);
             FosterOrderDTO dto = buildDTO();
             when(orderMapper.insert(any(FosterOrder.class))).thenReturn(1);
-            when(orderMapper.selectCount(any(Wrapper.class))).thenReturn(5L);
+            when(orderMapper.countByOrderNoPrefix(anyString())).thenReturn(5L);
 
             assertDoesNotThrow(() -> orderService.create(dto, 1L));
 
             verify(orderMapper).insert(argThat(o -> {
-                assertEquals("FO20261011006", o.getOrderNo());
+                assertEquals(todayPrefix() + "006", o.getOrderNo());
                 return true;
             }));
         }
@@ -132,10 +142,10 @@ class FosterOrderServiceTest {
         @Test
         @DisplayName("创建订单 - 单日寄养费用正确")
         void createSingleDay() {
+            mockPrice(1L, "100", 1);
             FosterOrderDTO dto = buildDTO();
             dto.setEndDate(dto.getStartDate()); // 同一天
             when(orderMapper.insert(any(FosterOrder.class))).thenReturn(1);
-            when(orderMapper.selectCount(any(Wrapper.class))).thenReturn(0L);
 
             assertDoesNotThrow(() -> orderService.create(dto, 1L));
 
@@ -144,6 +154,40 @@ class FosterOrderServiceTest {
                 assertEquals(new BigDecimal("100"), o.getTotalFee());
                 return true;
             }));
+        }
+
+        @Test
+        @DisplayName("创建订单失败 - 价位档位不存在")
+        void createPriceNotFound() {
+            when(fosterPriceMapper.selectById(999L)).thenReturn(null);
+            FosterOrderDTO dto = buildDTO();
+            dto.setPriceId(999L);
+
+            BusinessException ex = assertThrows(BusinessException.class, () -> orderService.create(dto, 1L));
+            assertEquals("价位档位不存在", ex.getMessage());
+            verify(orderMapper, never()).insert(any());
+        }
+
+        @Test
+        @DisplayName("创建订单失败 - 价位档位已停用")
+        void createPriceDisabled() {
+            mockPrice(1L, "100", 0);
+            FosterOrderDTO dto = buildDTO();
+
+            BusinessException ex = assertThrows(BusinessException.class, () -> orderService.create(dto, 1L));
+            assertEquals("该价位档位已停用，请联系管理员", ex.getMessage());
+            verify(orderMapper, never()).insert(any());
+        }
+
+        @Test
+        @DisplayName("创建订单失败 - 未选择价位档位")
+        void createPriceNull() {
+            FosterOrderDTO dto = buildDTO();
+            dto.setPriceId(null);
+
+            BusinessException ex = assertThrows(BusinessException.class, () -> orderService.create(dto, 1L));
+            assertEquals("请选择寄养价位档位", ex.getMessage());
+            verify(orderMapper, never()).insert(any());
         }
     }
 
@@ -212,9 +256,8 @@ class FosterOrderServiceTest {
         }
 
         @Test
-        @DisplayName("取消订单成功 - 管理员取消待入店订单")
-        void cancelByAdmin() {
-            setCurrentUser("admin");
+        @DisplayName("取消订单成功 - 待入店订单（工作人员可取消）")
+        void cancelSuccess() {
             FosterOrder o = buildOrder(1L, "待入店");
             when(orderMapper.selectById(1L)).thenReturn(o);
             when(orderMapper.updateById(any(FosterOrder.class))).thenReturn(1);
@@ -225,31 +268,16 @@ class FosterOrderServiceTest {
                 assertEquals("已取消", updated.getStatus());
                 return true;
             }));
-            SecurityContextHolder.clearContext();
-        }
-
-        @Test
-        @DisplayName("取消订单失败 - 工作人员无权限")
-        void cancelByStaff() {
-            setCurrentUser("staff");
-            // 权限校验在查询之前，不需要mock selectById
-
-            BusinessException ex = assertThrows(BusinessException.class, () -> orderService.cancel(1L));
-            assertEquals("仅管理员可取消订单", ex.getMessage());
-            verify(orderMapper, never()).updateById(any());
-            SecurityContextHolder.clearContext();
         }
 
         @Test
         @DisplayName("取消订单失败 - 已完成订单不能取消")
         void cancelCompletedOrder() {
-            setCurrentUser("admin");
             FosterOrder o = buildOrder(1L, "已完成");
             when(orderMapper.selectById(1L)).thenReturn(o);
 
             BusinessException ex = assertThrows(BusinessException.class, () -> orderService.cancel(1L));
             assertEquals("只有待入店或寄养中状态的订单才能取消", ex.getMessage());
-            SecurityContextHolder.clearContext();
         }
     }
 
@@ -258,18 +286,20 @@ class FosterOrderServiceTest {
     class UpdateOrder {
 
         @Test
-        @DisplayName("修改订单成功 - 待入店状态可修改")
+        @DisplayName("修改订单成功 - 换档位重新计价")
         void updateSuccess() {
             FosterOrder o = buildOrder(1L, "待入店");
             when(orderMapper.selectById(1L)).thenReturn(o);
             when(orderMapper.updateById(any(FosterOrder.class))).thenReturn(1);
+            mockPrice(2L, "150", 1);
 
             FosterOrderDTO dto = buildDTO();
-            dto.setPricePerDay(new BigDecimal("150"));
+            dto.setPriceId(2L);
             assertDoesNotThrow(() -> orderService.update(1L, dto));
 
             verify(orderMapper).updateById(argThat(updated -> {
                 assertEquals(new BigDecimal("750"), updated.getTotalFee()); // 5天 * 150
+                assertEquals(2L, updated.getPriceId());
                 return true;
             }));
         }
@@ -317,6 +347,7 @@ class FosterOrderServiceTest {
 
             assertNotNull(vo);
             assertEquals("FO20261011001", vo.getOrderNo());
+            assertEquals("1", vo.getPriceId());
             assertEquals("张三", vo.getCustomerName());
             assertEquals("旺财", vo.getPetName());
             assertEquals("寄养中", vo.getStatus());

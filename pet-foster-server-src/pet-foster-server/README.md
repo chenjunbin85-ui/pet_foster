@@ -80,7 +80,6 @@ java -jar target/pet-foster-server-1.0.0.jar
 
 ### 系统管理（仅 admin）
 - `GET/POST/PUT/DELETE /api/users` — 用户管理
-- `GET /api/oper-logs` — 操作日志
 - `GET/POST/PUT/DELETE /api/dicts` — 数据字典
 
 ## 认证方式

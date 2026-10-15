@@ -71,6 +71,8 @@
     --chart-2: oklch(0.62 0.14 85);
     --chart-3: oklch(0.62 0.15 150);
     --chart-4: oklch(0.62 0.15 245);
+    /* 收入折线专用色（蓝色，与订单数橙色柱形区分；不动 --chart-2 以免影响环形图） */
+    --chart-income: oklch(0.56 0.17 255);
     --chart-5: oklch(0.45 0.02 260);
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
@@ -167,6 +169,23 @@
 .business-table { min-width: 920px; }
 .business-table th, .business-table td { padding-left: 16px; padding-right: 16px; }
 .business-table td { white-space: nowrap; }
+/* 业务列表（客户/宠物/订单/健康）：表头与单元格内容全部居中对齐 */
+.business-table:not(.service-table) th,
+.business-table:not(.service-table) td { text-align: center; }
+.business-table:not(.service-table) .row-actions { justify-content: center; }
+/* 寄养服务记录：仅操作列居中，其余列保持左对齐 */
+.service-table th:last-child, .service-table td:last-child { text-align: center; }
+.service-table .row-actions { justify-content: center; }
+/* 健康档案管理：记录时间、宠物两列左对齐，其余列保持居中 */
+.health-table th:nth-child(1), .health-table td:nth-child(1),
+.health-table th:nth-child(2), .health-table td:nth-child(2) { text-align: left; }
+/* 寄养订单管理：订单编号列左对齐；总费用、状态列居中（业务表兜底居中） */
+.orders-table th:nth-child(1), .orders-table td:nth-child(1) { text-align: left; }
+/* 客户信息管理：姓名列左对齐，其余列保持居中 */
+.customers-table th:nth-child(2), .customers-table td:nth-child(2) { text-align: left; }
+/* 宠物档案管理：宠物名、所属主人两列左对齐，其余列保持居中 */
+.pets-table th:nth-child(1), .pets-table td:nth-child(1),
+.pets-table th:nth-child(2), .pets-table td:nth-child(2) { text-align: left; }
 .business-form-input, .form-select { width: 100%; padding: 13px 14px; border: 1px solid var(--input); border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13px; }
 .business-form-input:focus { border-color: var(--ring); }
 .analytics-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; }
@@ -255,13 +274,13 @@
 .chart-legend span { display: flex; align-items: center; gap: 7px; }
 .chart-legend i, .breed-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
 .legend-order { background: var(--chart-1); }
-.legend-income { background: var(--chart-2); }
+.legend-income { background: var(--chart-income); }
 .trend-chart { display: block; width: 100%; height: auto; margin: 20px 0; }
 .trend-chart text, .donut-wrap text { fill: var(--muted-foreground); font-family: inherit; font-size: 11px; }
 .chart-grid-line { stroke: var(--border); stroke-dasharray: 3 4; }
 .chart-order { fill: var(--chart-1); }
-.chart-income { fill: none; stroke: var(--chart-2); stroke-width: 2; }
-.chart-income-dot { fill: var(--card); stroke: var(--chart-2); stroke-width: 2; }
+.chart-income { fill: none; stroke: var(--chart-income); stroke-width: 2; }
+.chart-income-dot { fill: var(--card); stroke: var(--chart-income); stroke-width: 2; }
 .donut-wrap { width: 100%; max-width: 140px; flex-shrink: 0; margin: 20px auto; }
 .donut-wrap svg { display: block; width: 100%; }
 .donut-wrap .donut-total { fill: var(--foreground); font-size: 30px; font-weight: 600; }
@@ -310,14 +329,22 @@
 .system-action-btn { border: 1px solid var(--border); background: var(--card); color: var(--muted-foreground); border-radius: var(--radius-sm); padding: 5px 14px; font-size: 12px; transition: all .2s; }
 .system-action-btn:hover { border-color: var(--primary); color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
 .system-action-btn.edit:hover { border-color: var(--primary); color: var(--primary); }
+.system-action-btn.danger { color: #dc2626; }
+.system-action-btn.danger:hover { border-color: #dc2626; color: #dc2626; background: color-mix(in srgb, #dc2626 8%, var(--card)); }
 .system-user-table td:last-child { text-align: right; vertical-align: middle; }
 .system-user-table td { vertical-align: middle; }
+/* 用户账号表：角色/账号状态/备注/操作列居中对齐（表头与单元格） */
+.system-user-table:not(.system-price-table) th:nth-child(n+3),
+.system-user-table:not(.system-price-table) td:nth-child(n+3) { text-align: center; }
+.system-user-table:not(.system-price-table) td:last-child { text-align: center; }
+.system-user-table:not(.system-price-table) .system-actions { justify-content: center; }
+/* 寄养价位表：状态/操作列内部居中 */
+.system-price-table th:nth-child(4), .system-price-table td:nth-child(4),
+.system-price-table th:nth-child(6), .system-price-table td:nth-child(6) { text-align: center; }
+.system-price-table .system-actions { justify-content: center; }
 .system-user-table .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: var(--radius-pill); font-size: 11px; font-weight: 500; }
 .system-user-table .status-badge.enabled { background: color-mix(in srgb, #22c55e 12%, transparent); color: #16a34a; }
 .system-user-table .status-badge.disabled { background: color-mix(in srgb, var(--muted-foreground) 12%, transparent); color: var(--muted-foreground); }
-.system-log { padding: 0 24px; }
-.system-log > div:not(.empty-state) { display: flex; align-items: center; gap: 14px; border-top: 1px solid var(--border); padding: 16px 0; }
-.system-log p { flex: 1; margin: 0; font-size: 12px; }
 .dictionary-list { padding: 0 24px; }
 .dictionary-list > div { padding: 18px 0; border-top: 1px solid var(--border); }
 .dictionary-list strong { font-size: 12px; font-weight: 500; }
@@ -328,6 +355,22 @@
 .customer-list { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
 .customer-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 24px; }
 .customer-list-title h2 { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 600; margin: 0; }
+/* 订单流水页返回键：与系统浅色圆角按钮风格同步，hover 仅变色、不悬浮 */
+.page-back-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; flex: none;
+  border: 1px solid var(--border); border-radius: var(--radius-pill);
+  background: var(--card); color: var(--muted-foreground);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+.page-back-btn:hover, .page-back-btn:focus-visible {
+  border-color: color-mix(in oklch, var(--primary) 40%, var(--border));
+  color: var(--primary);
+  background: color-mix(in oklch, var(--primary) 6%, transparent);
+  outline: none;
+}
+.page-back-btn:active { color: var(--primary); background: color-mix(in oklch, var(--primary) 12%, transparent); }
 .customer-list-title p { font-size: 11px; color: var(--muted-foreground); margin: 8px 0 0; }
 .customer-search { display: flex; align-items: center; gap: 10px; width: 320px; max-width: 100%; padding: 12px 14px; border: 1px solid var(--input); border-radius: var(--radius-sm); color: var(--muted-foreground); background: var(--card); }
 .customer-search:focus-within { border-color: var(--ring); }
@@ -536,6 +579,20 @@
 .home-stat-grid .stat-value { display: flex; align-items: baseline; gap: 6px; margin: 26px 0 16px; font-size: clamp(26px, 2.5vw, 34px); font-weight: 700; letter-spacing: -.03em; white-space: nowrap; }
 .home-stat-grid .stat-value small { margin: 0; font-size: 17px; font-weight: 400; color: color-mix(in oklch, var(--muted-foreground) 65%, var(--card)); letter-spacing: 0; }
 .home-stat-grid .stat-card p { font-size: 11px; line-height: 1.7; }
+/* 统计分析页四卡：可点击，hover 凸起悬浮（上浮 + 阴影加深），与首页卡片区分 */
+.statistics-page .stat-card {
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  will-change: transform;
+}
+.statistics-page .stat-card:hover,
+.statistics-page .stat-card:focus-visible {
+  transform: translateY(-6px);
+  border-color: color-mix(in oklch, var(--primary) 32%, var(--border));
+  box-shadow: 0 14px 28px color-mix(in oklch, var(--primary) 16%, transparent), 0 4px 10px color-mix(in oklch, var(--foreground) 4%, transparent);
+  outline: none;
+}
+.statistics-page .stat-card:active { transform: translateY(-2px); }
 @media (max-width: 1150px) { .home-stat-grid .stat-card { padding: 18px; } }
 @media (max-width: 600px) { .home-stat-grid .stat-card { padding: 16px; } .home-stat-grid .stat-value { font-size: 28px; margin-top: 22px; } .home-stat-grid .stat-value small { font-size: 14px; } }
 .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }

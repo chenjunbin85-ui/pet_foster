@@ -54,7 +54,8 @@ CREATE TABLE foster_order (
     pet_id         BIGINT NOT NULL COMMENT '宠物ID',
     start_date     DATE NOT NULL COMMENT '寄养开始日期',
     end_date       DATE NOT NULL COMMENT '寄养结束日期',
-    price_per_day  DECIMAL(10,2) NOT NULL COMMENT '单日寄养单价',
+    price_id       BIGINT COMMENT '价位档位ID',
+    price_per_day  DECIMAL(10,2) NOT NULL COMMENT '单日寄养单价(下单时价格快照)',
     total_fee      DECIMAL(10,2) COMMENT '总费用',
     status         VARCHAR(20) NOT NULL DEFAULT '待入店' COMMENT '状态: 待入店/寄养中/已完成/已取消',
     remark         VARCHAR(255) COMMENT '备注',
@@ -63,8 +64,21 @@ CREATE TABLE foster_order (
     payment_time   DATETIME COMMENT '支付时间',
     paid_amount    DECIMAL(10,2) COMMENT '实付金额',
     creator_id     BIGINT COMMENT '创建人ID',
-    create_time    DATETIME COMMENT '创建时间'
+    create_time    DATETIME COMMENT '创建时间',
+    deleted        TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除: 0正常 1已删除(页面不显示)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='寄养订单表';
+
+-- 4.1 寄养价位档位表（管理员维护，订单关联引用）
+DROP TABLE IF EXISTS foster_price;
+CREATE TABLE foster_price (
+    price_id      BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '价位ID',
+    level_name    VARCHAR(50) NOT NULL COMMENT '档位名称(房型/服务等级)',
+    price_per_day DECIMAL(10,2) NOT NULL COMMENT '单日寄养价格(元/天)',
+    status        TINYINT NOT NULL DEFAULT 1 COMMENT '状态: 0停用 1启用',
+    sort          INT DEFAULT 0 COMMENT '排序',
+    remark        VARCHAR(255) COMMENT '备注',
+    create_time   DATETIME COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='寄养价位档位表';
 
 -- 5. 宠物健康记录表
 DROP TABLE IF EXISTS pet_health_record;
@@ -96,27 +110,6 @@ CREATE TABLE foster_service_record (
     keeper_id    BIGINT COMMENT '看护人ID'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='寄养服务记录表';
 
--- 7. 操作日志表
-DROP TABLE IF EXISTS sys_oper_log;
-CREATE TABLE sys_oper_log (
-    log_id        BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '日志ID',
-    user_id       BIGINT COMMENT '操作人ID',
-    module        VARCHAR(50) COMMENT '操作模块',
-    content       VARCHAR(255) COMMENT '操作内容',
-    request_time  DATETIME COMMENT '请求时间',
-    ip            VARCHAR(50) COMMENT 'IP地址'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
-
--- 8. 数据字典表
-DROP TABLE IF EXISTS sys_dict;
-CREATE TABLE sys_dict (
-    dict_id   BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '字典ID',
-    type_code VARCHAR(50) NOT NULL COMMENT '类型编码',
-    label     VARCHAR(100) NOT NULL COMMENT '标签',
-    value     VARCHAR(100) NOT NULL COMMENT '值',
-    sort      INT DEFAULT 0 COMMENT '排序'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='数据字典表';
-
 -- ============================================
 -- 初始数据
 -- ============================================
@@ -126,17 +119,12 @@ INSERT INTO sys_user (username, password, real_name, role, status, create_time, 
 ('admin', '$2b$10$JTOsPJJdw7U5wDLXUvVrhuHRx/WFbx6.EUL6XWSzetTnfkndW/2RW', '系统管理员', 'admin', 1, NOW(), '超级管理员'),
 ('staff01', '$2b$10$hInT5h4a.QafYiywEVdkIu59sQ16IS6p6ty9po4wSRjfxnGsVa7my', '张护理', 'staff', 1, NOW(), '前台护理员');
 
--- 数据字典: 订单状态
-INSERT INTO sys_dict (type_code, label, value, sort) VALUES
-('order_status', '待入店', '待入店', 1),
-('order_status', '寄养中', '寄养中', 2),
-('order_status', '已完成', '已完成', 3),
-('order_status', '已取消', '已取消', 4);
-
--- 数据字典: 宠物性别
-INSERT INTO sys_dict (type_code, label, value, sort) VALUES
-('pet_gender', '公', '公', 1),
-('pet_gender', '母', '母', 2);
+-- 数据字典已移除：订单状态、宠物性别等枚举由系统代码/前端固定定义
+-- 寄养价位档位初始数据（管理员可在系统管理中修改）
+INSERT INTO foster_price (level_name, price_per_day, status, sort, remark, create_time) VALUES
+('标准间', 60.00, 1, 1, '基础寄养房型', NOW()),
+('舒适间', 80.00, 1, 2, '宽敞房型', NOW()),
+('豪华间', 120.00, 1, 3, '豪华房型', NOW());
 
 -- 示例客户
 INSERT INTO customer (name, phone, address, remark, create_time) VALUES
@@ -151,11 +139,11 @@ INSERT INTO pet (customer_id, name, breed, gender, age, weight, color, vaccine, 
 (2, '旺财', '柯基犬', '公', 1, 12.80, '黄白', '狂犬疫苗已接种', '轻度皮肤病已治愈', NOW()),
 (3, '雪球', '萨摩耶', '母', 4, 20.00, '白色', '狂犬疫苗+六联已接种', '无', NOW());
 
--- 示例订单
-INSERT INTO foster_order (order_no, customer_id, pet_id, start_date, end_date, price_per_day, total_fee, status, remark, creator_id, create_time) VALUES
-('FO20261001001', 1, 1, '2026-10-01', '2026-10-07', 80.00, 560.00, '已完成', '国庆寄养', 1, '2026-10-01 09:00:00'),
-('FO20261008001', 2, 3, '2026-10-08', '2026-10-15', 60.00, 420.00, '寄养中', '短期寄养', 1, '2026-10-08 10:30:00'),
-('FO20261009001', 3, 4, '2026-10-09', '2026-10-20', 100.00, 1200.00, '待入店', '已预订', 1, '2026-10-09 14:00:00');
+-- 示例订单（price_id 关联价位档位；price_per_day 为下单时价格快照）
+INSERT INTO foster_order (order_no, customer_id, pet_id, start_date, end_date, price_id, price_per_day, total_fee, status, remark, creator_id, create_time) VALUES
+('FO20261001001', 1, 1, '2026-10-01', '2026-10-07', 2, 80.00, 560.00, '已完成', '国庆寄养', 1, '2026-10-01 09:00:00'),
+('FO20261008001', 2, 3, '2026-10-08', '2026-10-15', 1, 60.00, 420.00, '寄养中', '短期寄养', 1, '2026-10-08 10:30:00'),
+('FO20261009001', 3, 4, '2026-10-09', '2026-10-20', NULL, 100.00, 1200.00, '待入店', '已预订(历史快照)', 1, '2026-10-09 14:00:00');
 
 -- 示例健康记录
 INSERT INTO pet_health_record (pet_id, order_id, type, temperature, spirit, appetite, defecation, skin, abnormal, treatment, recorder_id, record_time) VALUES

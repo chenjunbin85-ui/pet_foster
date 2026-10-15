@@ -58,7 +58,8 @@ interface AppLayoutProps {
 const menus: Array<{
   label: string
   adminOnly?: boolean
-  items: Array<{ key: PageKey; title: string; icon: typeof Users }>
+  staffOnly?: boolean
+  items: Array<{ key: PageKey; title: string; icon: typeof Users; staffOnly?: boolean }>
 }> = [
   {
     label: "工作台",
@@ -67,15 +68,16 @@ const menus: Array<{
   {
     label: "业务管理",
     items: [
-      { key: "customers", title: "客户信息管理", icon: Users },
-      { key: "pets", title: "宠物档案管理", icon: Cat },
+      { key: "customers", title: "客户信息管理", icon: Users, staffOnly: true },
+      { key: "pets", title: "宠物档案管理", icon: Cat, staffOnly: true },
       { key: "orders", title: "寄养订单管理", icon: ClipboardList },
-      { key: "health", title: "健康档案管理", icon: HeartPulse },
-      { key: "services", title: "寄养服务记录", icon: HandHeart },
+      { key: "health", title: "健康档案管理", icon: HeartPulse, staffOnly: true },
+      { key: "services", title: "寄养服务记录", icon: HandHeart, staffOnly: true },
     ],
   },
   {
     label: "数据统计",
+    adminOnly: true,
     items: [{ key: "stats", title: "统计分析", icon: ChartBar }],
   },
   {
@@ -84,6 +86,12 @@ const menus: Array<{
     items: [{ key: "system", title: "系统管理", icon: Settings }],
   },
 ]
+
+/** 菜单项按角色过滤：adminOnly 仅管理员、staffOnly 仅工作人员、其余双方可见 */
+function visibleItems(role: Role, group: (typeof menus)[number]) {
+  if (group.adminOnly && role !== "admin") return []
+  return group.items.filter((item) => !item.staffOnly || role === "staff")
+}
 
 export function AppLayout({
   role,
@@ -146,12 +154,16 @@ export function AppLayout({
         </div>
 
         <nav id="sidebar-navigation" aria-label="主导航">
-          {menus.map((group) => {
-            if (group.adminOnly && role !== "admin") return null
-            return (
-              <div className="nav-group" key={group.label}>
-                <p>{group.label}</p>
-                {group.items.map((item) => (
+          {/* 管理员侧边栏只保留「数据统计」「系统管理」（运营层）；工作人员保留「工作台」「业务管理」（执行层） */}
+          {menus
+            .filter((group) => (role === "admin" ? group.adminOnly : !group.adminOnly))
+            .map((group) => {
+              const items = visibleItems(role, group)
+              if (items.length === 0) return null
+              return (
+                <div className="nav-group" key={group.label}>
+                  <p>{group.label}</p>
+                  {items.map((item) => (
                   <button
                     key={item.key}
                     data-nav={item.key}

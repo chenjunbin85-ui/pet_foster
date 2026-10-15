@@ -242,7 +242,7 @@ export function PetsPage({ quickAction, onQuickActionDone }: PetsPageProps = {})
         </div>
 
         <div className="customer-table-scroll">
-          <table className="customer-table business-table">
+          <table className="customer-table business-table pets-table">
             <thead>
               <tr>
                 {["宠物名", "所属主人", "品种", "性别", "年龄（岁）", "体重（千克）", "疫苗情况", "操作"].map(

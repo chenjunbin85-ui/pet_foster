@@ -3,7 +3,8 @@ import { login, navigateTo } from "./helpers/auth"
 
 test.describe("订单状态流转", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "admin", "admin123")
+    // 订单列表为执行层页面（管理员侧边栏无订单入口，订单流水仅能从统计卡进入）
+    await login(page, "staff01", "staff123")
     await navigateTo(page, "寄养订单管理")
   })
 
@@ -27,5 +28,12 @@ test.describe("订单状态流转", () => {
 
   test("订单编号搜索框存在", async ({ page }) => {
     await expect(page.getByPlaceholder("按订单编号搜索")).toBeVisible()
+  })
+
+  test("工作人员订单页返回键回到系统首页", async ({ page }) => {
+    const backBtn = page.locator(".page-back-btn")
+    await expect(backBtn).toBeVisible()
+    await backBtn.click()
+    await expect(page.locator(".section-kicker", { hasText: "门店工作台" })).toBeVisible()
   })
 })

@@ -1,18 +1,19 @@
 package com.petfoster.controller;
 
-import com.petfoster.aspect.Log;
 import com.petfoster.common.PageResult;
 import com.petfoster.common.Result;
 import com.petfoster.dto.FosterOrderDTO;
+import com.petfoster.enums.PaymentMethod;
 import com.petfoster.service.FosterOrderService;
 import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.FosterOrderVO;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
-@Tag(name = "寄养订单管理", description = "订单增删改查、确认入店/离店/取消、模拟支付")
+@Tag(name = "寄养订单管理", description = "订单增删改查、确认入店/离店/取消、模拟支付；写操作仅工作人员")
 @RestController
 @RequestMapping("/api/orders")
 public class FosterOrderController {
@@ -39,51 +40,51 @@ public class FosterOrderController {
     }
 
     @PostMapping
-    @Log(module = "寄养订单", content = "新增订单")
+    @PreAuthorize("hasRole('STAFF')")
     public Result<FosterOrderVO> create(@Valid @RequestBody FosterOrderDTO dto) {
         Long creatorId = SecurityUtil.getCurrentUserId();
         return Result.success(fosterOrderService.create(dto, creatorId));
     }
 
     @PutMapping("/{id}")
-    @Log(module = "寄养订单", content = "修改订单")
+    @PreAuthorize("hasRole('STAFF')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody FosterOrderDTO dto) {
         fosterOrderService.update(id, dto);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
-    @Log(module = "寄养订单", content = "删除订单")
+    @PreAuthorize("hasRole('STAFF')")
     public Result<Void> delete(@PathVariable Long id) {
         fosterOrderService.removeById(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/check-in")
-    @Log(module = "寄养订单", content = "确认入店")
+    @PreAuthorize("hasRole('STAFF')")
     public Result<Void> checkIn(@PathVariable Long id) {
         fosterOrderService.checkIn(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/check-out")
-    @Log(module = "寄养订单", content = "确认离店")
+    @PreAuthorize("hasRole('STAFF')")
     public Result<Void> checkOut(@PathVariable Long id) {
         fosterOrderService.checkOut(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/cancel")
-    @Log(module = "寄养订单", content = "取消订单")
+    @PreAuthorize("hasRole('STAFF')")
     public Result<Void> cancel(@PathVariable Long id) {
         fosterOrderService.cancel(id);
         return Result.success();
     }
 
     @PostMapping("/{id}/pay")
-    @Log(module = "寄养订单", content = "模拟支付")
+    @PreAuthorize("hasRole('STAFF')")
     public Result<FosterOrderVO> pay(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String paymentMethod = body.getOrDefault("paymentMethod", "微信");
+        String paymentMethod = body.getOrDefault("paymentMethod", PaymentMethod.WECHAT.getValue());
         return Result.success(fosterOrderService.pay(id, paymentMethod));
     }
 }

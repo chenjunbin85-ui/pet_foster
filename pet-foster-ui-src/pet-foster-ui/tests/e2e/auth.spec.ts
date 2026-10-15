@@ -6,7 +6,7 @@ const loginButton = (page: Page) => page.getByRole("button", { name: /登\s*录/
 test.describe("认证模块", () => {
   test("登录页按设计稿渲染", async ({ page }) => {
     await page.goto("/")
-    await expect(page.getByRole("heading", { name: /安心寄养/ })).toBeVisible()
+    await expect(page.getByRole("heading", { name: /毛孩子的/ })).toBeVisible()
     await expect(page.getByRole("heading", { name: "欢迎登录" })).toBeVisible()
     await expect(page.getByLabel("账号")).toBeVisible()
     await expect(page.getByLabel("密码")).toBeVisible()
@@ -15,7 +15,9 @@ test.describe("认证模块", () => {
 
   test("管理员登录成功", async ({ page }) => {
     await login(page, "admin", "admin123")
-    await expect(page.getByText("寄养中宠物")).toBeVisible()
+    // 管理员默认展示界面为统计分析页
+    await expect(page.locator(".section-kicker", { hasText: "统计分析" })).toBeVisible()
+    await expect(page.locator(".statistics-page")).toBeVisible()
   })
 
   test("工作人员登录成功", async ({ page }) => {

@@ -33,11 +33,7 @@ ALTER TABLE foster_service_record ADD INDEX idx_service_time (service_time);
 ALTER TABLE sys_user ADD INDEX idx_user_role (role);
 ALTER TABLE sys_user ADD INDEX idx_user_status (status);
 
--- 7. sys_oper_log 表（user_id已有索引，补充时间和模块）
-ALTER TABLE sys_oper_log ADD INDEX idx_oper_request_time (request_time);
-ALTER TABLE sys_oper_log ADD INDEX idx_oper_module (module);
-
--- 8. sys_dict 表
+-- 7. sys_dict 表
 ALTER TABLE sys_dict ADD INDEX idx_dict_type_code (type_code);
 
 -- 验证索引

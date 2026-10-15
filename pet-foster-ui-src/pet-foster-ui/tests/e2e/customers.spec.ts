@@ -3,7 +3,8 @@ import { login, navigateTo } from "./helpers/auth"
 
 test.describe("客户管理 CRUD", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "admin", "admin123")
+    // 客户为执行层业务，由工作人员操作（管理员仅看订单流水与统计）
+    await login(page, "staff01", "staff123")
     await navigateTo(page, "客户信息管理")
   })
 
@@ -27,13 +28,22 @@ test.describe("客户管理 CRUD", () => {
     await expect(page.getByRole("button", { name: "保存" })).toBeVisible()
   })
 
-  test("手机号重复校验", async ({ page }) => {
+  test("手机号重复校验", async ({ page, request }) => {
+    // 不依赖存量数据：先用 API 预建一个客户，再在页面用相同手机号创建
+    const phone = `138${String(Date.now()).slice(-8)}`
+    const token = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
+    const pre = await request.post("http://127.0.0.1:8090/api/customers", {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { name: "重复校验预建客户", phone, address: "测试地址", remark: "重复校验预建" },
+    })
+    expect(pre.status(), "预建客户失败").toBe(200)
+
     await page.getByRole("button", { name: "新增客户" }).click()
     const dialog = page.getByRole("dialog")
     await dialog.getByLabel("姓名").fill("重复客户")
-    await dialog.getByLabel("联系电话").fill("13800138000")
+    await dialog.getByLabel("联系电话").fill(phone)
     await dialog.getByLabel("居住地址").fill("测试地址")
     await dialog.getByRole("button", { name: "保存" }).click()
-    await expect(dialog.getByText(/手机号/)).toBeVisible()
+    await expect(dialog.getByText(/手机号已存在/)).toBeVisible()
   })
 })

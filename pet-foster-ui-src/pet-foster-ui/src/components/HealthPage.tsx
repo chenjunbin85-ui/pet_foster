@@ -226,7 +226,7 @@ export function HealthPage({ quickAction, onQuickActionDone }: HealthPageProps =
         </div>
 
         <div className="customer-table-scroll">
-          <table className="customer-table business-table">
+          <table className="customer-table business-table health-table">
             <thead>
               <tr>
                 {["记录时间", "宠物", "记录类型", "体温（摄氏度）", "精神状态", "食欲", "异常与处理", "记录人", "操作"].map(

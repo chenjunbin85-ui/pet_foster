@@ -70,7 +70,7 @@ test.describe("异常场景与边界值测试", () => {
   // ========== 3. 搜索无结果场景 ==========
   test.describe("搜索边界", () => {
     test("客户搜索无结果显示空状态", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       await page.locator(".nav-item", { hasText: "客户信息管理" }).first().click()
       await page.waitForTimeout(800)
       // 记录搜索前的数据行数
@@ -88,7 +88,7 @@ test.describe("异常场景与边界值测试", () => {
     })
 
     test("特殊字符搜索不报错", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       await page.locator(".nav-item", { hasText: "客户信息管理" }).first().click()
       await page.waitForTimeout(800)
       const searchInput = page.locator(".search-box input, input[placeholder*='搜索'], input[type='text']").first()
@@ -103,7 +103,7 @@ test.describe("异常场景与边界值测试", () => {
   // ========== 4. 分页边界场景 ==========
   test.describe("分页边界", () => {
     test("最后一页下一页按钮禁用", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       await page.locator(".nav-item", { hasText: "客户信息管理" }).first().click()
       await page.waitForTimeout(1000)
 
@@ -131,7 +131,7 @@ test.describe("异常场景与边界值测试", () => {
     })
 
     test("第一页上一页按钮禁用", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       await page.locator(".nav-item", { hasText: "客户信息管理" }).first().click()
       await page.waitForTimeout(1000)
 
@@ -146,7 +146,7 @@ test.describe("异常场景与边界值测试", () => {
     })
 
     test("数据不足一页时分页控件仍显示且按钮禁用", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       // 健康记录通常数据较少
       await page.locator(".nav-item", { hasText: "健康档案管理" }).first().click()
       await page.waitForTimeout(1000)
@@ -161,7 +161,7 @@ test.describe("异常场景与边界值测试", () => {
   // ========== 5. 空数据列表场景 ==========
   test.describe("空数据处理", () => {
     test("服务记录列表正常渲染（空或有数据均不报错）", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       await page.locator(".nav-item", { hasText: "寄养服务记录" }).first().click()
       await page.waitForTimeout(1000)
       // 页面不应白屏，表格或空状态应可见
@@ -206,7 +206,7 @@ test.describe("异常场景与边界值测试", () => {
     })
 
     test("客户列表分页参数page=0不报错", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       const token = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
       const response = await page.request.get("http://127.0.0.1:8090/api/customers?page=0&size=10", {
         headers: { Authorization: `Bearer ${token}` }
@@ -216,7 +216,7 @@ test.describe("异常场景与边界值测试", () => {
     })
 
     test("客户列表分页参数size过大不报错", async ({ page }) => {
-      await login(page, "admin", "admin123")
+      await login(page, "staff01", "staff123")
       const token = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
       const response = await page.request.get("http://127.0.0.1:8090/api/customers?page=1&size=99999", {
         headers: { Authorization: `Bearer ${token}` }

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react"
-import { statsDashboard, orderPage, type OrderVO, type DashboardStats } from "@/api"
+import { statsDashboard, statsMonthlyRevenue, orderPage, type OrderVO, type DashboardStats, type Role } from "@/api"
 import { loadWeather, type WeatherInfo } from "@/lib/weather"
 import type { PageKey } from "@/components/AppLayout"
 
 interface DashboardPageProps {
+  role: Role
   onNavigate: (page: PageKey) => void
   onQuickAction: (page: PageKey) => void
 }
@@ -86,7 +87,7 @@ function ShortcutIllustration({ page }: { page: PageKey }) {
   return <img className="quick-illustration" src={SHORTCUT_ICONS[page]} alt="" loading="lazy" decoding="async" />
 }
 
-export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps) {
+export function DashboardPage({ role, onNavigate, onQuickAction }: DashboardPageProps) {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [pendingOrders, setPendingOrders] = useState<OrderVO[]>([])
   const [fosteringOrders, setFosteringOrders] = useState<OrderVO[]>([])
@@ -95,15 +96,49 @@ export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps)
   // idle→loading→ready：只在首次加载时显示「定位中」，避免成功后被无谓刷新
   const [weatherState, setWeatherState] = useState<"loading" | "ready" | "error">("loading")
 
+  // 管理员走完整统计接口；员工不可访问经营汇总统计接口，但首页金额卡可见
+  // （本月寄养金额为轻量口径接口 /api/stats/monthly-revenue，登录双方均可访问）
+  const isAdmin = role === "admin"
+
   useEffect(() => {
-    Promise.all([statsDashboard(), orderPage(1, 50, "待入店"), orderPage(1, 50, "寄养中")])
-      .then(([s, pending, fostering]) => {
-        setStats(s)
-        setPendingOrders(pending.records)
-        setFosteringOrders(fostering.records)
-      })
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : "数据加载失败"))
-  }, [])
+    let alive = true
+    async function load() {
+      try {
+        if (isAdmin) {
+          const [s, pending, fostering] = await Promise.all([
+            statsDashboard(),
+            orderPage(1, 50, "待入店"),
+            orderPage(1, 50, "寄养中"),
+          ])
+          if (!alive) return
+          setStats(s)
+          setPendingOrders(pending.records)
+          setFosteringOrders(fostering.records)
+        } else {
+          const [pending, fostering, all, revenue] = await Promise.all([
+            orderPage(1, 1, "待入店"),
+            orderPage(1, 1, "寄养中"),
+            orderPage(1, 1000),
+            statsMonthlyRevenue(),
+          ])
+          if (!alive) return
+          const now = new Date()
+          const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+          const monthlyCount = all.records.filter((o) => (o.createdAt || "").startsWith(month)).length
+          setStats({ fosteringCount: fostering.total, pendingCount: pending.total, monthlyOrderCount: monthlyCount, monthlyRevenue: Number(revenue) || 0 })
+          setPendingOrders(pending.records)
+          setFosteringOrders(fostering.records)
+        }
+      } catch (e: unknown) {
+        if (!alive) return
+        setError(e instanceof Error ? e.message : "数据加载失败")
+      }
+    }
+    void load()
+    return () => {
+      alive = false
+    }
+  }, [isAdmin])
 
   useEffect(() => {
     let alive = true
@@ -126,6 +161,7 @@ export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps)
   const dateText = `${now.getMonth() + 1}月${now.getDate()}日 ${WEEKDAYS[now.getDay()]}`
   const dateValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
 
+  // 首页四卡：双方均展示（含「本月寄养金额」，员工数据来自轻量口径接口）
   const cards = [
     ["寄养中宠物", stats ? String(stats.fosteringCount) : "—", "只", "当前在店的小伙伴"],
     ["待入店订单", stats ? String(stats.pendingCount) : "—", "单", "等待安排入住"],
@@ -133,15 +169,20 @@ export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps)
     ["本月寄养金额", stats ? stats.monthlyRevenue.toLocaleString("zh-CN") : "—", "元", "本月累计寄养收入"],
   ]
 
-  // 快捷入口：与设计稿一致的六项（顺序也一致）
-  const shortcuts: Array<[string, PageKey]> = [
-    ["新建寄养订单", "orders"],
-    ["新增客户", "customers"],
-    ["新增宠物档案", "pets"],
-    ["登记健康记录", "health"],
-    ["登记服务记录", "services"],
-    ["查看报表", "stats"],
-  ]
+  // 快捷入口按角色区分：员工执行业务，管理员只看运营与系统
+  const shortcuts: Array<[string, PageKey]> = isAdmin
+    ? [
+        ["查看订单流水", "orders"],
+        ["查看报表", "stats"],
+        ["系统管理", "system"],
+      ]
+    : [
+        ["新建寄养订单", "orders"],
+        ["新增客户", "customers"],
+        ["新增宠物档案", "pets"],
+        ["登记健康记录", "health"],
+        ["登记服务记录", "services"],
+      ]
 
   return (
     <>
@@ -234,7 +275,7 @@ export function DashboardPage({ onNavigate, onQuickAction }: DashboardPageProps)
           </div>
           <div className="home-quick-list">
             {shortcuts.map(([label, page]) => (
-              <button className="home-quick-action" key={label} onClick={() => page === "stats" ? onNavigate(page) : onQuickAction(page)}>
+              <button className="home-quick-action" key={label} onClick={() => (isAdmin ? onNavigate(page) : onQuickAction(page))}>
                 <ShortcutIllustration page={page} />
                 <span className="home-quick-copy">
                   <strong>{label}</strong>

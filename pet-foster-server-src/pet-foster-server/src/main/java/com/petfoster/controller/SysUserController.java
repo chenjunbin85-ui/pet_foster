@@ -1,6 +1,5 @@
 package com.petfoster.controller;
 
-import com.petfoster.aspect.Log;
 import com.petfoster.common.PageResult;
 import com.petfoster.common.Result;
 import com.petfoster.dto.SysUserDTO;
@@ -37,30 +36,16 @@ public class SysUserController {
     }
 
     @PostMapping
-
-
-    @Log(module = "用户管理", content = "新增")
-
-
     public Result<Void> create(@Valid @RequestBody SysUserDTO dto) {
         sysUserService.create(dto);
         return Result.success();
     }
 
     @PutMapping("/{id}")
-
-
-    @Log(module = "用户管理", content = "修改")
-
-
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody SysUserDTO dto) {
         sysUserService.update(id, dto);
         return Result.success();
     }
-
-    
-
-    @Log(module = "用户管理", content = "删除")
 @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         sysUserService.removeById(id);

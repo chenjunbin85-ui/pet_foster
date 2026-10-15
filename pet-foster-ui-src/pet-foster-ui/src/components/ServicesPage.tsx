@@ -207,7 +207,7 @@ export function ServicesPage({ quickAction, onQuickActionDone }: ServicesPagePro
         </div>
 
         <div className="customer-table-scroll">
-          <table className="customer-table business-table">
+          <table className="customer-table business-table service-table">
             <thead>
               <tr>
                 {["服务时间", "关联订单", "宠物", "服务项目", "服务内容", "看护人员", "操作"].map((col) => (
