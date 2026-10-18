@@ -78,7 +78,7 @@ const menus: Array<{
   {
     label: "数据统计",
     adminOnly: true,
-    items: [{ key: "stats", title: "统计分析", icon: ChartBar }],
+    items: [{ key: "stats", title: "经营数据", icon: ChartBar }],
   },
   {
     label: "系统管理",

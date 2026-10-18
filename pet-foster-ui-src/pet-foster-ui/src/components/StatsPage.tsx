@@ -144,7 +144,7 @@ export function StatsPage({ onNavigate }: { onNavigate?: (status?: string) => vo
     <section className="statistics-page">
       <div className="dashboard-welcome">
         <div>
-          <span className="section-kicker">统计分析</span>
+          <span className="section-kicker">经营数据</span>
           <h1>照护有温度，经营有方向。</h1>
           <p>统计范围：{periodLabel}，清晰了解门店经营状况。</p>
         </div>
