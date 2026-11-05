@@ -29,9 +29,11 @@ ALTER TABLE foster_service_record ADD INDEX idx_service_order_id (order_id);
 ALTER TABLE foster_service_record ADD INDEX idx_service_pet_id (pet_id);
 ALTER TABLE foster_service_record ADD INDEX idx_service_time (service_time);
 
--- 6. sys_user 表
-ALTER TABLE sys_user ADD INDEX idx_user_role (role);
-ALTER TABLE sys_user ADD INDEX idx_user_status (status);
+-- 6. sys_admin / staff 表（账号表已拆分：管理员与工作人员分表）
+ALTER TABLE sys_admin ADD INDEX idx_admin_username (username);
+ALTER TABLE sys_admin ADD INDEX idx_admin_status (status);
+ALTER TABLE staff ADD INDEX idx_staff_username (username);
+ALTER TABLE staff ADD INDEX idx_staff_status (status);
 
 -- 7. sys_dict 表
 ALTER TABLE sys_dict ADD INDEX idx_dict_type_code (type_code);

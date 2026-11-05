@@ -1,0 +1,68 @@
+<view class="page orders-page">
+  <!-- 页头：标题 + 订单数 -->
+  <view class="page-heading">
+    <view class="heading-row">
+      <text class="heading-title">历史订单</text>
+    </view>
+    <view class="order-count" wx:if="{{total > 0}}">共 {{total}} 笔订单</view>
+  </view>
+
+  <!-- 搜索 -->
+  <view class="search-bar">
+    <image class="search-icon" src="/images/icon-search-gray.png" mode="aspectFit" />
+    <input
+      class="search-input"
+      placeholder="搜索宠物昵称或订单号"
+      placeholder-class="placeholder"
+      value="{{keyword}}"
+      bindinput="onKeywordInput"
+      confirm-type="search"
+    />
+    <view class="search-clear" wx:if="{{keyword}}" bindtap="clearKeyword">✕</view>
+  </view>
+
+  <!-- 状态筛选胶囊 -->
+  <scroll-view scroll-x class="filter-tabs" enhanced enable-flex show-scrollbar="{{false}}">
+    <view
+      wx:for="{{filters}}"
+      wx:key="*this"
+      class="filter-tab {{activeFilter === item ? 'active' : ''}}"
+      data-filter="{{item}}"
+      bindtap="switchFilter"
+    >{{item}}</view>
+  </scroll-view>
+
+  <!-- 订单列表 -->
+  <view class="order-list">
+    <view wx:for="{{list}}" wx:key="id" class="order-card {{item.barClass}}" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="order-top">
+        <text class="order-no">{{item.orderNo}}</text>
+        <text class="status-tag {{item.statusClass}}">{{item.bizStatus}}</text>
+      </view>
+
+      <view class="order-body">
+        <image class="order-pet-avatar" src="/images/pet-{{item.petArt}}.png" mode="aspectFit" />
+        <view class="order-pet-info">
+          <view class="order-pet-name">{{item.petName}}<text class="order-pet-breed">{{item.breedText}}</text></view>
+          <view class="order-pet-room">{{item.roomText}}</view>
+          <view class="order-pet-date">{{item.dateText}}<text class="order-pet-days">{{item.stayText}}</text></view>
+        </view>
+        <view class="order-fee"><text class="fee-yuan">¥</text>{{item.totalFeeText}}</view>
+      </view>
+
+      <view class="order-actions" wx:if="{{item.cancellable}}">
+        <text class="action-cancel" catchtap="cancelOrder" data-id="{{item.id}}">取消预约</text>
+      </view>
+    </view>
+
+    <view wx:if="{{!loading && list.length === 0 && keyword}}" class="empty">
+      <view class="empty-title">没有找到相关预约</view>
+      <button class="btn btn-secondary btn-empty" hover-class="btn-hover" bindtap="clearKeyword">清除搜索</button>
+    </view>
+    <view wx:if="{{!loading && list.length === 0 && !keyword}}" class="empty">
+      <view class="empty-title">这里还没有预约</view>
+      <button class="btn btn-primary btn-empty" hover-class="btn-hover" bindtap="bookAgain">预约入住</button>
+    </view>
+    <view wx:if="{{loading}}" class="list-end">加载中…</view>
+  </view>
+</view>

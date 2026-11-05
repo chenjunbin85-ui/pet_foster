@@ -1,0 +1,118 @@
+/* 我的宠物 · 还原设计稿宠物档案卡 */
+.pets-page { padding: 40rpx 36rpx 60rpx;
+  padding-top: 176rpx; }
+
+.pets-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin: 12rpx 0 34rpx;
+}
+.pets-count {
+  font-size: 27rpx;
+  color: #5C5750;
+}
+.btn-add {
+  width: auto;
+  height: 88rpx;
+  font-size: 30rpx;
+  border-radius: 30rpx;
+  padding: 0 34rpx;
+  font-weight: 600;
+}
+
+/* 宠物卡 */
+.pet-list { display: flex; flex-direction: column; gap: 26rpx; }
+.pet-card {
+  background: #FFFFFF;
+  border: 1rpx solid #F0E8DF;
+  border-radius: 44rpx;
+  padding: 36rpx 38rpx;
+  margin-bottom: 26rpx;
+  box-shadow: 0 8rpx 32rpx rgba(201, 107, 61, 0.08);
+}
+.pet-head {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+.pet-avatar-img {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 24rpx;
+  background: #FFF0E3;
+  flex-shrink: 0;
+}
+.pet-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 38rpx;      /* 19px */
+  font-weight: 600;
+  color: #302D2A;
+}
+.pet-edit {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  color: #F47732;
+  font-size: 25rpx;
+  min-height: 84rpx;
+  flex-shrink: 0;
+}
+.edit-chev { width: 24rpx; height: 24rpx; }
+
+.pet-meta {
+  font-size: 27rpx;      /* 14px */
+  color: #5C5750;
+  margin-top: 22rpx;
+  line-height: 1.7;
+}
+.pet-divider {
+  height: 1rpx;
+  background: #F0E8DF;
+  margin: 26rpx 0 22rpx;
+}
+.pet-vaccine-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.pet-vaccine-row .badge {
+  font-size: 23rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 14rpx;
+  flex-shrink: 0;
+}
+.pet-vaccine-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 25rpx;
+  color: #96918C;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.pet-booking {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 23rpx;
+  color: #96918C;
+  flex-shrink: 0;
+}
+.lock-icon { width: 26rpx; height: 26rpx; opacity: 0.55; }
+.pet-remark {
+  font-size: 25rpx;
+  color: #96918C;
+  margin-top: 20rpx;
+  line-height: 1.7;
+}
+
+.pets-note {
+  font-size: 23rpx;
+  color: #B8B2AB;
+  line-height: 1.9;
+  margin: 34rpx 0 28rpx;
+}
+.btn-add-bottom { margin-bottom: 20rpx; }

@@ -1,0 +1,159 @@
+/* 确认订单 · 还原设计稿 checkout / panel / info-grid */
+.checkout-page { padding: 40rpx 36rpx 380rpx;
+  padding-top: 176rpx; }
+
+/* 安心托付标题块 */
+.checkout-heading {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  margin: 6rpx 0 40rpx;
+  background: linear-gradient(135deg, #FFF0E3 0%, #FCE0C8 100%);
+  border-radius: 32rpx;
+  padding: 30rpx 32rpx;
+}
+.checkout-symbol {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 26rpx;
+  background: #FFF0E3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.symbol-icon { width: 52rpx; height: 52rpx; }
+.checkout-heading-text { flex: 1; min-width: 0; }
+.checkout-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #302D2A;
+  line-height: 1.4;
+}
+.checkout-copy {
+  font-size: 24rpx;
+  color: #96918C;
+  margin-top: 6rpx;
+}
+
+/* 面板 */
+.panel {
+  border: 1rpx solid #F0E8DF;
+  border-radius: 32rpx;
+  padding: 38rpx;
+  margin-bottom: 26rpx;
+  background: #FFFFFF;
+}
+
+/* 入住信息两列网格 */
+.info-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40rpx 24rpx;
+}
+.grid-cell { width: calc(50% - 12rpx); box-sizing: border-box; }
+.grid-label {
+  font-size: 24rpx;
+  color: #96918C;
+  margin-bottom: 12rpx;
+}
+.grid-value {
+  font-size: 30rpx;
+  color: #302D2A;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.grid-breed { font-size: 26rpx; font-weight: 400; color: #5C5750; }
+
+.panel-divider {
+  height: 1rpx;
+  background: #F0E8DF;
+  margin: 34rpx 0 26rpx;
+}
+.stay-summary { display: flex; flex-direction: column; gap: 12rpx; }
+.stay-main {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 29rpx;
+  color: #302D2A;
+}
+.stay-icon { width: 32rpx; height: 32rpx; opacity: 0.6; }
+.stay-note {
+  font-size: 23rpx;
+  color: #96918C;
+  padding-left: 42rpx;
+}
+
+/* 备注 */
+.remark-input { margin-top: 0; }
+.remark-count {
+  text-align: right;
+  font-size: 21rpx;
+  color: #B8B2AB;
+  margin-top: 10rpx;
+}
+
+/* 协议勾选 */
+.consent-row {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 88rpx;
+  margin: 6rpx 0 10rpx;
+}
+.checkbox {
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 50%;
+  border: 2rpx solid #87909c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.checkbox.checked { background: #F47732; border-color: #F47732; }
+.check-mark { color: #FFFFFF; font-size: 22rpx; line-height: 1; }
+.consent-text { font-size: 25rpx; color: #96918C; }
+.consent-link { color: #F47732; }
+
+/* 底部金额 + 按钮 */
+.checkout-actions { display: block; }
+.checkout-amount {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14rpx;
+}
+.amount-label { font-size: 24rpx; color: #96918C; }
+.amount-value {
+  font-size: 60rpx;      /* 30px */
+  font-weight: 600;
+  font-family: Arial, sans-serif;
+  color: #F47732;
+}
+.consent-tip {
+  text-align: center;
+  font-size: 21rpx;
+  color: #B8B2AB;
+  margin-top: 12rpx;
+}
+
+.policy-scroll { max-height: 520rpx; }
+.policy-copy { text-align: left; line-height: 1.9; font-size: 26rpx; color: #5C5750; }
+.refund-rule { color: #C96B3D; margin-top: 12rpx; }
+.coupon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #F0E8DF;
+}
+.coupon-row:last-child { border-bottom: none; }
+.coupon-row.on { background: #FFF0E3; margin: 0 -20rpx; padding: 22rpx 20rpx; border-radius: 16rpx; }
+.coupon-name { font-size: 28rpx; font-weight: 600; color: #302D2A; }
+.coupon-cond { font-size: 22rpx; color: #B8B2AB; margin-top: 6rpx; }
+.coupon-discount { font-size: 34rpx; font-weight: 600; color: #F47732; font-family: Arial, sans-serif; }
+
+.coupon-deduct { color: #6EA782; font-weight: 600; }

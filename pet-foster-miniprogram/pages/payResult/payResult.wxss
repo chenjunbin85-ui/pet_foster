@@ -1,0 +1,74 @@
+/* 支付结果 · 还原设计稿 payment-result */
+.result-page { padding: 40rpx 36rpx 60rpx;
+  padding-top: 176rpx; }
+
+.result-hero {
+  text-align: center;
+  padding: 60rpx 0 20rpx;
+}
+.success-icon {
+  width: 176rpx;       /* 88px */
+  height: 176rpx;
+  border-radius: 50%;
+  background: #edf7ef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 34rpx;
+}
+.success-mark {
+  font-size: 76rpx;
+  color: #6EA782;
+  line-height: 1;
+  font-weight: 600;
+}
+.result-title {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #302D2A;
+}
+.result-copy {
+  font-size: 25rpx;
+  color: #96918C;
+  margin-top: 14rpx;
+  line-height: 1.7;
+  padding: 0 20rpx;
+}
+.result-fee {
+  font-size: 64rpx;    /* 32px */
+  font-weight: 600;
+  font-family: Arial, sans-serif;
+  color: #F47732;
+  margin-top: 26rpx;
+}
+.result-order {
+  font-size: 23rpx;
+  color: #B8B2AB;
+  margin-top: 8rpx;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel {
+  border: 1rpx solid #F0E8DF;
+  border-radius: 32rpx;
+  padding: 38rpx;
+  margin: 40rpx 0 26rpx;
+  background: #FFFFFF;
+}
+
+.demo-payment-tip {
+  background: #FFF0E3;
+  border-radius: 24rpx;
+  padding: 26rpx 30rpx;
+  font-size: 25rpx;
+  line-height: 1.8;
+  color: #C96B3D;
+  margin-bottom: 34rpx;
+}
+.tip-strong { font-weight: 600; margin-right: 6rpx; }
+
+.result-actions {
+  display: flex;
+  gap: 20rpx;
+}
+.result-actions .btn { flex: 1; }

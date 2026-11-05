@@ -9,6 +9,7 @@ public class SysUserVO {
     private String username;
     private String name;
     private String role;
+    private String position;
     private String status;
     private String remark;
     private LocalDateTime createdAt;

@@ -12,6 +12,7 @@ import com.petfoster.enums.PetGender;
 import com.petfoster.mapper.FosterOrderMapper;
 import com.petfoster.mapper.PetMapper;
 import com.petfoster.vo.PetVO;
+import com.petfoster.util.VaccineJson;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -107,6 +108,7 @@ public class PetService extends ServiceImpl<PetMapper, Pet> {
         vo.setWeight(p.getWeight());
         vo.setColor(p.getColor());
         vo.setVaccine(p.getVaccine());
+        vo.setVaccineText(VaccineJson.toReadable(p.getVaccine()));
         vo.setHistory(p.getHistory());
         vo.setCreatedAt(p.getCreateTime());
         return vo;

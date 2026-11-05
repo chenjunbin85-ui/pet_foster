@@ -1,0 +1,65 @@
+<view class="page pets-page">
+  <!-- 页头 -->
+  <view class="page-heading">
+    <view class="page-heading-title">
+      <text class="back-chevron" bindtap="backHome">‹</text>
+      <text>我的宠物</text>
+    </view>
+  </view>
+
+  <!-- 工具行：数量 + 新增 -->
+  <view class="pets-toolbar">
+    <text class="pets-count">共{{pets.length}}位毛孩子</text>
+    <button class="btn btn-primary btn-add" hover-class="btn-hover" bindtap="addPet">＋ 新增宠物</button>
+  </view>
+
+  <view wx:if="{{pets.length === 0 && !loading}}" class="empty">
+    <view class="empty-icon">🐾</view>
+    <view class="empty-title">还没有宠物档案</view>
+    <view class="empty-text">先添加宠物，再预约入住</view>
+  </view>
+
+  <view class="pet-list">
+    <view wx:for="{{pets}}" wx:key="id" class="pet-card">
+      <view class="pet-head">
+        <image class="pet-avatar-img" src="/images/pet-{{item.petArt}}.png" mode="aspectFit" />
+        <view class="pet-name">{{item.name}}</view>
+        <view class="pet-edit" data-id="{{item.id}}" bindtap="editPet">
+          <text>编辑</text>
+          <image class="edit-chev" src="/images/icon-chevron-brand.png" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view class="pet-meta">{{item.metaLine}}</view>
+
+      <view class="pet-divider"></view>
+
+      <view class="pet-vaccine-row">
+        <text class="badge {{item.v ? 'badge-green' : 'badge-gray'}}">{{item.v ? '已接种' : '未接种'}}</text>
+        <text class="pet-vaccine-name">{{item.vaccineLine || '暂无疫苗记录'}}</text>
+        <view wx:if="{{item.booking}}" class="pet-booking">
+          <image class="lock-icon" src="/images/menu-lock.png" mode="aspectFit" />
+          <text>预约中</text>
+        </view>
+      </view>
+
+      <view wx:if="{{item.history}}" class="pet-remark">{{item.history}}</view>
+    </view>
+  </view>
+
+  <view class="pets-note">宠物档案用于寄养；进行中预约涉及的宠物不能删除或修改关键信息。</view>
+
+  <button class="btn btn-secondary btn-add-bottom" hover-class="btn-hover" bindtap="addPet">＋ 新增宠物</button>
+
+  <!-- 删除确认 -->
+  <view class="modal-mask" wx:if="{{showDelete}}" bindtap="closeDelete">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">删除宠物档案？</view>
+      <view class="modal-copy">删除后不可恢复；历史订单保留原始宠物信息。存在进行中预约时不可删除。</view>
+      <view class="modal-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeDelete">再想想</button>
+        <button class="btn btn-danger" hover-class="btn-hover" loading="{{deletingId}}" bindtap="confirmDelete">确认删除</button>
+      </view>
+    </view>
+  </view>
+</view>

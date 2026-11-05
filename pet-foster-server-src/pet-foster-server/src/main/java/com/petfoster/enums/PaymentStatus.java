@@ -5,7 +5,8 @@ package com.petfoster.enums;
  */
 public enum PaymentStatus {
     UNPAID("未支付"),
-    PAID("已支付");
+    PAID("已支付"),
+    REFUNDED("已退款");
 
     private final String value;
 

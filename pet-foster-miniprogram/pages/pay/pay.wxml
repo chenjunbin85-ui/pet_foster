@@ -1,0 +1,91 @@
+<view class="page pay-page">
+  <block wx:if="{{order}}">
+    <!-- 页头 -->
+    <view class="page-heading">
+      <view class="page-heading-title">
+        <text class="back-chevron" bindtap="goHome">‹</text>
+        <text>在线支付</text>
+      </view>
+      <view class="page-heading-sub">演示环境模拟支付，不产生真实扣款。</view>
+    </view>
+
+    <!-- 金额区 -->
+    <view class="payment-amount">
+      <view class="amount-label">订单金额</view>
+      <view class="amount-value">¥{{order.totalFeeText}}</view>
+      <view class="amount-status" wx:if="{{order.status === '已取消'}}">该订单已关闭</view>
+      <view class="amount-status" wx:elif="{{order.paymentStatus === '已支付'}}">该订单已支付</view>
+      <view class="amount-status countdown" wx:else>请于 <text class="cd">{{countdownText}}</text> 内完成支付</view>
+    </view>
+
+    <!-- 订单摘要 -->
+    <view class="panel">
+      <view class="section-head"><text class="section-head-title">订单信息</text></view>
+      <view class="info-rows">
+        <view class="info-row">
+          <text class="info-label">订单号</text>
+          <text class="info-value">{{order.orderNo}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">入住宠物</text>
+          <text class="info-value">{{order.petName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养房型</text>
+          <text class="info-value">{{order.priceLevelName || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养日期</text>
+          <text class="info-value">{{order.startDate}} → {{order.endDate}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养天数</text>
+          <text class="info-value">{{order.stayText}}（跨天按晚计费）</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 支付方式 -->
+    <view class="panel">
+      <view class="section-head"><text class="section-head-title">支付方式</text></view>
+      <view class="pay-method">
+        <view class="method-icon">微</view>
+        <view class="method-info">
+          <view class="method-name">微信支付</view>
+          <view class="method-sub">当前仅支持微信支付演示</view>
+        </view>
+        <view class="radio-dot checked"><text class="check-mark">✓</text></view>
+      </view>
+      <view class="demo-payment-tip">
+        <text class="tip-strong">演示环境</text>
+        <text>本次支付为模拟支付，不会产生真实扣款；退款同样仅为演示。</text>
+      </view>
+    </view>
+
+    <view class="pay-resume-hint">中断后可在「历史订单」中继续支付；未支付订单 15 分钟后自动关闭。</view>
+
+    <!-- 底部动作栏 -->
+    <view class="action-bar">
+      <button
+        wx:if="{{order.status === '已取消'}}"
+        class="btn btn-primary"
+        hover-class="btn-hover"
+        bindtap="goHome"
+      >订单已关闭，重新预订</button>
+      <button
+        wx:elif="{{order.paymentStatus === '已支付'}}"
+        class="btn btn-primary"
+        hover-class="btn-hover"
+        bindtap="viewResult"
+      >查看支付结果</button>
+      <button
+        wx:else
+        class="btn {{canPay ? 'btn-primary' : 'btn-disabled'}}"
+        hover-class="btn-hover"
+        loading="{{paying}}"
+        disabled="{{!canPay}}"
+        bindtap="confirmPay"
+      >{{expired ? '支付已超时' : (paying ? '支付处理中…' : '确认支付')}}</button>
+    </view>
+  </block>
+</view>

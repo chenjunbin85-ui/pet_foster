@@ -1,0 +1,105 @@
+/* 宠物档案编辑 */
+.edit-page { padding: 40rpx 36rpx 260rpx;
+  padding-top: 176rpx; }
+
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 36rpx;
+}
+.avatar-preview {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: #FFF0E3;
+  border: 4rpx solid #F0E8DF;
+}
+.avatar-hint {
+  font-size: 24rpx;
+  color: #96918C;
+  margin-top: 16rpx;
+}
+
+.lock-tip {
+  background: #FFF0E3;
+  border: 1rpx solid #ffe3d3;
+  color: #C96B3D;
+  border-radius: 24rpx;
+  font-size: 24rpx;
+  padding: 22rpx 26rpx;
+  margin-bottom: 26rpx;
+  line-height: 1.7;
+}
+
+.form-panel { padding: 32rpx 38rpx; }
+.form-row { padding: 22rpx 0; }
+.form-input {
+  flex: 1;
+  height: 76rpx;
+  line-height: 76rpx;
+  font-size: 29rpx;
+  text-align: right;
+  color: #302D2A;
+  background: transparent;
+  padding: 0;
+}
+.picker-value {
+  font-size: 29rpx;
+  color: #302D2A;
+  text-align: right;
+  min-height: 76rpx;
+  line-height: 76rpx;
+}
+.picker-value.disabled { color: #B8B2AB; }
+.picker-value.readonly { color: #302D2A; font-weight: 600; }
+.picker-value.has-proof { color: #6EA782; }
+.picker-chev {
+  color: #B8B2AB;
+  margin-left: 10rpx;
+  font-size: 26rpx;
+}
+
+/* 疫苗开关 */
+.vaccine-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  padding: 6rpx 0 14rpx;
+}
+.vaccine-title { flex: 1; min-width: 0; }
+.vaccine-name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #302D2A;
+}
+.vaccine-sub {
+  font-size: 24rpx;
+  color: #B8B2AB;
+  margin-top: 6rpx;
+  line-height: 1.6;
+}
+.switch {
+  width: 92rpx;
+  height: 52rpx;
+  border-radius: 999rpx;
+  background: #e5e6eb;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.switch.on { background: #F47732; }
+.switch-dot {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  transition: left 0.2s;
+}
+.switch.on .switch-dot { left: 44rpx; }
+
+.delete-btn { margin-top: 10rpx; }

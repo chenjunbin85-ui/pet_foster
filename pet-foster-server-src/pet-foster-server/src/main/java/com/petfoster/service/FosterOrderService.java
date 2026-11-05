@@ -11,6 +11,7 @@ import com.petfoster.entity.FosterOrder;
 import com.petfoster.entity.FosterPrice;
 import com.petfoster.entity.Pet;
 import com.petfoster.enums.OrderStatus;
+import com.petfoster.enums.PaymentMethod;
 import com.petfoster.enums.PaymentStatus;
 import com.petfoster.mapper.CustomerMapper;
 import com.petfoster.mapper.FosterOrderMapper;
@@ -76,14 +77,17 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         o.setPriceId(price.getPriceId());
         o.setPricePerDay(price.getPricePerDay());
         o.setStatus(OrderStatus.PENDING.getValue());
-        o.setPaymentStatus(PaymentStatus.UNPAID.getValue());
+        // 前台创建订单即完成收款（演示），不再产生未支付订单
+        o.setPaymentStatus(PaymentStatus.PAID.getValue());
+        o.setPaymentMethod(PaymentMethod.WECHAT.getValue());
+        o.setPaymentTime(LocalDateTime.now());
         o.setRemark(dto.getRemark());
         o.setCreatorId(creatorId);
         o.setCreateTime(LocalDateTime.now());
         // 自动计算总费用（以价位表价格为准）
         o.setTotalFee(calcTotalFee(dto.getStartDate(), dto.getEndDate(), price.getPricePerDay()));
+        o.setPaidAmount(o.getTotalFee());
         save(o);
-        // 返回新订单完整信息，供前端创建后自动弹出收银台
         return toVO(o);
     }
 
@@ -137,7 +141,7 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
     }
 
     /** 校验价位档位存在且启用，返回档位（价格以价位表为准，不接受前端自定义单价） */
-    private FosterPrice resolvePrice(Long priceId) {
+    public FosterPrice resolvePrice(Long priceId) {
         if (priceId == null) throw new BusinessException("请选择寄养价位档位");
         FosterPrice price = fosterPriceMapper.selectById(priceId);
         if (price == null) throw new BusinessException("价位档位不存在");
@@ -147,12 +151,13 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         return price;
     }
 
-    private BigDecimal calcTotalFee(LocalDate start, LocalDate end, BigDecimal pricePerDay) {
+    /** 按天计费：天数 = 离店-入住+1（同日 1 天），金额 = 单价 × 天数 */
+    public BigDecimal calcTotalFee(LocalDate start, LocalDate end, BigDecimal pricePerDay) {
         long days = ChronoUnit.DAYS.between(start, end) + 1;
         return pricePerDay.multiply(BigDecimal.valueOf(days));
     }
 
-    private String generateOrderNo() {
+    public String generateOrderNo() {
         String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         // 物理计数（含逻辑删除订单）：订单号一旦生成永久占用，避免序号复用与唯一键冲突
         Long count = baseMapper.countByOrderNoPrefix("FO" + datePart);
@@ -190,6 +195,14 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         vo.setPaymentMethod(o.getPaymentMethod());
         vo.setPaymentTime(o.getPaymentTime());
         vo.setPaidAmount(o.getPaidAmount());
+        vo.setExpiresAt(o.getExpiresAt());
+        if (o.getStartDate() != null && o.getEndDate() != null) {
+            vo.setStayDays(Math.toIntExact(ChronoUnit.DAYS.between(o.getStartDate(), o.getEndDate()) + 1));
+        }
+        if (o.getPriceId() != null) {
+            FosterPrice fp = fosterPriceMapper.selectById(o.getPriceId());
+            if (fp != null) vo.setPriceLevelName(fp.getLevelName());
+        }
         vo.setCreatorId(o.getCreatorId() != null ? String.valueOf(o.getCreatorId()) : null);
         vo.setCreatedAt(o.getCreateTime());
         // 填充客户姓名和宠物名

@@ -1,0 +1,48 @@
+<view class="page result-page">
+  <block wx:if="{{order}}">
+    <!-- 成功标识：88px 圆形 -->
+    <view class="result-hero">
+      <view class="success-icon">
+        <text class="success-mark">✓</text>
+      </view>
+      <view class="result-title">支付成功</view>
+      <view class="result-copy">本次托付已确认，我们会好好照顾 {{order.petName}}。</view>
+      <view class="result-fee">¥{{order.totalFeeText}}</view>
+      <view class="result-order">订单号 {{order.orderNo}}</view>
+    </view>
+
+    <!-- 订单信息 -->
+    <view class="panel">
+      <view class="section-head"><text class="section-head-title">寄养信息</text></view>
+      <view class="info-rows">
+        <view class="info-row">
+          <text class="info-label">入住宠物</text>
+          <text class="info-value">{{order.petName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养房型</text>
+          <text class="info-value">{{order.priceLevelName || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养日期</text>
+          <text class="info-value">{{order.startDate}} → {{order.endDate}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养天数</text>
+          <text class="info-value">{{order.stayText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 演示提示 -->
+    <view class="demo-payment-tip">
+      <text class="tip-strong">演示环境</text>
+      <text>本次为模拟支付，未产生真实扣款。正式支付须接入服务端与微信支付能力后启用。</text>
+    </view>
+
+    <view class="result-actions">
+      <button class="btn btn-secondary" hover-class="btn-hover" bindtap="goHome">返回首页</button>
+      <button class="btn btn-primary" hover-class="btn-hover" bindtap="goOrders">查看历史订单</button>
+    </view>
+  </block>
+</view>

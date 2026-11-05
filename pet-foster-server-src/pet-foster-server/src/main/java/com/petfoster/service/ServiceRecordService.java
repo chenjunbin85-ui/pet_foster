@@ -7,9 +7,9 @@ import com.petfoster.common.BusinessException;
 import com.petfoster.common.PageResult;
 import com.petfoster.dto.ServiceRecordDTO;
 import com.petfoster.entity.ServiceRecord;
-import com.petfoster.entity.SysUser;
+import com.petfoster.entity.Staff;
 import com.petfoster.mapper.ServiceRecordMapper;
-import com.petfoster.mapper.SysUserMapper;
+import com.petfoster.mapper.StaffMapper;
 import com.petfoster.vo.ServiceRecordVO;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 @Service
 public class ServiceRecordService extends ServiceImpl<ServiceRecordMapper, ServiceRecord> {
 
-    private final SysUserMapper sysUserMapper;
+    private final StaffMapper staffMapper;
 
-    public ServiceRecordService(SysUserMapper sysUserMapper) {
-        this.sysUserMapper = sysUserMapper;
+    public ServiceRecordService(StaffMapper staffMapper) {
+        this.staffMapper = staffMapper;
     }
 
     public PageResult<ServiceRecordVO> page(long page, long size, Long orderId, Long petId) {
@@ -75,7 +75,7 @@ public class ServiceRecordService extends ServiceImpl<ServiceRecordMapper, Servi
         vo.setServiceTime(r.getServiceTime());
         vo.setKeeperId(r.getKeeperId() != null ? String.valueOf(r.getKeeperId()) : null);
         if (r.getKeeperId() != null) {
-            SysUser u = sysUserMapper.selectById(r.getKeeperId());
+            Staff u = staffMapper.selectById(r.getKeeperId());
             if (u != null) vo.setKeeper(u.getRealName());
         }
         return vo;

@@ -19,12 +19,15 @@ public class FosterOrder {
     private Long priceId;
     private BigDecimal pricePerDay;
     private BigDecimal totalFee;
+    private Long storeId;
     private String status;
     private String remark;
     private String paymentStatus;
     private String paymentMethod;
     private LocalDateTime paymentTime;
     private BigDecimal paidAmount;
+    /** 支付截止时间（下单后 15 分钟未支付自动关闭） */
+    private LocalDateTime expiresAt;
     private Long creatorId;
     private LocalDateTime createTime;
     @TableLogic

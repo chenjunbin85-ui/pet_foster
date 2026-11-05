@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>毛球旅馆用户端微信小程序 · 原型总览（中保真线框 v3）</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;background:#F5F6F7;padding:28px}
+  h1{font-size:20px;color:#1F2937;margin-bottom:6px}
+  .sub{font-size:13px;color:#6B7280;margin-bottom:24px}
+  .grid{display:flex;flex-wrap:wrap;gap:20px}
+  .cell{width:216px;background:#fff;border:1px solid #E8EAED;border-radius:10px;overflow:hidden}
+  .cell img{width:216px;display:block;transform-origin:top left;transform:scale(0.576);height:auto}
+  .cap{padding:10px 12px;font-size:13px;color:#374151;font-weight:600;border-top:1px solid #F3F4F6}
+  .flow{font-size:12px;color:#9CA3AF;margin-top:2px;font-weight:400}
+</style>
+</head>
+<body>
+<h1>毛球旅馆用户端微信小程序 · 中保真线框原型 v3（订酒店风格）</h1>
+<div class="sub">共 10 页 · 首页=立即预订面板+热门房型 → 确认订单 → 在线支付 → 支付结果；「我的预约」更名「历史订单」</div>
+<div class="grid">
+  <div class="cell"><img src="01_登录.png" alt="登录"><div class="cap">01 登录<div class="flow">手机号+密码登录 / 注册</div></div></div>
+  <div class="cell"><img src="02_首页.png" alt="首页·立即预订"><div class="cap">02 首页·立即预订<div class="flow">预订面板（宠物/日期）+热门房型</div></div></div>
+  <div class="cell"><img src="03_确认订单.png" alt="确认订单"><div class="cap">03 确认订单<div class="flow">入住信息/价格明细/备注/协议</div></div></div>
+  <div class="cell"><img src="04_在线支付.png" alt="在线支付"><div class="cap">04 在线支付<div class="flow">微信支付（沙箱）</div></div></div>
+  <div class="cell"><img src="05_支付结果.png" alt="支付结果"><div class="cap">05 支付结果<div class="flow">沙箱仿真支付成功</div></div></div>
+  <div class="cell"><img src="06_历史订单.png" alt="历史订单"><div class="cap">06 历史订单<div class="flow">Tab2 · 搜索/筛选/支付倒计时</div></div></div>
+  <div class="cell"><img src="07_订单详情.png" alt="订单详情"><div class="cap">07 订单详情<div class="flow">取消订单确认弹窗</div></div></div>
+  <div class="cell"><img src="08_我的宠物.png" alt="我的宠物"><div class="cap">08 我的宠物<div class="flow">档案列表/新增入口</div></div></div>
+  <div class="cell"><img src="09_新增宠物.png" alt="新增宠物"><div class="cap">09 新增/编辑宠物<div class="flow">档案表单</div></div></div>
+  <div class="cell"><img src="10_个人中心.png" alt="个人中心"><div class="cap">10 个人中心<div class="flow">Tab3 · 我的/退出登录</div></div></div>
+</div>
+</body>
+</html>

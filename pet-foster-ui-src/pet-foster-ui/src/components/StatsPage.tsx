@@ -11,8 +11,9 @@ import {
   type OrderTrend,
   type OrderVO,
 } from "@/api"
+import { BASE_URL } from "@/api/client"
 
-const API_BASE = "http://127.0.0.1:8090"
+const API_BASE = BASE_URL
 const COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"]
 
 export function StatsPage({ onNavigate }: { onNavigate?: (status?: string) => void }) {
@@ -112,20 +113,29 @@ export function StatsPage({ onNavigate }: { onNavigate?: (status?: string) => vo
     period === "month" ? "本月" : period === "quarter" ? "本季度" :
     period === "year" ? "本年" : "自定义"
 
-  const exportExcel = () => {
-    const token = getToken()
-    fetch(`${API_BASE}/api/export/orders`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-      .then((res) => res.blob())
-      .then((blob) => {
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = "门店经营数据.xlsx"
-        a.click()
-        URL.revokeObjectURL(url)
-        toast.success("订单数据已导出")
+  const exportExcel = async () => {
+    try {
+      const token = getToken()
+      const res = await fetch(`${API_BASE}/api/export/orders`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       })
-      .catch(() => toast.error("导出失败"))
+      // 非 2xx：后端返回 JSON 错误（如 401/403），解析后提示，不下载错误内容
+      if (!res.ok) {
+        const err = await res.json().catch(() => null)
+        toast.error(err?.message || `导出失败 (${res.status})`)
+        return
+      }
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = "门店经营数据.xlsx"
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success("订单数据已导出")
+    } catch {
+      toast.error("导出失败，请检查网络或登录状态")
+    }
   }
 
   // 四卡点击跳转到订单流水页并预设状态筛选：已完成/已取消 → 对应筛选；订单总数/总营收 → 全部流水

@@ -13,5 +13,13 @@ public class Customer {
     private String phone;
     private String address;
     private String remark;
+    /** 小程序登录账号（手机号） */
+    private String username;
+    /** 密码（BCrypt 加密） */
+    private String password;
+    /** 状态: 0禁用 1启用 */
+    private Integer status;
+    /** 最后登录时间 */
+    private LocalDateTime lastLoginTime;
     private LocalDateTime createTime;
 }

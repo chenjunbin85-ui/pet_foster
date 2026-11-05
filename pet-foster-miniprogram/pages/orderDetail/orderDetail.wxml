@@ -1,0 +1,218 @@
+<view class="page detail-page">
+  <block wx:if="{{order}}">
+    <!-- 页头 -->
+    <view class="page-heading">
+      <view class="page-heading-title">
+        <text class="back-chevron" bindtap="back">‹</text>
+        <text>订单详情</text>
+      </view>
+    </view>
+
+    <!-- 状态卡 -->
+    <view class="status-card">
+      <view class="status-row">
+        <text class="badge {{order.statusClass}}">{{order.status}}</text>
+      </view>
+      <view class="status-text">{{statusText}}</view>
+    </view>
+
+    <!-- 寄养服务进度 -->
+    <view class="panel timeline-panel" wx:if="{{order.status !== '已取消'}}">
+      <view class="section-head"><text class="section-head-title">寄养服务进度</text></view>
+      <view class="timeline">
+        <view wx:for="{{timeline}}" wx:key="key" class="tl-item {{item.current ? 'current' : ''}} {{item.done ? 'done' : ''}}">
+          <view class="tl-dot"></view>
+          <view class="tl-body">
+            <view class="tl-label">{{item.label}}</view>
+            <view class="tl-desc">{{item.desc}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 每日照护记录（寄养中/已完成可见） -->
+    <view class="panel" id="care-panel" wx:if="{{careRecords.length > 0}}">
+      <view class="section-head"><text class="section-head-title">每日照护记录</text></view>
+      <view wx:for="{{careRecords}}" wx:key="recordId" class="care-item">
+        <view class="care-day">第{{item.day}}天</view>
+        <view class="care-body">
+          <view class="care-type">{{item.type === 'PHOTO' ? '📷 照片' : item.type === 'DIET' ? '🍖 饮食' : item.type === 'ACTIVITY' ? '🎾 活动' : '💊 健康'}}</view>
+          <view class="care-content">{{item.content}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 评价入口（已完成订单） -->
+    <view class="panel" wx:if="{{order.status === '已完成'}}">
+      <view class="section-head"><text class="section-head-title">订单评价</text></view>
+      <view wx:if="{{existingReview}}" class="review-shown">
+        <view class="review-stars">{{existingReview.rating}} 星</view>
+        <view class="review-content">{{existingReview.content || '（未填写文字评价）'}}</view>
+      </view>
+      <view wx:else class="review-empty">
+        <text>这次寄养体验如何？分享你的评价吧。</text>
+        <button class="btn btn-primary btn-sm" hover-class="btn-hover" bindtap="openReview">去评价</button>
+      </view>
+    </view>
+
+    <!-- 订单信息 -->
+    <view class="panel">
+      <view class="section-head"><text class="section-head-title">订单信息</text></view>
+      <view class="info-rows">
+        <view class="info-row">
+          <text class="info-label">订单号</text>
+          <text class="info-value order-no">{{order.orderNo}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">入住宠物</text>
+          <text class="info-value">{{order.petName}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养房型</text>
+          <text class="info-value">{{order.priceLevelName || '—'}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养日期</text>
+          <text class="info-value">{{order.dateText}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">寄养时长</text>
+          <text class="info-value">{{order.stayText}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">入住时间</text>
+          <text class="info-value">{{order.startDate}} 10:00（建议）</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">离店时间</text>
+          <text class="info-value">{{order.endDate}} 18:00（建议）</text>
+        </view>
+        <view class="info-row" wx:if="{{order.remark}}">
+          <text class="info-label">备注</text>
+          <text class="info-value">{{order.remark}}</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">下单时间</text>
+          <text class="info-value">{{order.createdText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 费用信息 -->
+    <view class="panel">
+      <view class="section-head"><text class="section-head-title">费用明细</text></view>
+      <view class="info-row">
+        <text class="info-label">单价</text>
+        <text class="info-value">¥{{order.pricePerDay}} / 晚</text>
+      </view>
+      <view class="info-row fee-stay-row">
+        <text class="info-label">寄养天数</text>
+        <text class="info-value">{{order.stayText}}</text>
+      </view>
+      <view class="total-row">
+        <text>合计金额</text>
+        <text class="total-row-amount">¥{{order.totalFeeText}}</text>
+      </view>
+      <view class="form-hint">按入住晚数计算，入住建议 10:00、离店建议 18:00；含每日喂养、基础照护与清洁，无押金。</view>
+    </view>
+
+    <!-- 门店指南 -->
+    <view class="panel store-panel" bindtap="openContact">
+      <view class="section-head"><text class="section-head-title">门店指南</text></view>
+      <view class="info-rows">
+        <view class="info-row">
+          <text class="info-label">门店地址</text>
+          <text class="info-value">杭州市西湖区毛球路 16 号</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">营业时间</text>
+          <text class="info-value">09:00–21:00</text>
+        </view>
+        <view class="info-row">
+          <text class="info-label">客服电话</text>
+          <text class="info-value text-primary">400-080-6060 ›</text>
+        </view>
+      </view>
+      <view class="store-note">建议 10:00–18:00 到店，请携带疫苗证明、常用粮和牵引用品。猫狗独立分区，不混住。</view>
+    </view>
+
+    <!-- 操作区 -->
+    <view class="detail-actions">
+      <button
+        wx:if="{{order.status === '待入店'}}"
+        class="btn btn-secondary"
+        hover-class="btn-hover"
+        bindtap="openCancel"
+      >取消预约</button>
+      <block wx:if="{{order.status === '寄养中'}}">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="openContact">联系客服</button>
+        <button class="btn btn-primary" hover-class="btn-hover" bindtap="scrollToCare">查看照护记录</button>
+      </block>
+      <block wx:if="{{order.status === '已完成'}}">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="bookAgain">再次预约</button>
+        <button class="btn btn-primary" hover-class="btn-hover" bindtap="openReview">评价服务</button>
+      </block>
+      <button
+        wx:if="{{order.status === '已取消'}}"
+        class="btn btn-primary"
+        hover-class="btn-hover"
+        bindtap="bookAgain"
+      >再次预约</button>
+    </view>
+  </block>
+
+  <!-- 取消确认 -->
+  <view class="modal-mask" wx:if="{{showConfirmCancel}}" bindtap="closeConfirmCancel">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">确认取消订单？</view>
+      <view class="modal-copy">
+        {{order.paymentStatus === '已支付' ? '该订单已支付 ¥' + order.totalFeeText + '。取消后不可恢复；确认后将继续核对退款金额。' : '该订单尚未支付。取消后订单关闭，不可恢复；不涉及退款。'}}
+      </view>
+      <view class="modal-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeConfirmCancel">再想想</button>
+        <button class="btn btn-danger" hover-class="btn-hover" bindtap="proceedRefundNote">确认取消</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退款核对 -->
+  <view class="modal-mask" wx:if="{{showRefundNote}}" bindtap="closeRefundNote">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">核对退款金额</view>
+      <view class="modal-copy">
+        {{order.paymentStatus === '已支付' ? '¥' + order.totalFeeText + ' 将模拟原路退回。真实退款预计 1–3 个工作日到账；本次为演示退款，不发生真实资金变动。' : '该订单未支付，不涉及退款。'}}
+      </view>
+      <view class="modal-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeRefundNote">暂不取消</button>
+        <button class="btn btn-danger" hover-class="btn-hover" loading="{{cancelling}}" bindtap="doCancel">确认取消并退款</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系门店 -->
+  <view class="mask" wx:if="{{showContact}}" bindtap="closeContact">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-title">联系门店</view>
+      <view class="sheet-copy">客服电话：400-080-6060\n营业时间：09:00–21:00\n地址：杭州市西湖区毛球路 16 号</view>
+      <view class="sheet-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeContact">取消</button>
+        <button class="btn btn-primary" hover-class="btn-hover" bindtap="callStore">拨打客服</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 评价弹层 -->
+  <view class="modal-mask" wx:if="{{showReview}}" bindtap="closeReview">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">评价订单</view>
+      <view class="rating-row">
+        <text wx:for="{{[1,2,3,4,5]}}" wx:key="*this" class="star {{item <= rating ? 'on' : ''}}" data-r="{{item}}" bindtap="setRating">★</text>
+      </view>
+      <textarea class="review-textarea" placeholder="说说寄养体验（选填）" placeholder-class="placeholder" maxlength="200" value="{{reviewContent}}" bindinput="onReviewInput"></textarea>
+      <view class="modal-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeReview">取消</button>
+        <button class="btn btn-primary" hover-class="btn-hover" loading="{{submittingReview}}" bindtap="submitReview">提交评价</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -10,7 +10,7 @@ public class SysUserDTO {
     private String password;
     @NotBlank(message = "真实姓名不能为空")
     private String realName;
-    private String role;
+    private String position;
     private Integer status;
     private String remark;
 }

@@ -1,0 +1,137 @@
+<view class="page edit-page">
+  <!-- 页头 -->
+  <view class="page-heading">
+    <view class="page-heading-title">
+      <text class="back-chevron" bindtap="back">‹</text>
+      <text>{{isEdit ? '编辑宠物' : '新增宠物'}}</text>
+    </view>
+  </view>
+
+  <view class="lock-tip" wx:if="{{locked}}">该宠物存在进行中预约，关键信息已锁定，仅可补充毛色与备注。</view>
+
+  <!-- 宠物头像上传 -->
+  <view class="avatar-upload" bindtap="chooseAvatar">
+    <image class="avatar-preview" src="/images/pet-{{breed && breed.indexOf('猫') > -1 ? 'cat' : 'dog'}}.png" mode="aspectFill" />
+    <view class="avatar-hint">点击上传宠物照片</view>
+  </view>
+
+  <!-- 基本信息 -->
+  <view class="panel form-panel">
+    <view class="section-head"><text class="section-head-title">基本信息</text></view>
+    <view class="form-row">
+      <view class="form-label">昵称</view>
+      <input class="form-input" placeholder="宠物昵称" placeholder-class="placeholder" maxlength="20" value="{{name}}" disabled="{{locked}}" bindinput="onNameInput" />
+    </view>
+    <view class="form-row">
+      <view class="form-label">品种</view>
+      <input class="form-input" placeholder="如：泰迪、布偶猫" placeholder-class="placeholder" maxlength="30" value="{{breed}}" disabled="{{locked}}" bindinput="onBreedInput" />
+    </view>
+    <view class="form-row">
+      <view class="form-label">性别</view>
+      <picker mode="selector" range="{{['公', '母']}}" value="{{genderIndex}}" disabled="{{locked}}" bindchange="onGenderChange">
+        <view class="picker-value {{locked ? 'disabled' : ''}}">{{gender}}<text class="picker-chev">›</text></view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <view class="form-label">出生日期</view>
+      <picker mode="date" value="{{birthDate}}" end="{{today}}" disabled="{{locked}}" bindchange="onBirthDateChange">
+        <view class="picker-value {{locked ? 'disabled' : ''}}">{{birthDate || '选择后自动计算年龄'}}<text class="picker-chev">›</text></view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <view class="form-label">年龄</view>
+      <input wx:if="{{!birthDate}}" class="form-input" type="digit" placeholder="岁（或选择出生日期自动计算）" placeholder-class="placeholder" maxlength="3" value="{{age}}" disabled="{{locked}}" bindinput="onAgeInput" />
+      <view wx:else class="picker-value readonly">{{age}} 岁</view>
+    </view>
+    <view class="form-row">
+      <view class="form-label">体重</view>
+      <input class="form-input" type="digit" placeholder="kg，精确到 0.1" placeholder-class="placeholder" maxlength="6" value="{{weight}}" disabled="{{locked}}" bindinput="onWeightInput" />
+    </view>
+    <view class="form-row">
+      <view class="form-label">毛色</view>
+      <input class="form-input" placeholder="如：棕色卷毛（选填）" placeholder-class="placeholder" maxlength="30" value="{{color}}" bindinput="onColorInput" />
+    </view>
+    <view class="form-row">
+      <view class="form-label">是否绝育</view>
+      <picker class="form-value" range="{{neuterOptions}}" value="{{neuterIndex}}" bindchange="onNeuterChange">
+        <view class="picker-value {{locked ? 'disabled' : ''}}">{{neuterOptions[neuterIndex]}}<text class="picker-chev">›</text></view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 特征与习惯 -->
+  <view class="panel form-panel">
+    <view class="section-head"><text class="section-head-title">性格与习惯（选填）</text></view>
+    <view class="form-row">
+      <view class="form-label">性格</view>
+      <input class="form-input" placeholder="如：温顺、怕生、活泼" placeholder-class="placeholder" maxlength="30" value="{{personality}}" bindinput="onPersonalityInput" />
+    </view>
+    <view class="form-row">
+      <view class="form-label">饮食习惯</view>
+      <input class="form-input" placeholder="如：每日 2 餐、忌牛肉" placeholder-class="placeholder" maxlength="60" value="{{diet}}" bindinput="onDietInput" />
+    </view>
+  </view>
+
+  <!-- 免疫信息 -->
+  <view class="panel form-panel">
+    <view class="section-head"><text class="section-head-title">免疫信息</text></view>
+    <view class="vaccine-head" bindtap="toggleVaccinated">
+      <view class="vaccine-title">
+        <view class="vaccine-name">已接种疫苗</view>
+        <view class="vaccine-sub">接种后可补充疫苗名与日期，到店核验证明</view>
+      </view>
+      <view class="switch {{vaccinated ? 'on' : ''}}">
+        <view class="switch-dot"></view>
+      </view>
+    </view>
+    <block wx:if="{{vaccinated}}">
+      <view class="form-row">
+        <view class="form-label">疫苗名</view>
+        <input class="form-input" placeholder="如：狂犬疫苗、猫三联（选填）" placeholder-class="placeholder" maxlength="40" value="{{vaccineName}}" disabled="{{locked}}" bindinput="onVaccineNameInput" />
+      </view>
+      <view class="form-row">
+        <view class="form-label">接种日期</view>
+        <picker mode="date" value="{{vaccineDate}}" end="{{today}}" disabled="{{locked}}" bindchange="onVaccineDateChange">
+          <view class="picker-value {{locked ? 'disabled' : ''}}">{{vaccineDate || '请选择日期（选填）'}}<text class="picker-chev">›</text></view>
+        </picker>
+      </view>
+      <view class="form-row" bindtap="chooseVaccineProof">
+        <view class="form-label">疫苗证明</view>
+        <view class="picker-value {{vaccineProof ? 'has-proof' : ''}}">{{vaccineProof || '上传证明照片（选填）'}}<text class="picker-chev">›</text></view>
+      </view>
+    </block>
+  </view>
+
+  <!-- 备注 -->
+  <view class="panel form-panel">
+    <view class="section-head"><text class="section-head-title">备注</text></view>
+    <view class="form-row">
+      <view class="form-label">过敏史</view>
+      <input class="form-input" placeholder="如：无 / 对某种药物过敏" placeholder-class="placeholder" maxlength="60" value="{{allergy}}" bindinput="onAllergyInput" />
+    </view>
+    <view class="form-row">
+      <view class="form-label">疾病史</view>
+      <input class="form-input" placeholder="选填，如：已康复、需持续观察" placeholder-class="placeholder" maxlength="60" value="{{medical}}" bindinput="onMedicalInput" />
+    </view>
+    <textarea class="textarea" placeholder="性格、忌口、常用粮等（选填）" placeholder-class="placeholder" maxlength="255" value="{{history}}" bindinput="onHistoryInput"></textarea>
+  </view>
+
+  <button class="btn btn-danger delete-btn" wx:if="{{isEdit}}" hover-class="btn-hover" bindtap="openDelete">删除档案</button>
+
+  <!-- 底部固定动作栏 -->
+  <view class="action-bar">
+    <button class="btn btn-primary" hover-class="btn-hover" loading="{{saving}}" bindtap="save">保存</button>
+  </view>
+
+  <!-- 删除确认 -->
+  <view class="modal-mask" wx:if="{{showDelete}}" bindtap="closeDelete">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">删除宠物档案？</view>
+      <view class="modal-copy">删除后不可恢复；历史订单保留原始宠物信息。存在进行中预约时不可删除。</view>
+      <view class="modal-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeDelete">再想想</button>
+        <button class="btn btn-danger" hover-class="btn-hover" bindtap="confirmDelete">确认删除</button>
+      </view>
+    </view>
+  </view>
+</view>

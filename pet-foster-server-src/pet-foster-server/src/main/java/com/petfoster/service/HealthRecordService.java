@@ -7,9 +7,9 @@ import com.petfoster.common.BusinessException;
 import com.petfoster.common.PageResult;
 import com.petfoster.dto.HealthRecordDTO;
 import com.petfoster.entity.HealthRecord;
-import com.petfoster.entity.SysUser;
+import com.petfoster.entity.Staff;
 import com.petfoster.mapper.HealthRecordMapper;
-import com.petfoster.mapper.SysUserMapper;
+import com.petfoster.mapper.StaffMapper;
 import com.petfoster.vo.HealthRecordVO;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +20,10 @@ import java.util.stream.Collectors;
 @Service
 public class HealthRecordService extends ServiceImpl<HealthRecordMapper, HealthRecord> {
 
-    private final SysUserMapper sysUserMapper;
+    private final StaffMapper staffMapper;
 
-    public HealthRecordService(SysUserMapper sysUserMapper) {
-        this.sysUserMapper = sysUserMapper;
+    public HealthRecordService(StaffMapper staffMapper) {
+        this.staffMapper = staffMapper;
     }
 
     public PageResult<HealthRecordVO> page(long page, long size, Long petId, Long orderId) {
@@ -96,7 +96,7 @@ public class HealthRecordService extends ServiceImpl<HealthRecordMapper, HealthR
         vo.setRecorderId(r.getRecorderId() != null ? String.valueOf(r.getRecorderId()) : null);
         // 填充记录人姓名
         if (r.getRecorderId() != null) {
-            SysUser u = sysUserMapper.selectById(r.getRecorderId());
+            Staff u = staffMapper.selectById(r.getRecorderId());
             if (u != null) vo.setRecorder(u.getRealName());
         }
         vo.setRecordTime(r.getRecordTime());

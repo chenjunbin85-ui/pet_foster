@@ -212,15 +212,9 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
         priceId: Number(draft.priceId),
         remark: draft.remark.trim(),
       }) as OrderVO
-      setNotice("订单已创建，请完成支付。")
+      setNotice("订单已创建并完成收款。")
       close()
       await load(page, query, statusFilter)
-      // 自动弹出支付弹窗
-      if (created && created.id) {
-        setPayOrder(created)
-        setPayMethod("微信")
-        setDialogError("")
-      }
     } catch (e) {
       setDialogError(e instanceof Error ? e.message : "创建失败")
     } finally {
@@ -382,26 +376,6 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
                   <td>
                     <div className="order-status-col">
                       <span className="soft-badge">{row.status}</span>
-                      {/* 已收款是默认期待状态，不占第二行；只有待收款才提示，且带上金额（仅工作人员可操作收银台） */}
-                      {!isAdmin && row.paymentStatus !== "已支付" && row.status !== "已取消" && (
-                        <button
-                          type="button"
-                          className={`pay-due-tag${row.status === "已完成" ? " overdue" : ""}`}
-                          title={
-                            row.status === "已完成"
-                              ? `已完成但尚未收款，点击补收 ¥${Number(row.totalFee).toLocaleString("zh-CN")}`
-                              : `点击打开收银台，收取 ¥${Number(row.totalFee).toLocaleString("zh-CN")}`
-                          }
-                          onClick={() => {
-                            setPayOrder(row)
-                            setPayMethod("微信")
-                            setDialogError("")
-                          }}
-                        >
-                          <span className="pay-due-dot"></span>
-                          待收款 ¥{Number(row.totalFee).toLocaleString("zh-CN")}
-                        </button>
-                      )}
                     </div>
                   </td>
                   <td className="customer-created">{formatDateTime(row.createdAt)}</td>
@@ -508,9 +482,6 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
                   ["每日单价", `${selected?.pricePerDay ?? ""} 元`],
                   ["总费用", `${selected?.totalFee ?? ""} 元`],
                   ["状态", selected?.status],
-                  ["支付状态", selected?.paymentStatus || "未支付"],
-                  ["支付方式", selected?.paymentMethod || "—"],
-                  ["支付时间", selected?.paymentTime ? formatDateTime(selected.paymentTime) : "—"],
                   ["特殊备注", selected?.remark || "—"],
                   ["创建时间", selected?.createdAt ? formatDateTime(selected.createdAt) : "—"],
                 ].map(([label, value]) => (
@@ -568,13 +539,6 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
                 <div className="dialog-actions">
                   <button className="primary-action" onClick={() => doAction(selected.id, "check-out", `订单 ${selected.orderNo} 已完成离店。`)}>
                     完成离店
-                  </button>
-                </div>
-              )}
-              {!isAdmin && selected?.paymentStatus !== "已支付" && selected?.status !== "已取消" && (
-                <div className="dialog-actions">
-                  <button className="primary-action pay-dialog-btn" onClick={() => { setPayOrder(selected); setPayMethod("微信"); setDialogError("") }}>
-                    立即支付 ¥{selected?.totalFee}
                   </button>
                 </div>
               )}

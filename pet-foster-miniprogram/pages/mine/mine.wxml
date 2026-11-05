@@ -1,0 +1,112 @@
+<view class="page mine-page">
+  <!-- 页头 -->
+  <view class="page-heading">
+    <text class="heading-title">个人中心</text>
+  </view>
+
+  <!-- 概览卡 -->
+  <view class="card overview-card">
+    <view class="overview-head">
+      <view class="overview-avatar">{{avatarText}}</view>
+      <view class="overview-info">
+        <view class="overview-name">{{customer.name || '爱宠家长'}}</view>
+        <view class="overview-phone">{{phoneText}}</view>
+      </view>
+      <view class="overview-edit" bindtap="openProfile">
+        <text>编辑资料</text>
+        <image class="chev-icon" src="/images/icon-chevron-brand.png" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view class="overview-divider"></view>
+
+    <view class="overview-stats">
+      <view class="stat-cell" data-filter="寄养中" bindtap="goOrders">
+        <view class="stat-num">{{stats.fostering}}</view>
+        <view class="stat-label">寄养中</view>
+      </view>
+      <view class="stat-cell" data-filter="已完成" bindtap="goOrders">
+        <view class="stat-num">{{stats.completed}}</view>
+        <view class="stat-label">已完成</view>
+      </view>
+      <view class="stat-cell" data-filter="全部" bindtap="goOrders">
+        <view class="stat-num">{{stats.cumulative}}</view>
+        <view class="stat-label">累计寄养</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 菜单卡 -->
+  <view class="card menu-card">
+    <view class="menu-row" bindtap="goPets">
+      <view class="menu-label">我的宠物</view>
+      <image class="menu-chev" src="/images/icon-chevron-gray.png" mode="aspectFit" />
+    </view>
+    <view class="menu-row" bindtap="openCoupons">
+      <view class="menu-label">我的优惠券</view>
+      <image class="menu-chev" src="/images/icon-chevron-gray.png" mode="aspectFit" />
+    </view>
+    <view class="menu-row" bindtap="openReviews">
+      <view class="menu-label">我的评价</view>
+      <image class="menu-chev" src="/images/icon-chevron-gray.png" mode="aspectFit" />
+    </view>
+    <view class="menu-row" bindtap="openContact">
+      <view class="menu-label">联系门店客服</view>
+      <image class="menu-chev" src="/images/icon-chevron-gray.png" mode="aspectFit" />
+    </view>
+    <view class="menu-row" bindtap="openAbout">
+      <view class="menu-label">关于我们</view>
+      <image class="menu-chev" src="/images/icon-chevron-gray.png" mode="aspectFit" />
+    </view>
+  </view>
+
+  <view class="logout-bar">
+    <button class="btn logout-btn" hover-class="btn-hover" bindtap="logout">退出登录</button>
+  </view>
+  <view class="version-note">v1.0.0</view>
+
+  <!-- 编辑资料（演示） -->
+  <view class="modal-mask" wx:if="{{showProfile}}" bindtap="closeProfile">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">编辑资料</view>
+      <view class="modal-copy">演示环境暂不支持在线修改资料。\n如需变更手机号或昵称，请联系门店客服处理。</view>
+      <view class="modal-actions">
+        <button class="btn btn-primary" hover-class="btn-hover" bindtap="closeProfile">知道了</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系门店 -->
+  <view class="mask" wx:if="{{showContact}}" bindtap="closeContact">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-title">联系门店</view>
+      <view class="sheet-copy">客服电话：400-080-6060\n营业时间：09:00–21:00</view>
+      <view class="sheet-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeContact">取消</button>
+        <button class="btn btn-primary" hover-class="btn-hover" bindtap="callStore">拨打客服</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 关于我们 -->
+  <view class="modal-mask" wx:if="{{showAbout}}" bindtap="closeAbout">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">关于我们</view>
+      <view class="modal-copy about-copy">毛球旅馆 · 宠物寄养预约服务（毕业设计演示项目）\n版本 1.0.0\n地址：杭州市西湖区毛球路 16 号（演示地址）\n客服：400-080-6060（演示）</view>
+      <view class="modal-actions">
+        <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeAbout">关闭</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我的优惠券 / 我的评价（演示弹层） -->
+  <view class="modal-mask" wx:if="{{showDemoModal}}" bindtap="closeDemoModal">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">{{demoTitle}}</view>
+      <view class="modal-copy">{{demoText}}</view>
+      <view class="modal-actions">
+        <button class="btn btn-primary" hover-class="btn-hover" bindtap="closeDemoModal">我知道了</button>
+      </view>
+    </view>
+  </view>
+</view>

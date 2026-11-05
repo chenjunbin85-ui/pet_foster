@@ -5,28 +5,46 @@
 CREATE DATABASE IF NOT EXISTS pet_foster DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE pet_foster;
 
--- 1. 系统用户表
-DROP TABLE IF EXISTS sys_user;
-CREATE TABLE sys_user (
-    user_id     BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID',
-    username    VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名',
+-- 1. 管理员表（门店管理员账号，独立存储）
+DROP TABLE IF EXISTS sys_admin;
+CREATE TABLE sys_admin (
+    admin_id    BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '管理员ID',
+    username    VARCHAR(50) NOT NULL UNIQUE COMMENT '登录账号',
     password    VARCHAR(255) NOT NULL COMMENT '密码(BCrypt加密)',
     real_name   VARCHAR(50) NOT NULL COMMENT '真实姓名',
-    role        VARCHAR(20) NOT NULL DEFAULT 'staff' COMMENT '角色: admin/staff',
     status      TINYINT NOT NULL DEFAULT 1 COMMENT '状态: 0禁用 1启用',
     create_time DATETIME COMMENT '创建时间',
     remark      VARCHAR(255) COMMENT '备注'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统用户表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理员表';
 
--- 2. 客户表
+-- 1.1 工作人员表（护理员/前台等门店员工，独立存储）
+DROP TABLE IF EXISTS staff;
+CREATE TABLE staff (
+    staff_id    BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '工作人员ID',
+    username    VARCHAR(50) NOT NULL UNIQUE COMMENT '登录账号',
+    password    VARCHAR(255) NOT NULL COMMENT '密码(BCrypt加密)',
+    real_name   VARCHAR(50) NOT NULL COMMENT '真实姓名',
+    position    VARCHAR(50) COMMENT '岗位: 前台/护理员/兽医助理',
+    status      TINYINT NOT NULL DEFAULT 1 COMMENT '状态: 0禁用 1启用',
+    create_time DATETIME COMMENT '创建时间',
+    remark      VARCHAR(255) COMMENT '备注'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工作人员表';
+
+-- 1.2 用户表即 customer（小程序端客户，见第 2 节）
+
+-- 2. 客户表（小程序端：username 存手机号作为登录账号，password 为 BCrypt 加密）
 DROP TABLE IF EXISTS customer;
 CREATE TABLE customer (
-    customer_id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '客户ID',
-    name        VARCHAR(50) NOT NULL COMMENT '客户姓名',
-    phone       VARCHAR(20) COMMENT '联系电话',
-    address     VARCHAR(255) COMMENT '地址',
-    remark      VARCHAR(255) COMMENT '备注',
-    create_time DATETIME COMMENT '创建时间'
+    customer_id     BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '客户ID',
+    name            VARCHAR(50) NOT NULL COMMENT '客户姓名',
+    phone           VARCHAR(20) COMMENT '联系电话',
+    address         VARCHAR(255) COMMENT '地址',
+    remark          VARCHAR(255) COMMENT '备注',
+    username        VARCHAR(20) UNIQUE COMMENT '登录账号(手机号)',
+    password        VARCHAR(100) COMMENT '密码(BCrypt加密)',
+    status          TINYINT NOT NULL DEFAULT 1 COMMENT '状态: 0禁用 1启用',
+    last_login_time DATETIME COMMENT '最后登录时间',
+    create_time     DATETIME COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='客户表';
 
 -- 3. 宠物档案表
@@ -59,10 +77,11 @@ CREATE TABLE foster_order (
     total_fee      DECIMAL(10,2) COMMENT '总费用',
     status         VARCHAR(20) NOT NULL DEFAULT '待入店' COMMENT '状态: 待入店/寄养中/已完成/已取消',
     remark         VARCHAR(255) COMMENT '备注',
-    payment_status VARCHAR(20) DEFAULT '未支付' COMMENT '支付状态: 未支付/已支付',
+    payment_status VARCHAR(20) DEFAULT '未支付' COMMENT '支付状态: 未支付/已支付/已退款',
     payment_method VARCHAR(20) COMMENT '支付方式: 微信/支付宝/现金',
     payment_time   DATETIME COMMENT '支付时间',
     paid_amount    DECIMAL(10,2) COMMENT '实付金额',
+    expires_at     DATETIME COMMENT '支付截止时间(下单后15分钟未支付自动关闭)',
     creator_id     BIGINT COMMENT '创建人ID',
     create_time    DATETIME COMMENT '创建时间',
     deleted        TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除: 0正常 1已删除(页面不显示)'
@@ -114,10 +133,13 @@ CREATE TABLE foster_service_record (
 -- 初始数据
 -- ============================================
 
--- 用户: admin/admin123, staff01/staff123
-INSERT INTO sys_user (username, password, real_name, role, status, create_time, remark) VALUES
-('admin', '$2b$10$JTOsPJJdw7U5wDLXUvVrhuHRx/WFbx6.EUL6XWSzetTnfkndW/2RW', '系统管理员', 'admin', 1, NOW(), '超级管理员'),
-('staff01', '$2b$10$hInT5h4a.QafYiywEVdkIu59sQ16IS6p6ty9po4wSRjfxnGsVa7my', '张护理', 'staff', 1, NOW(), '前台护理员');
+-- 管理员: admin/admin123（sys_admin 表）
+INSERT INTO sys_admin (username, password, real_name, status, create_time, remark) VALUES
+('admin', '$2b$10$JTOsPJJdw7U5wDLXUvVrhuHRx/WFbx6.EUL6XWSzetTnfkndW/2RW', '系统管理员', 1, NOW(), '超级管理员');
+
+-- 工作人员: staff01/staff123（staff 表，staff_id = 1）
+INSERT INTO staff (username, password, real_name, position, status, create_time, remark) VALUES
+('staff01', '$2b$10$hInT5h4a.QafYiywEVdkIu59sQ16IS6p6ty9po4wSRjfxnGsVa7my', '张护理', '护理员', 1, NOW(), '前台护理员');
 
 -- 数据字典已移除：订单状态、宠物性别等枚举由系统代码/前端固定定义
 -- 寄养价位档位初始数据（管理员可在系统管理中修改）
@@ -145,14 +167,35 @@ INSERT INTO foster_order (order_no, customer_id, pet_id, start_date, end_date, p
 ('FO20261008001', 2, 3, '2026-10-08', '2026-10-15', 1, 60.00, 420.00, '寄养中', '短期寄养', 1, '2026-10-08 10:30:00'),
 ('FO20261009001', 3, 4, '2026-10-09', '2026-10-20', NULL, 100.00, 1200.00, '待入店', '已预订(历史快照)', 1, '2026-10-09 14:00:00');
 
--- 示例健康记录
+-- 示例健康记录（recorder_id 指向 staff 表 staff_id=1 的张护理）
 INSERT INTO pet_health_record (pet_id, order_id, type, temperature, spirit, appetite, defecation, skin, abnormal, treatment, recorder_id, record_time) VALUES
-(1, 1, '入店记录', 38.5, '良好', '正常', '正常', '毛发光泽', '无', '无需处理', 2, '2026-10-01 09:30:00'),
-(1, 1, '寄养观测记录', 38.7, '良好', '正常', '正常', '正常', '无', '无需处理', 2, '2026-10-03 10:00:00'),
-(3, 2, '入店记录', 38.6, '活泼', '正常', '正常', '无异常', '无', '无需处理', 2, '2026-10-08 11:00:00');
+(1, 1, '入店记录', 38.5, '良好', '正常', '正常', '毛发光泽', '无', '无需处理', 1, '2026-10-01 09:30:00'),
+(1, 1, '寄养观测记录', 38.7, '良好', '正常', '正常', '正常', '无', '无需处理', 1, '2026-10-03 10:00:00'),
+(3, 2, '入店记录', 38.6, '活泼', '正常', '正常', '无异常', '无', '无需处理', 1, '2026-10-08 11:00:00');
 
--- 示例服务记录
+-- 示例服务记录（keeper_id 指向 staff 表 staff_id=1 的张护理）
 INSERT INTO foster_service_record (order_id, pet_id, item, content, service_time, keeper_id) VALUES
-(1, 1, '洗澡', '金毛全身清洗吹干', '2026-10-02 15:00:00', 2),
-(1, 1, '遛弯', '户外遛弯30分钟', '2026-10-03 08:00:00', 2),
-(2, 3, '喂食', '每日两餐，狗粮适量', '2026-10-08 18:00:00', 2);
+(1, 1, '洗澡', '金毛全身清洗吹干', '2026-10-02 15:00:00', 1),
+(1, 1, '遛弯', '户外遛弯30分钟', '2026-10-03 08:00:00', 1),
+(2, 3, '喂食', '每日两餐，狗粮适量', '2026-10-08 18:00:00', 1);
+
+-- ============================================
+-- 小程序端扩展数据（毛球旅馆 · 用户端微信小程序）
+-- 登录账号：username = 手机号，密码统一为 123456（BCrypt 加密）
+-- ============================================
+
+-- 为既有示例客户补充小程序登录账号（演示环境）
+UPDATE customer SET username = phone, password = '$2a$10$obk31JbG2WevwnaYTaFNr..u5V5jgBmQSk2m0VnZn/UGO28zCNYL2', status = 1
+WHERE username IS NULL AND phone IS NOT NULL;
+
+-- 小程序演示宠物（疫苗按 JSON 编码 {"status":"已接种"/"未接种","name":"疫苗名称","date":"yyyy-MM"}）
+INSERT INTO pet (customer_id, name, breed, gender, age, weight, color, vaccine, history, create_time) VALUES
+(1, '布丁', '泰迪犬', '公', 2, 6.50, '棕色', '{"status":"已接种","name":"狂犬疫苗","date":"2026-06"}', '性格活泼，寄养期间需每日遛弯', NOW()),
+(1, '汤圆', '布偶猫', '母', 1, 3.80, '白色', '{"status":"未接种","name":"猫三联","date":""}', '胆小怕生，未完成免疫前不可下单', NOW());
+
+-- 小程序演示订单（金额按天计费：天数 = 离店日期 - 入住日期 + 1，同日 1 天；舒适间 80 元/天）
+INSERT INTO foster_order (order_no, customer_id, pet_id, start_date, end_date, price_id, price_per_day, total_fee, status, remark, payment_status, payment_method, payment_time, paid_amount, expires_at, creator_id, create_time) VALUES
+('FO20261110001', 1, 5, '2026-11-10', '2026-11-13', 2, 80.00, 320.00, '待入店', '小程序演示：待支付', '未支付', NULL, NULL, NULL, DATE_ADD(NOW(), INTERVAL 15 MINUTE), 1, NOW()),
+('FO20261025002', 1, 2, '2026-10-25', '2026-11-05', 2, 80.00, 960.00, '寄养中', '小程序演示：寄养中', '已支付', '微信', '2026-10-25 09:12:00', 960.00, '2026-10-25 09:27:00', 1, '2026-10-25 09:12:00'),
+('FO20260918003', 1, 5, '2026-09-18', '2026-09-20', 2, 80.00, 240.00, '已完成', '小程序演示：已完成', '已支付', '微信', '2026-09-18 10:05:00', 240.00, '2026-09-18 10:20:00', 1, '2026-09-18 10:05:00'),
+('FO20260910004', 1, 1, '2026-09-10', '2026-09-11', 2, 80.00, 160.00, '已完成', '小程序演示：已完成', '已支付', '微信', '2026-09-10 15:30:00', 160.00, '2026-09-10 15:45:00', 1, '2026-09-10 15:30:00');

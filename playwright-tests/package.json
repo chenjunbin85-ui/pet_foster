@@ -1,0 +1,18 @@
+{
+  "name": "pet-foster-playwright-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "毛球旅馆 · 用户端单端测试 + 多端联调测试（Playwright）",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --project=ui",
+    "test:api": "playwright test --project=api",
+    "test:report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  },
+  "dependencies": {
+    "mysql2": "^3.11.0"
+  }
+}

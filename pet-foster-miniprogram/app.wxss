@@ -1,0 +1,397 @@
+/* ============================================
+   毛球旅馆 · 全局视觉规范（还原设计稿 index.css）
+   基准：390px 视口 → 1px ≈ 2rpx
+   颜色：button #F47732 / primary #F47732 / accent #F47732
+        ink #302D2A / text-2 #5C5750 / muted #96918C / line #F0E8DF
+   圆角：卡片 16px=32rpx，输入 16px，弹窗 24px
+   ============================================ */
+page {
+  background: #F5F1EB;
+  color: #302D2A;
+  font-size: 30rpx;      /* 15px */
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 文本色阶 */
+.text-main { color: #302D2A; }
+.text-sub { color: #5C5750; }
+.text-muted { color: #96918C; }
+.text-faint { color: #B8B2AB; }
+.text-primary { color: #F47732; }
+.text-green { color: #6EA782; }
+.text-blue { color: #5B8DB8; }
+.text-danger { color: #D9534F; }
+.text-warn { color: #C96B3D; }
+
+/* 卡片：16px 圆角 + 1px line 边框（设计稿 panel） */
+.card {
+  background: #FFFFFF;
+  border-radius: 44rpx;      /* 22px 大圆角 */
+  border: 1rpx solid #F0E8DF;
+  padding: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(201, 107, 61, 0.08);
+  box-sizing: border-box;
+}
+
+/* 页面标题（设计稿 page-heading h1 26px） */
+.page-heading {
+  margin-bottom: 40rpx;
+}
+.page-heading-title {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  font-size: 50rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  color: #302D2A;
+}
+.page-heading-sub {
+  margin-top: 12rpx;
+  font-size: 25rpx;
+  color: #96918C;
+}
+.back-chevron {
+  width: 44rpx;
+  color: #96918C;
+  font-size: 34rpx;
+  margin-left: -6rpx;
+  margin-right: 8rpx;
+}
+
+/* 主按钮：48px 高 / 19px 白字 / 圆角 16px */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+  border-radius: 32rpx;
+  font-size: 36rpx;
+  font-weight: 600;
+  border: none;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 24rpx;
+  line-height: 1;
+}
+.btn::after { border: none; }
+.btn-primary {
+  background: linear-gradient(135deg, #F47732 0%, #E65D22 100%);
+  color: #FFFFFF;
+  box-shadow: 0 6rpx 20rpx rgba(244, 119, 50, 0.3);
+}
+.btn-primary.btn-hover { background: linear-gradient(135deg, #E65D22 0%, #D94E1A 100%); }
+.btn-secondary {
+  background: #FFFFFF;
+  color: #F47732;
+  border: 2rpx solid #F47732;
+}
+.btn-secondary.btn-hover { background: #FFF0E3; }
+.btn-danger { background: #FFFFFF; color: #D9534F; border: 2rpx solid #D9534F; }
+.btn-danger.btn-hover { background: #FDF0EF; }
+.btn-disabled, .btn[disabled] {
+  background: #F0E8DF;
+  color: #B8B2AB;
+  border-color: #F0E8DF;
+}
+.btn-mini {
+  height: 88rpx;
+  font-size: 27rpx;
+  border-radius: 26rpx;
+  padding: 0 36rpx;
+  width: auto;
+  font-weight: 500;
+}
+
+/* 输入框：16px 圆角 + 48px 高 */
+.input, .textarea, .picker-input {
+  background: #FBF6EF;
+  border-radius: 30rpx;
+  border: none;
+  padding: 0 28rpx;
+  font-size: 29rpx;
+  box-sizing: border-box;
+  width: 100%;
+  color: #302D2A;
+  min-height: 90rpx;
+  line-height: 90rpx;
+}
+.textarea {
+  min-height: 200rpx;
+  padding: 24rpx 28rpx;
+  line-height: 1.6;
+}
+.placeholder { color: #B8B2AB; }
+
+/* 状态徽章：圆点 + 文字，浅色底 8px 圆角（设计稿 badge） */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 25rpx;
+  line-height: 1.5;
+  font-weight: 400;
+}
+.badge::before {
+  content: "";
+  display: block;
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: currentColor;
+}
+.badge-orange { background: #FFF0E3; color: #F47732; }
+.badge-blue { background: #E8F0F8; color: #5B8DB8; }
+.badge-green { background: #E6F2EB; color: #6EA782; }
+.badge-gray { background: #F0E8DF; color: #96918C; }
+.badge-red { background: #FBEAE9; color: #D9534F; }
+
+/* 表单行 */
+.form-row {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F0E8DF;
+}
+.form-row:last-child { border-bottom: none; }
+.form-label {
+  width: 176rpx;
+  color: #5C5750;
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+.form-value { flex: 1; color: #302D2A; }
+
+/* 信息行（设计稿 info-rows：左灰标签右值，21px 间距） */
+.info-rows { display: flex; flex-direction: column; gap: 40rpx; }
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 34rpx;
+  font-size: 29rpx;
+}
+.info-label { color: #96918C; flex-shrink: 0; }
+.info-value { color: #302D2A; text-align: right; }
+
+/* 合计行 */
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 42rpx;
+  border-top: 1rpx solid #F0E8DF;
+  margin-top: 46rpx;
+  font-size: 27rpx;
+  color: #96918C;
+}
+.total-row-amount {
+  font-size: 56rpx;
+  color: #F47732;
+  font-weight: 600;
+  font-family: Arial, sans-serif;
+}
+
+/* 底部固定动作栏 */
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #FFFFFF;
+  border-top: 1rpx solid #F0E8DF;
+  padding: 16rpx 36rpx calc(16rpx + env(safe-area-inset-bottom));
+  z-index: 50;
+}
+.action-bar .btn { flex: 1; }
+
+/* 空态 */
+.empty {
+  padding: 120rpx 40rpx;
+  text-align: center;
+  color: #96918C;
+}
+.empty-icon { font-size: 96rpx; margin-bottom: 24rpx; opacity: 0.35; }
+.empty-title { font-size: 32rpx; color: #5C5750; margin-bottom: 8rpx; }
+.empty-text { font-size: 26rpx; }
+.btn-empty {
+  display: inline-block;
+  width: auto;
+  min-width: 300rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  margin: 36rpx auto 0;
+  padding: 0 44rpx;
+  font-size: 26rpx;
+  border-radius: 40rpx;
+}
+
+/* 弹窗：24px 圆角 */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 35, 41, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  width: 620rpx;
+  background: #FFFFFF;
+  border-radius: 46rpx;
+  padding: 48rpx 40rpx 40rpx;
+  box-sizing: border-box;
+  text-align: center;
+}
+.modal-title { font-size: 36rpx; font-weight: 600; margin-bottom: 16rpx; }
+.modal-copy { color: #96918C; font-size: 28rpx; margin-bottom: 32rpx; }
+.modal-actions { display: flex; gap: 20rpx; }
+.modal-actions .btn { flex: 1; }
+
+/* 页面容器与留白（自定义导航：顶部留出状态栏安全区） */
+.page {
+  padding: 40rpx 36rpx 220rpx;
+  padding-top: 176rpx;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin: 0 0 34rpx;
+}
+.section-head-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  letter-spacing: 0.6rpx;
+}
+.section-head-aside { font-size: 24rpx; color: #96918C; font-weight: 400; }
+.section-tag {
+  font-size: 20rpx;
+  color: #F47732;
+  background: #FFF0E3;
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  font-weight: 500;
+}
+
+/* 底部弹层（联系门店/关于我们等） */
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 35, 41, 0.45);
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+}
+.sheet {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 46rpx 46rpx 0 0;
+  padding: 40rpx 40rpx calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+.sheet-title { font-size: 36rpx; font-weight: 600; text-align: center; margin-bottom: 16rpx; }
+.sheet-copy { color: #96918C; font-size: 28rpx; text-align: center; margin-bottom: 32rpx; white-space: pre-line; }
+.sheet-actions { display: flex; gap: 20rpx; }
+.sheet-actions .btn { flex: 1; }
+
+/* 文字链接（设计稿 text-link 13px primary） */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  color: #F47732;
+  font-size: 27rpx;
+  min-height: 88rpx;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+.text-link::after { border: none; }
+
+/* 单选圆点（设计稿 15-18px） */
+.radio-dot {
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 50%;
+  border: 1rpx solid #87909c;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 22rpx;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.radio-dot.checked {
+  background: #F47732;
+  border-color: #F47732;
+}
+
+/* 宠物头像：圆角 12px 浅色底，插画位 */
+.pet-avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 24rpx;
+  background: #FFF0E3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 54rpx;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.pet-avatar.cat { background: #edf0e9; }
+
+/* 面板（设计稿 panel：白底 16px 圆角 + 1px line） */
+.panel {
+  background: #FFFFFF;
+  border: 1rpx solid #F0E8DF;
+  border-radius: 44rpx;
+  padding: 40rpx;
+  box-shadow: 0 8rpx 32rpx rgba(201, 107, 61, 0.08);
+  box-sizing: border-box;
+  margin-bottom: 26rpx;
+}
+/* 旧页面兼容的区块标题 */
+.section-title {
+  margin: 8rpx 0 22rpx;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #302D2A;
+}
+.section-title .section-head-aside { font-weight: 400; }
+
+/* 勾选框 */
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 2rpx solid #87909c;
+  background: #FFFFFF;
+}
+.checkbox.checked { background: #F47732; border-color: #F47732; }
+.check-mark { color: #FFFFFF; font-size: 22rpx; line-height: 1; }
+
+/* 表单提示 */
+.form-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  color: #96918C;
+  font-size: 24rpx;
+  line-height: 1.8;
+  margin-top: 24rpx;
+}
+.field-error { color: #D9534F; font-size: 24rpx; margin-top: 12rpx; }
