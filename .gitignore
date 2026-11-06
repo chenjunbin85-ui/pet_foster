@@ -76,6 +76,15 @@ batch_*.txt
 test-results/
 playwright-report/
 playwright/.cache/
+playwright-tests/*-out.txt
+
+# 运行时 / 工具产物（不提交）
+dump.rdb
+*.genie
+.agents/
+.creative-design/
+pet-foster-miniprogram/.inspect.txt
+pet-foster-server-src/pet-foster-server/uploads/
 
 # 临时工作目录（不提交）
 _diagram_work/

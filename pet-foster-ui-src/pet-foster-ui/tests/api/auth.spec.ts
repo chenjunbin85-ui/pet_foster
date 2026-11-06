@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 
 test.describe('认证接口', () => {
   test('管理员登录成功，返回 token 与 admin 角色', async ({ request }) => {
-    const res = await request.post('/api/auth/login', { data: { username: 'admin', password: 'admin123' } });
+    const res = await request.post('/api/auth/login', { data: { username: '13800138000', password: '123456' } });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.code).toBe(200);
@@ -11,7 +11,7 @@ test.describe('认证接口', () => {
   });
 
   test('工作人员登录成功，返回 token 与 staff 角色', async ({ request }) => {
-    const res = await request.post('/api/auth/login', { data: { username: 'staff01', password: 'staff123' } });
+    const res = await request.post('/api/auth/login', { data: { username: '13800138011', password: '123456' } });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body.code).toBe(200);
@@ -20,7 +20,7 @@ test.describe('认证接口', () => {
   });
 
   test('密码错误返回 400', async ({ request }) => {
-    const res = await request.post('/api/auth/login', { data: { username: 'staff01', password: 'definitely-wrong' } });
+    const res = await request.post('/api/auth/login', { data: { username: '13800138011', password: 'definitely-wrong' } });
     expect(res.status()).toBe(400);
     const body = await res.json();
     expect(body.code).not.toBe(200);
@@ -37,7 +37,7 @@ test.describe('认证接口', () => {
     const res = await staff.get('/api/auth/info');
     expect(res.status()).toBe(200);
     const body = await res.json();
-    expect(body.data.username).toBe('staff01');
+    expect(body.data.username).toBe('13800138011');
     expect(body.data.role).toBe('staff');
   });
 });

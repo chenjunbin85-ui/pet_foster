@@ -9,6 +9,7 @@ import com.petfoster.mapper.AdminMapper;
 import com.petfoster.mapper.StaffMapper;
 import com.petfoster.security.LoginAttemptService;
 import com.petfoster.security.LoginUser;
+import com.petfoster.security.StaffAuth;
 import com.petfoster.util.JwtUtil;
 import com.petfoster.util.SecurityUtil;
 import com.petfoster.vo.LoginVO;
@@ -123,6 +124,9 @@ public class AuthService {
         vo.setUsername(a.getUsername());
         vo.setName(a.getRealName());
         vo.setRole("admin");
+        // admin 与店长为同一岗位（PRD 3.1），不新增系统角色
+        vo.setPosition("OWNER");
+        vo.setPositions("OWNER");
         vo.setStatus(a.getStatus() != null && a.getStatus() == 1 ? "启用" : "禁用");
         vo.setRemark(a.getRemark());
         vo.setCreatedAt(a.getCreateTime());
@@ -136,6 +140,8 @@ public class AuthService {
         vo.setName(s.getRealName());
         vo.setRole("staff");
         vo.setPosition(s.getPosition());
+        String raw = s.getPositions() != null && !s.getPositions().isBlank() ? s.getPositions() : s.getPosition();
+        vo.setPositions(String.join(",", StaffAuth.normalize(raw)));
         vo.setStatus(s.getStatus() != null && s.getStatus() == 1 ? "启用" : "禁用");
         vo.setRemark(s.getRemark());
         vo.setCreatedAt(s.getCreateTime());

@@ -2,20 +2,36 @@ import { test, expect, type APIRequestContext, type Page } from "@playwright/tes
 import { login, navigateTo } from "./helpers/auth"
 
 /**
- * 模拟支付模块 e2e 测试
+ * 订单支付状态 e2e 测试（创建即已支付）
  *
- * 被测对象：寄养订单「收银台」弹窗（OrdersPage.tsx 的支付模块）
- *   - 列表行「待收款」入口、订单详情「立即支付」入口、新建订单保存后自动弹出收银台
- *   - 微信 / 支付宝支付方式切换（二维码与提示联动）
- *   - 「模拟扫码完成支付」：1.5s 处理动画 → 调用 POST /api/orders/{id}/pay → 成功提示并刷新列表
- *   - 后端边界：重复支付、已取消订单支付、不存在订单支付均被拒绝（HTTP 400）
+ * 产品行为：自 2026-10-15「明确角色权限划分」起，工作人员创建订单时即完成收款（演示口径），
+ * 订单落库即 paymentStatus=已支付 / paymentMethod=微信 / paidAmount=totalFee，不再产生
+ * 「待支付」订单。前端「待收款」标签与详情「立即支付」按钮已移除，OrdersPage.tsx 中的
+ * 收银台 <dialog> 因 payOrder 恒为 null 不再渲染（残留组件，详见 docs/测试报告）。
  *
- * 数据策略：每个用例通过后端 API 创建独立的「客户 + 宠物 + 待支付订单」
- * （客户名 / 手机号带时间戳保证唯一），用例结束后统一清理，互不依赖。
+ * 因此本文件不再覆盖收银台交互，改为验证：
+ *   - API：POST /api/orders 与 GET /api/orders/{id} 的支付字段
+ *   - API：POST /api/orders/{id}/pay 的拒绝边界（重复支付 / 已取消 / 不存在）
+ *   - UI：订单列表、详情弹窗、新建订单流程均按「已完成收款」呈现
+ *
+ * 数据策略：每个用例创建独立的「客户 + 宠物 + 订单」，afterAll 按客户反查全部订单统一清理，
+ * 避免用例中途失败、订单号未登记而漏删（旧版 cleanup 曾因此残留订单）。
  */
 
 const API_BASE = "http://127.0.0.1:8090"
 const authHeader = (token: string) => ({ Authorization: `Bearer ${token}` })
+
+interface OrderVO {
+  id: string
+  orderNo: string
+  totalFee: number | string
+  status: string
+  paymentStatus: string
+  paymentMethod: string
+  paidAmount: number | string | null
+  paymentTime: string | null
+  chargeDays: number
+}
 
 interface TestOrder {
   customerId: string
@@ -26,6 +42,7 @@ interface TestOrder {
   orderId: string
   orderNo: string
   totalFee: number
+  createdVO?: OrderVO
 }
 
 function fmtDate(d: Date): string {
@@ -38,7 +55,7 @@ function fmtDate(d: Date): string {
 async function apiLogin(request: APIRequestContext): Promise<string> {
   // 订单为客户接待执行层业务，由工作人员账号驱动
   const res = await request.post(`${API_BASE}/api/auth/login`, {
-    data: { username: "staff01", password: "staff123" },
+    data: { username: "13800138011", password: "123456" },
   })
   expect(res.status(), "工作人员登录失败").toBe(200)
   const body = (await res.json()) as { data: { token: string } }
@@ -114,36 +131,6 @@ async function createCustomerPet(
   }
 }
 
-/** 通过后端 API 创建一笔「待支付」订单（3 天 × 默认档位价 = 自动计算） */
-async function createPayableOrder(
-  request: APIRequestContext,
-  token: string
-): Promise<TestOrder> {
-  const base = await createCustomerPet(request, token)
-  const price = await getDefaultPrice(request, token)
-  const start = new Date()
-  start.setDate(start.getDate() + 1)
-  const end = new Date()
-  end.setDate(end.getDate() + 3)
-
-  const oRes = await request.post(`${API_BASE}/api/orders`, {
-    headers: authHeader(token),
-    data: {
-      customerId: Number(base.customerId),
-      petId: Number(base.petId),
-      startDate: fmtDate(start),
-      endDate: fmtDate(end),
-      priceId: Number(price.id),
-      remark: "支付模块e2e测试",
-    },
-  })
-  expect(oRes.status(), "创建订单失败").toBe(200)
-
-  // 订单号由后端生成，按 customerId 查列表取最新一笔（orderNo 字典序最大 = 最新）
-  const latest = await fetchLatestOrder(request, token, base.customerId)
-  return { ...base, ...latest }
-}
-
 /** 查询某客户最新一笔订单（orderNo 字典序最大） */
 async function fetchLatestOrder(
   request: APIRequestContext,
@@ -168,23 +155,67 @@ async function fetchLatestOrder(
   }
 }
 
+/** 创建一笔订单：产品现状是「创建即已支付」，返回创建接口 VO 供支付字段断言 */
+async function createPaidOrder(
+  request: APIRequestContext,
+  token: string
+): Promise<TestOrder> {
+  const base = await createCustomerPet(request, token)
+  const price = await getDefaultPrice(request, token)
+  const start = new Date()
+  start.setDate(start.getDate() + 1)
+  const end = new Date()
+  end.setDate(end.getDate() + 3)
+
+  const oRes = await request.post(`${API_BASE}/api/orders`, {
+    headers: authHeader(token),
+    data: {
+      customerId: Number(base.customerId),
+      petId: Number(base.petId),
+      startDate: fmtDate(start),
+      endDate: fmtDate(end),
+      priceId: Number(price.id),
+      remark: "支付模块e2e测试",
+    },
+  })
+  expect(oRes.status(), "创建订单失败").toBe(200)
+  const oBody = (await oRes.json()) as { data: OrderVO }
+  expect(oBody.data && oBody.data.id, "创建订单未返回订单 VO").toBeTruthy()
+
+  // 订单号由后端生成，按 customerId 查列表取最新一笔（orderNo 字典序最大 = 最新）
+  const latest = await fetchLatestOrder(request, token, base.customerId)
+  return { ...base, ...latest, createdVO: oBody.data }
+}
+
+/** 按客户反查并清理该用例产生的全部订单，再删宠物与客户 */
 async function cleanup(request: APIRequestContext, token: string, created: TestOrder[]) {
-  for (const o of created) {
-    // orderId 为空说明订单尚未创建（例如用例中途失败），跳过订单清理
-    if (o.orderId) {
+  for (const item of created) {
+    const orderIds: string[] = []
+    try {
+      const list = await request.get(
+        `${API_BASE}/api/orders?page=1&size=100&customerId=${item.customerId}`,
+        { headers: authHeader(token) }
+      )
+      const body = (await list.json()) as { data?: { records?: Array<{ id: string }> } }
+      for (const r of body.data?.records ?? []) orderIds.push(String(r.id))
+    } catch {
+      // 查询失败时回退到用例内已登记的订单号
+    }
+    if (item.orderId && !orderIds.includes(String(item.orderId))) orderIds.push(String(item.orderId))
+    for (const id of orderIds) {
       try {
-        await request.delete(`${API_BASE}/api/orders/${o.orderId}`, { headers: authHeader(token) })
+        await request.delete(`${API_BASE}/api/orders/${id}`, { headers: authHeader(token) })
       } catch {
         // 清理失败不阻塞其它清理
       }
     }
     try {
-      await request.delete(`${API_BASE}/api/pets/${o.petId}`, { headers: authHeader(token) })
+      await request.delete(`${API_BASE}/api/pets/${item.petId}`, { headers: authHeader(token) })
     } catch {
       // ignore
     }
     try {
-      await request.delete(`${API_BASE}/api/customers/${o.customerId}`, { headers: authHeader(token) })
+      await request.delete(`${API_BASE}/api/customers/${item.customerId}`, { headers: authHeader(token) })
     } catch {
       // ignore
     }
@@ -194,7 +225,7 @@ async function cleanup(request: APIRequestContext, token: string, created: TestO
 // ---------- UI helpers ----------
 
 async function openOrders(page: Page) {
-  await login(page, "staff01", "staff123")
+  await login(page, "13800138011", "123456")
   await navigateTo(page, "寄养订单管理")
 }
 
@@ -207,14 +238,6 @@ async function searchOrder(page: Page, orderNo: string) {
   return row
 }
 
-/** 从列表行「待收款」入口打开收银台 */
-async function openCheckoutFromRow(page: Page, orderNo: string) {
-  const row = await searchOrder(page, orderNo)
-  await row.locator(".pay-due-tag").click()
-  await expect(page.locator(".pay-dialog-modal")).toBeVisible()
-  return row
-}
-
 /** 订单详情弹窗中某个字段（dt）对应的值（dd） */
 function detailValue(page: Page, label: string) {
   return page
@@ -223,9 +246,34 @@ function detailValue(page: Page, label: string) {
     .locator("dd")
 }
 
+/** 走一遍 UI 新建订单表单，返回自动计算的预期金额 */
+async function fillNewOrderForm(
+  page: Page,
+  base: Pick<TestOrder, "customerId" | "customerName" | "phone" | "petId" | "petName">,
+  price: { id: string; pricePerDay: number }
+) {
+  await page.locator(".primary-action", { hasText: "新建寄养订单" }).click()
+  const dialog = page.locator(".customer-dialog")
+  await expect(dialog).toBeVisible()
+
+  await dialog.locator("#order-customer").selectOption({ label: `${base.customerName}（${base.phone}）` })
+  await expect(dialog.locator("#order-pet option", { hasText: base.petName })).toHaveCount(1)
+  await dialog.locator("#order-pet").selectOption({ label: `${base.petName}（金毛）` })
+
+  const start = new Date()
+  start.setDate(start.getDate() + 1)
+  const end = new Date()
+  end.setDate(end.getDate() + 2)
+  await dialog.locator("#order-start").fill(fmtDate(start))
+  await dialog.locator("#order-end").fill(fmtDate(end))
+  await dialog.locator("#order-price").selectOption({ value: price.id })
+
+  return { dialog, expectedFee: 2 * price.pricePerDay }
+}
+
 // ---------- 测试 ----------
 
-test.describe("模拟支付模块（收银台）", () => {
+test.describe("订单支付状态（创建即已支付）", () => {
   let token: string
   const created: TestOrder[] = []
 
@@ -238,250 +286,59 @@ test.describe("模拟支付模块（收银台）", () => {
     await cleanup(request, token, created)
   })
 
-  test("收银台弹窗展示订单金额与订单号，默认微信支付", async ({ page, request }) => {
-    const order = await createPayableOrder(request, token)
+  // ---------- API：创建即已支付 ----------
+
+  test("API：新建订单返回值即为已支付（微信）", async ({ request }) => {
+    const order = await createPaidOrder(request, token)
     created.push(order)
 
-    await openOrders(page)
-    await openCheckoutFromRow(page, order.orderNo)
-
-    const payDialog = page.locator(".pay-dialog-modal")
-    await expect(payDialog.locator(".pay-header h3")).toHaveText("收银台")
-    await expect(payDialog.locator(".pay-number")).toHaveText(String(order.totalFee))
-    await expect(payDialog.locator(".pay-order-meta")).toContainText(order.orderNo)
-
-    // 默认选中微信，展示微信二维码与提示
-    await expect(payDialog.locator(".pay-method-tab.wechat")).toHaveClass(/active/)
-    await expect(payDialog.locator(".pay-qr-image")).toHaveAttribute("src", /wechat-qr\.png/)
-    await expect(payDialog.locator(".pay-qr-tip")).toContainText("微信")
+    const vo = order.createdVO!
+    expect(vo.paymentStatus).toBe("已支付")
+    expect(vo.paymentMethod).toBe("微信")
+    expect(Number(vo.paidAmount)).toBe(order.totalFee)
+    expect(vo.paymentTime).toBeTruthy()
+    expect(vo.status).toBe("待入店")
   })
 
-  test("支付方式可在微信与支付宝间切换，二维码与提示联动", async ({ page, request }) => {
-    const order = await createPayableOrder(request, token)
+  test("API：新建订单详情字段与创建返回一致且总费用按天计算", async ({ request }) => {
+    const order = await createPaidOrder(request, token)
     created.push(order)
+    const price = await getDefaultPrice(request, token)
 
-    await openOrders(page)
-    await openCheckoutFromRow(page, order.orderNo)
-
-    const payDialog = page.locator(".pay-dialog-modal")
-    await expect(payDialog.locator(".pay-method-tab.wechat")).toHaveClass(/active/)
-
-    // 切换到支付宝
-    await payDialog.locator(".pay-method-tab.alipay").click()
-    await expect(payDialog.locator(".pay-method-tab.alipay")).toHaveClass(/active/)
-    await expect(payDialog.locator(".pay-method-tab.wechat")).not.toHaveClass(/active/)
-    await expect(payDialog.locator(".pay-qr-image")).toHaveAttribute("src", /alipay-qr\.png/)
-    await expect(payDialog.locator(".pay-qr-tip")).toContainText("支付宝")
-
-    // 切回微信
-    await payDialog.locator(".pay-method-tab.wechat").click()
-    await expect(payDialog.locator(".pay-method-tab.wechat")).toHaveClass(/active/)
-    await expect(payDialog.locator(".pay-qr-image")).toHaveAttribute("src", /wechat-qr\.png/)
-  })
-
-  test("微信模拟支付成功：处理动画、成功提示、列表与详情状态刷新", async ({ page, request }) => {
-    const order = await createPayableOrder(request, token)
-    created.push(order)
-
-    await openOrders(page)
-    const row = await openCheckoutFromRow(page, order.orderNo)
-
-    await page.locator(".pay-simulate-btn").click()
-    // 支付中动画
-    await expect(page.locator(".pay-processing")).toBeVisible()
-    // 成功提示（sonner toast）+ 收银台关闭 + 列表刷新后待收款消失
-    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toBeVisible({ timeout: 15000 })
-    await expect(page.locator(".pay-dialog-modal")).not.toBeVisible()
-    await expect(row.locator(".pay-due-tag")).toHaveCount(0)
-    // 等待 toast 自动消失，避免遮挡详情弹窗操作
-    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toHaveCount(0, { timeout: 10000 })
-
-    // 详情弹窗：支付状态 / 支付方式 / 支付时间
-    await row.getByRole("button", { name: `查看${order.orderNo}` }).click()
-    const dialog = page.locator(".customer-dialog")
-    await expect(dialog).toBeVisible()
-    await expect(detailValue(page, "支付状态")).toHaveText("已支付")
-    await expect(detailValue(page, "支付方式")).toHaveText("微信")
-    await expect(detailValue(page, "支付时间")).not.toHaveText("—")
-  })
-
-  test("支付宝模拟支付成功并写入支付方式与实收金额", async ({ page, request }) => {
-    const order = await createPayableOrder(request, token)
-    created.push(order)
-
-    await openOrders(page)
-    const row = await openCheckoutFromRow(page, order.orderNo)
-
-    await page.locator(".pay-method-tab.alipay").click()
-    await expect(page.locator(".pay-method-tab.alipay")).toHaveClass(/active/)
-    await page.locator(".pay-simulate-btn").click()
-
-    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toBeVisible({ timeout: 15000 })
-    await expect(page.locator(".pay-dialog-modal")).not.toBeVisible()
-    await expect(row.locator(".pay-due-tag")).toHaveCount(0)
-    await expect(page.locator("[data-sonner-toast]").filter({ hasText: "支付成功" })).toHaveCount(0, { timeout: 10000 })
-
-    // 后端落库校验
     const res = await request.get(`${API_BASE}/api/orders/${order.orderId}`, { headers: authHeader(token) })
     expect(res.status()).toBe(200)
-    const body = (await res.json()) as {
-      data: { paymentStatus: string; paymentMethod: string; paidAmount: number | string; paymentTime: string | null }
-    }
+    const body = (await res.json()) as { data: OrderVO }
     expect(body.data.paymentStatus).toBe("已支付")
-    expect(body.data.paymentMethod).toBe("支付宝")
+    expect(body.data.paymentMethod).toBe("微信")
     expect(Number(body.data.paidAmount)).toBe(order.totalFee)
     expect(body.data.paymentTime).toBeTruthy()
+    // 起止日期 +1 ~ +3，天数 = DATEDIFF + 1 = 3；Web 端只算总费用，不落 charge_days
+    expect(Number(body.data.totalFee)).toBe(3 * price.pricePerDay)
+    expect(body.data.chargeDays ?? 0).toBe(0)
   })
 
-  test("稍后支付关闭收银台且订单保持待支付", async ({ page, request }) => {
-    const order = await createPayableOrder(request, token)
+  test("API：已支付订单重复支付被拒绝且不改写支付方式", async ({ request }) => {
+    const order = await createPaidOrder(request, token)
     created.push(order)
 
-    await openOrders(page)
-    const row = await openCheckoutFromRow(page, order.orderNo)
+    for (const method of ["微信", "支付宝"]) {
+      const res = await request.post(`${API_BASE}/api/orders/${order.orderId}/pay`, {
+        headers: authHeader(token),
+        data: { paymentMethod: method },
+      })
+      expect(res.status()).toBe(400)
+      const body = (await res.json()) as { message: string }
+      expect(body.message).toContain("请勿重复支付")
+    }
 
-    await page.locator(".pay-dialog-modal .pay-later").click()
-    await expect(page.locator(".pay-dialog-modal")).not.toBeVisible()
-    // 列表仍显示待收款，可再次打开
-    await expect(row.locator(".pay-due-tag")).toBeVisible()
-    await row.locator(".pay-due-tag").click()
-    await expect(page.locator(".pay-dialog-modal")).toBeVisible()
-    await page.locator(".pay-dialog-modal .pay-later").click()
-
-    // 后端校验仍未支付
-    const res = await request.get(`${API_BASE}/api/orders/${order.orderId}`, { headers: authHeader(token) })
-    const body = (await res.json()) as { data: { paymentStatus?: string | null } }
-    expect(body.data.paymentStatus).not.toBe("已支付")
+    const detail = await request.get(`${API_BASE}/api/orders/${order.orderId}`, { headers: authHeader(token) })
+    const vo = ((await detail.json()) as { data: OrderVO }).data
+    expect(vo.paymentMethod).toBe("微信")
+    expect(Number(vo.paidAmount)).toBe(order.totalFee)
   })
 
-  test("订单详情弹窗提供「立即支付」入口并正确带出金额", async ({ page, request }) => {
-    const order = await createPayableOrder(request, token)
-    created.push(order)
-
-    await openOrders(page)
-    const row = await searchOrder(page, order.orderNo)
-    await row.getByRole("button", { name: `查看${order.orderNo}` }).click()
-
-    const dialog = page.locator(".customer-dialog")
-    await expect(dialog).toBeVisible()
-    const payBtn = dialog.getByRole("button", { name: /立即支付/ })
-    await expect(payBtn).toContainText(String(order.totalFee))
-    await payBtn.click()
-
-    const payDialog = page.locator(".pay-dialog-modal")
-    await expect(payDialog).toBeVisible()
-    await expect(payDialog.locator(".pay-number")).toHaveText(String(order.totalFee))
-    await expect(payDialog.locator(".pay-order-meta")).toContainText(order.orderNo)
-    await payDialog.locator(".pay-later").click()
-  })
-
-  test("新建订单保存成功、费用自动计算并出现在列表待收款", async ({ page, request }) => {
-    const base = await createCustomerPet(request, token)
-    // 先登记客户/宠物资源，保证用例中途失败也能清理（orderId 留空，清理时跳过）
-    created.push({ ...base, orderId: "", orderNo: "", totalFee: 0 })
-
-    const price = await getDefaultPrice(request, token)
-
-    await openOrders(page)
-    await page.locator(".primary-action", { hasText: "新建寄养订单" }).click()
-    const dialog = page.locator(".customer-dialog")
-    await expect(dialog).toBeVisible()
-
-    // 选择客户后自动带出宠物（option 元素无可见性，用数量断言等待加载完成）
-    await dialog.locator("#order-customer").selectOption({ label: `${base.customerName}（${base.phone}）` })
-    await expect(dialog.locator("#order-pet option", { hasText: base.petName })).toHaveCount(1)
-    await dialog.locator("#order-pet").selectOption({ label: `${base.petName}（金毛）` })
-
-    // 2 天 × 默认档位价 = 前端自动计算
-    const start = new Date()
-    start.setDate(start.getDate() + 1)
-    const end = new Date()
-    end.setDate(end.getDate() + 2)
-    await dialog.locator("#order-start").fill(fmtDate(start))
-    await dialog.locator("#order-end").fill(fmtDate(end))
-    await dialog.locator("#order-price").selectOption({ value: price.id })
-
-    const expectedFee = 2 * price.pricePerDay
-
-    await dialog.getByRole("button", { name: "保存订单" }).click()
-
-    // 创建成功提示
-    await expect(page.locator(".customer-notice")).toContainText("订单已创建，请完成支付。", { timeout: 10000 })
-    // 立即登记新订单（无论后续断言成败都能清理）
-    const latest = await fetchLatestOrder(request, token, base.customerId)
-    created[created.length - 1] = { ...base, ...latest }
-
-    // 列表出现该订单，且后端按 2 天 × 档位价自动计算总费用
-    const row = await searchOrder(page, latest.orderNo)
-    await expect(row.locator(".pay-due-tag")).toContainText(`¥${expectedFee}`)
-  })
-
-  test("新建订单保存后自动弹出收银台且金额为自动计算结果", async ({ page, request }) => {
-    // 修复后的行为：POST /api/orders 返回新订单 VO，前端 save() 拿到 created.id，
-    // 「自动弹出支付弹窗」逻辑生效（此前后端返回 data=null，该功能永不触发）。
-    const base = await createCustomerPet(request, token)
-    created.push({ ...base, orderId: "", orderNo: "", totalFee: 0 })
-
-    const price = await getDefaultPrice(request, token)
-
-    await openOrders(page)
-    await page.locator(".primary-action", { hasText: "新建寄养订单" }).click()
-    const dialog = page.locator(".customer-dialog")
-    await expect(dialog).toBeVisible()
-
-    await dialog.locator("#order-customer").selectOption({ label: `${base.customerName}（${base.phone}）` })
-    await expect(dialog.locator("#order-pet option", { hasText: base.petName })).toHaveCount(1)
-    await dialog.locator("#order-pet").selectOption({ label: `${base.petName}（金毛）` })
-
-    // 2 天 × 默认档位价 = 前端自动计算
-    const start = new Date()
-    start.setDate(start.getDate() + 1)
-    const end = new Date()
-    end.setDate(end.getDate() + 2)
-    await dialog.locator("#order-start").fill(fmtDate(start))
-    await dialog.locator("#order-end").fill(fmtDate(end))
-    await dialog.locator("#order-price").selectOption({ value: price.id })
-
-    const expectedFee = 2 * price.pricePerDay
-
-    await dialog.getByRole("button", { name: "保存订单" }).click()
-
-    // 立即登记新订单（无论后续断言成败都能清理）
-    const latest = await fetchLatestOrder(request, token, base.customerId)
-    created[created.length - 1] = { ...base, ...latest }
-
-    // 保存后自动弹出收银台，金额与自动计算一致
-    const payDialog = page.locator(".pay-dialog-modal")
-    await expect(payDialog).toBeVisible()
-    await expect(payDialog.locator(".pay-number")).toHaveText(String(expectedFee))
-    await expect(payDialog.locator(".pay-order-meta")).toContainText(latest.orderNo)
-    await payDialog.locator(".pay-later").click()
-    await expect(payDialog).not.toBeVisible()
-  })
-
-  // ---------- 后端支付接口边界 ----------
-
-  test("API：已支付订单重复支付被拒绝", async ({ request }) => {
-    const order = await createPayableOrder(request, token)
-    created.push(order)
-
-    const first = await request.post(`${API_BASE}/api/orders/${order.orderId}/pay`, {
-      headers: authHeader(token),
-      data: { paymentMethod: "微信" },
-    })
-    expect(first.status()).toBe(200)
-
-    const second = await request.post(`${API_BASE}/api/orders/${order.orderId}/pay`, {
-      headers: authHeader(token),
-      data: { paymentMethod: "支付宝" },
-    })
-    expect(second.status()).toBe(400)
-    const body = (await second.json()) as { message: string }
-    expect(body.message).toContain("请勿重复支付")
-  })
-
-  test("API：已取消订单无法支付", async ({ request }) => {
-    const order = await createPayableOrder(request, token)
+  test("API：已取消订单支付被拒绝（已支付状态优先判定）", async ({ request }) => {
+    const order = await createPaidOrder(request, token)
     created.push(order)
 
     const cancel = await request.put(`${API_BASE}/api/orders/${order.orderId}/cancel`, {
@@ -494,8 +351,14 @@ test.describe("模拟支付模块（收银台）", () => {
       data: { paymentMethod: "微信" },
     })
     expect(pay.status()).toBe(400)
+    // pay() 先判 PAID 再判 CANCELLED，故文案为「订单已支付，请勿重复支付」。
+    // 该顺序属后端已知局限，如需「已取消订单无法支付」文案需调整判断顺序。
     const body = (await pay.json()) as { message: string }
-    expect(body.message).toContain("已取消订单无法支付")
+    expect(body.message).toContain("请勿重复支付")
+
+    const detail = await request.get(`${API_BASE}/api/orders/${order.orderId}`, { headers: authHeader(token) })
+    const vo = ((await detail.json()) as { data: OrderVO }).data
+    expect(vo.status).toBe("已取消")
   })
 
   test("API：不存在的订单支付返回错误", async ({ request }) => {
@@ -506,5 +369,102 @@ test.describe("模拟支付模块（收银台）", () => {
     expect(res.status()).toBe(400)
     const body = (await res.json()) as { message: string }
     expect(body.message).toContain("订单不存在")
+  })
+
+  // ---------- UI：不再有待收款 / 收银台入口 ----------
+
+  test("UI：订单列表无待收款入口且收银台不渲染", async ({ page, request }) => {
+    const order = await createPaidOrder(request, token)
+    created.push(order)
+
+    await openOrders(page)
+    const row = await searchOrder(page, order.orderNo)
+
+    await expect(row.locator(".pay-due-tag")).toHaveCount(0)
+    await expect(page.locator(".pay-dialog-modal")).toHaveCount(0)
+    await expect(row.locator(".soft-badge")).toHaveText("待入店")
+    await expect(row.getByRole("button", { name: /立即支付/ })).toHaveCount(0)
+  })
+
+  test("UI：订单详情字段完整且无立即支付入口", async ({ page, request }) => {
+    const order = await createPaidOrder(request, token)
+    created.push(order)
+    const price = await getDefaultPrice(request, token)
+
+    await openOrders(page)
+    const row = await searchOrder(page, order.orderNo)
+    await row.getByRole("button", { name: `查看${order.orderNo}` }).click()
+
+    await expect(page.locator(".customer-dialog")).toBeVisible()
+    await expect(detailValue(page, "总费用")).toContainText(String(order.totalFee))
+    await expect(detailValue(page, "每日单价")).toContainText(String(price.pricePerDay))
+    // Web 端订单不写 charge_days，只有小程序端 MpOrderService 落该字段，故详情显示「—」
+    await expect(detailValue(page, "计费天数")).toHaveText("—")
+    await expect(detailValue(page, "状态")).toHaveText("待入店")
+    await expect(page.locator(".customer-dialog").getByRole("button", { name: /立即支付/ })).toHaveCount(0)
+  })
+
+  test("UI：新建订单保存成功、费用自动计算并提示已完成收款", async ({ page, request }) => {
+    const base = await createCustomerPet(request, token)
+    created.push({ ...base, orderId: "", orderNo: "", totalFee: 0 })
+    const price = await getDefaultPrice(request, token)
+
+    await openOrders(page)
+    const { expectedFee } = await fillNewOrderForm(page, base, price)
+    await page.getByRole("button", { name: "保存订单" }).click()
+
+    await expect(page.locator(".customer-notice")).toContainText("订单已创建并完成收款。", { timeout: 10000 })
+
+    const latest = await fetchLatestOrder(request, token, base.customerId)
+    created[created.length - 1] = { ...base, ...latest }
+
+    const row = await searchOrder(page, latest.orderNo)
+    const feeText = await row.locator("td").nth(4).innerText()
+    expect(Number(feeText.replace(/,/g, ""))).toBe(expectedFee)
+    await expect(row.locator(".pay-due-tag")).toHaveCount(0)
+  })
+
+  test("UI：新建订单后不弹收银台且后端立即为已支付", async ({ page, request }) => {
+    const base = await createCustomerPet(request, token)
+    created.push({ ...base, orderId: "", orderNo: "", totalFee: 0 })
+    const price = await getDefaultPrice(request, token)
+
+    await openOrders(page)
+    const { expectedFee } = await fillNewOrderForm(page, base, price)
+    await page.getByRole("button", { name: "保存订单" }).click()
+    await expect(page.locator(".customer-notice")).toContainText("订单已创建并完成收款。", { timeout: 10000 })
+
+    const latest = await fetchLatestOrder(request, token, base.customerId)
+    created[created.length - 1] = { ...base, ...latest }
+
+    await expect(page.locator(".pay-dialog-modal")).toHaveCount(0)
+    const detail = await request.get(`${API_BASE}/api/orders/${latest.orderId}`, { headers: authHeader(token) })
+    const vo = ((await detail.json()) as { data: OrderVO }).data
+    expect(vo.paymentStatus).toBe("已支付")
+    expect(vo.paymentMethod).toBe("微信")
+    expect(Number(vo.paidAmount)).toBe(expectedFee)
+  })
+
+  test("UI：订单编号搜索唯一定位且与详情金额一致", async ({ page, request }) => {
+    const order = await createPaidOrder(request, token)
+    created.push(order)
+
+    await openOrders(page)
+    const rows = page.locator(".customer-table tbody tr", { hasText: order.orderNo })
+    await expect(rows).toHaveCount(1)
+    await rows.first().getByRole("button", { name: `查看${order.orderNo}` }).click()
+    await expect(detailValue(page, "总费用")).toContainText(String(order.totalFee))
+  })
+
+  test("UI：收银台支付方式控件不再渲染（防止旧交互回归）", async ({ page, request }) => {
+    const order = await createPaidOrder(request, token)
+    created.push(order)
+
+    await openOrders(page)
+    await searchOrder(page, order.orderNo)
+
+    for (const selector of [".pay-method-tab", ".pay-qr-image", ".pay-simulate-btn", ".pay-later"]) {
+      await expect(page.locator(selector)).toHaveCount(0)
+    }
   })
 })

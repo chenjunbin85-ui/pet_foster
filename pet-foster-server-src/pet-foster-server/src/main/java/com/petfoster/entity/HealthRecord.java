@@ -22,4 +22,11 @@ public class HealthRecord {
     private String treatment;
     private Long recorderId;
     private LocalDateTime recordTime;
+    /** 记录人岗位快照 */
+    private String recorderPosition;
+    /** 复核兽医 staff_id（L2 处置 / L3 签署） */
+    private Long verifiedBy;
+    private LocalDateTime verifiedAt;
+    /** 外部处方编号，系统不存处方内容 */
+    private String prescriptionRef;
 }

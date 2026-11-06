@@ -16,6 +16,7 @@ import java.util.Map;
 @Tag(name = "寄养订单管理", description = "订单增删改查、确认入店/离店/取消、模拟支付；写操作仅工作人员")
 @RestController
 @RequestMapping("/api/orders")
+@PreAuthorize("hasAnyRole('STAFF','ADMIN')")
 public class FosterOrderController {
 
     private final FosterOrderService fosterOrderService;

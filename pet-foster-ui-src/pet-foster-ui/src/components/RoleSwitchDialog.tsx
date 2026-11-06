@@ -17,7 +17,7 @@ import type { Role } from "@/api"
  * 演示环境中每个角色对应的默认账号。
  * 账号可编辑，用于登录同一角色下的其它账号。
  */
-const DEFAULT_USERNAME: Record<Role, string> = { admin: "admin", staff: "staff01" }
+const DEFAULT_USERNAME: Record<Role, string> = { admin: "13800138000", staff: "13800138011" }
 
 interface RoleSwitchDialogProps {
   /** 待切换的目标角色；为 null 时弹窗关闭 */

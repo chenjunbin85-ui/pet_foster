@@ -22,7 +22,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public Result<Void> handleAccessDenied(AccessDeniedException e) {
-        return Result.error(403, "没有权限访问该资源");
+        // PRD 11.12：缺权要给「该操作需要『兽医』岗位且今日在岗」这类可读文案，
+        // 不能只回一句 Access Denied，否则前台会直接去找店长要账号。
+        String msg = e.getMessage();
+        return Result.error(403, msg == null || msg.isBlank() ? "没有权限访问该资源" : msg);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)

@@ -15,4 +15,10 @@ public class ServiceRecord {
     private String content;
     private LocalDateTime serviceTime;
     private Long keeperId;
+    /** 现场动作类型：CARE_RECORD / GROOM_LOG / PICKUP_HANDOVER / REDEEM */
+    private String recordType;
+    /** 现场照片 URL，逗号分隔，最多 6 张 */
+    private String photoUrls;
+    /** 记录人岗位快照（调岗不改历史） */
+    private String recorderPosition;
 }

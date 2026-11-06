@@ -2,10 +2,10 @@ import { test, expect } from "@playwright/test"
 import { login, profileMenuTrigger, profileRole } from "./helpers/auth"
 
 // 登录失败次数限制：同一账号 5 分钟内失败 5 次后锁定 5 分钟。
-// 登录接口用一次性账号驱动，避免把 admin / staff01 锁掉影响其它用例。
+// 登录接口用一次性账号驱动，避免把演示管理员 / 工作人员账号锁掉影响其它用例。
 test.describe("登录失败次数限制", () => {
   test("连续 5 次失败后锁定并提示 5 分钟后再试", async ({ page }) => {
-    await login(page, "admin", "admin123")
+    await login(page, "13800138000", "123456")
     const tempUser = `lock_${Date.now()}`
     const adminToken = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
     const headers = { Authorization: `Bearer ${adminToken}`, "Content-Type": "application/json" }
@@ -43,7 +43,7 @@ test.describe("登录失败次数限制", () => {
       await page.getByRole("button", { name: "取消" }).click()
       await expect(profileRole(page)).toHaveText("管理员")
     } finally {
-      // 清理临时用户（锁定只作用于该账号，不影响 admin / staff01）
+      // 清理临时用户（锁定只作用于该账号，不影响演示管理员 / 工作人员账号）
       const list = await page.request.get(
         `http://127.0.0.1:8090/api/users?page=1&size=50&keyword=${tempUser}`,
         { headers }
@@ -57,8 +57,8 @@ test.describe("登录失败次数限制", () => {
   })
 
   test("锁定按账号隔离，不影响其它账号登录", async ({ page }) => {
-    // 上一个用例锁定的是随机账号，admin 仍应能正常登录（默认进入统计分析页）
-    await login(page, "admin", "admin123")
-    await expect(page.locator(".section-kicker", { hasText: "统计分析" })).toBeVisible()
+    // 上一个用例锁定的是随机账号，admin 仍应能正常登录（默认进入经营数据页）
+    await login(page, "13800138000", "123456")
+    await expect(page.locator(".section-kicker", { hasText: "经营数据" })).toBeVisible()
   })
 })

@@ -83,7 +83,7 @@ test.describe('多端联调 · 读侧链路（登录→个人信息→宠物→�
   })
 })
 
-test.describe('多端联调 · 写侧链路（下单→支付→取消，逐节点落库断言）', () => {
+test.describe('多端联调 · 写侧链路（下单→重复支付拦截→取消，逐节点落库断言）', () => {
   // 每个用例独立下单并清理，避免测试残留
   async function cleanup(orderId) {
     await query('DELETE FROM foster_order WHERE order_id = ?', [orderId])
@@ -130,13 +130,14 @@ test.describe('多端联调 · 写侧链路（下单→支付→取消，逐节�
     const order = body.data
     expect(order.stayDays).toBe(3)
     expect(Number(order.totalFee)).toBe(240)
-    expect(order.paymentStatus).toBe('未支付')
+    // PRD 2.3：未接入真实支付，下单即视为已支付（演示内联收款成功）
+    expect(order.paymentStatus).toBe('已支付')
 
     try {
       // —— 数据库落库断言（多端联调核心）：金额/天数/单价快照/状态 ——
       // 注：表无 stay_days 列（VO 计算字段），天数由 start_date/end_date 推导
       const rows = await query(
-        "SELECT order_no, DATE_FORMAT(start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(end_date, '%Y-%m-%d') AS end_date, DATEDIFF(end_date, start_date) + 1 AS stay_days, total_fee, price_per_day, status, payment_status, expires_at, remark FROM foster_order WHERE order_id = ?",
+        "SELECT order_no, DATE_FORMAT(start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(end_date, '%Y-%m-%d') AS end_date, DATEDIFF(end_date, start_date) + 1 AS stay_days, total_fee, price_per_day, status, payment_status, paid_amount, payment_method, remark FROM foster_order WHERE order_id = ?",
         [order.id]
       )
       expect(rows).toHaveLength(1)
@@ -148,19 +149,15 @@ test.describe('多端联调 · 写侧链路（下单→支付→取消，逐节�
       expect(Number(row.total_fee)).toBe(240)
       expect(Number(row.price_per_day)).toBe(80)
       expect(row.status).toBe('待入店')
-      expect(row.payment_status).toBe('未支付')
-      expect(row.expires_at).toBeTruthy() // 15 分钟支付截止已写入
+      expect(row.payment_status).toBe('已支付')
+      expect(Number(row.paid_amount)).toBe(240)
+      expect(row.payment_method).toBe('微信')
       expect(row.remark).toBe('PW联调测试-按天3天')
 
-      // —— 支付：接口 → 落库 payment_status=已支付/paid_amount=240 ——
-      const pay = await (await request.post(`/api/mp/orders/${order.id}/pay`, { headers: auth })).json()
-      expect(pay.code).toBe(200)
-      expect(pay.data.paymentStatus).toBe('已支付')
-      const paidRow = (await query('SELECT payment_status, paid_amount, payment_time, payment_method FROM foster_order WHERE order_id = ?', [order.id]))[0]
-      expect(paidRow.payment_status).toBe('已支付')
-      expect(Number(paidRow.paid_amount)).toBe(240)
-      expect(paidRow.payment_method).toBe('微信')
-      expect(paidRow.payment_time).toBeTruthy()
+      // —— 重复支付拦截：订单已支付，再次调用 /pay 必须被拒 ——
+      const dupPay = await (await request.post(`/api/mp/orders/${order.id}/pay`, { headers: auth })).json()
+      expect(dupPay.code).toBe(500)
+      expect(dupPay.message).toContain('已支付')
 
       // —— 取消（已支付 → 演示退款）：落库 status=已取消/payment_status=已退款 ——
       const cancel = await (await request.post(`/api/mp/orders/${order.id}/cancel`, { headers: auth })).json()
@@ -171,7 +168,7 @@ test.describe('多端联调 · 写侧链路（下单→支付→取消，逐节�
       expect(cancelRow.status).toBe('已取消')
       expect(cancelRow.payment_status).toBe('已退款')
     } finally {
-      await cleanup(order.id)
+      cleanup(order.id)
     }
   })
 
@@ -208,19 +205,20 @@ test.describe('多端联调 · 写侧链路（下单→支付→取消，逐节�
     })).json()).data
 
     try {
-      const list = (await (await request.get('/api/mp/orders?page=1&size=20', { headers: auth })).json()).data
-      expect(list.total).toBeGreaterThan(0)
-      const found = list.records.find((o) => String(o.id) === String(created.id))
+      const list = (await (await request.get('/api/mp/orders?page=1&size=20', { headers: auth })).json())
+      const data = list.data
+      expect(data.total).toBeGreaterThan(0)
+      const found = data.records.find((o) => String(o.id) === String(created.id))
       expect(found).toBeTruthy()
       expect(found.orderNo).toBeTruthy()
       expect(found.stayDays).toBe(3)
 
       // 状态筛选：新单为待入店
-      const filter = (await (await request.get('/api/mp/orders?page=1&size=20&status=%E5%BE%85%E5%85%A5%E5%BA%97', { headers: auth })).json()).data
-      const inFilter = filter.records.find((o) => String(o.id) === String(created.id))
+      const filter = (await (await request.get('/api/mp/orders?page=1&size=20&status=%E5%BE%85%E5%85%A5%E5%BA%97', { headers: auth })).json())
+      const inFilter = filter.data.records.find((o) => String(o.id) === String(created.id))
       expect(inFilter).toBeTruthy()
     } finally {
-      await cleanup(created.id)
+      cleanup(created.id)
     }
   })
 })

@@ -5,7 +5,7 @@ export async function login(page: Page, username: string, password: string) {
   await page.getByLabel("账号").fill(username)
   await page.getByLabel("密码").fill(password)
   await page.getByRole("button", { name: /登\s*录/ }).click()
-  // 等待登录成功：token 存入 localStorage 且页面进入工作区（管理员默认统计分析页，工作人员默认系统首页）
+  // 等待登录成功：token 存入 localStorage 且页面进入工作区（管理员默认经营数据页，工作人员默认系统首页）
   await page.waitForFunction(() => localStorage.getItem("pet_foster_token") !== null, null, { timeout: 30000 })
   await expect(page.locator(".dashboard-welcome")).toBeVisible()
 }

@@ -199,6 +199,11 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         if (o.getStartDate() != null && o.getEndDate() != null) {
             vo.setStayDays(Math.toIntExact(ChronoUnit.DAYS.between(o.getStartDate(), o.getEndDate()) + 1));
         }
+        vo.setChargeDays(o.getChargeDays());
+        vo.setDepositFee(o.getDepositFee());
+        vo.setExtraFee(o.getExtraFee());
+        vo.setDiscountFee(o.getDiscountFee());
+        vo.setRoomId(o.getRoomId() != null ? String.valueOf(o.getRoomId()) : null);
         if (o.getPriceId() != null) {
             FosterPrice fp = fosterPriceMapper.selectById(o.getPriceId());
             if (fp != null) vo.setPriceLevelName(fp.getLevelName());

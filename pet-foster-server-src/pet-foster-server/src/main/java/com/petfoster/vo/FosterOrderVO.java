@@ -27,6 +27,16 @@ public class FosterOrderVO {
     private LocalDateTime expiresAt;
     /** 寄养天数（按天计费：离店-入住+1，同日 1 天） */
     private Integer stayDays;
+    /** 计费日数快照 */
+    private Integer chargeDays;
+    /** 定金金额 */
+    private BigDecimal depositFee;
+    /** 增值服务金额 */
+    private BigDecimal extraFee;
+    /** 优惠金额 */
+    private BigDecimal discountFee;
+    /** 锁定房间ID */
+    private String roomId;
     /** 价位档位名称 */
     private String priceLevelName;
     private String creatorId;

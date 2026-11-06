@@ -14,7 +14,7 @@ test.describe("批量录入数据与数据面板验证", () => {
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage()
     // 业务数据由工作人员录入（执行层）
-    await login(page, "staff01", "staff123")
+    await login(page, "13800138011", "123456")
     token = await page.evaluate(() => localStorage.getItem("pet_foster_token") || "")
     await page.close()
     expect(token, "登录获取token失败").toBeTruthy()
@@ -93,8 +93,8 @@ test.describe("批量录入数据与数据面板验证", () => {
   })
 
   test("首页统计卡片数据正确反映批量录入", async ({ page }) => {
-    // 首页工作台面向工作人员（管理员默认进入统计分析页）
-    await login(page, "staff01", "staff123")
+    // 首页工作台面向工作人员（管理员默认进入经营数据页）
+    await login(page, "13800138011", "123456")
     await page.waitForTimeout(2000)
 
     // 验证四个统计卡片存在且有数值
@@ -106,11 +106,11 @@ test.describe("批量录入数据与数据面板验证", () => {
     expect(bodyText).toContain("本月订单")
   })
 
-  test("统计分析页数据面板正确展示", async ({ page }) => {
-    await login(page, "admin", "admin123")
-    // 管理员默认即统计分析页；用侧边栏按钮导航（页面 kicker 与按钮同名，避免文本匹配歧义）
+  test("经营数据页数据面板正确展示", async ({ page }) => {
+    await login(page, "13800138000", "123456")
+    // 管理员默认即经营数据页；用侧边栏按钮导航（页面 kicker 与按钮同名，避免文本匹配歧义）
     await page.locator('.nav-item[data-nav="stats"]').click()
-    await expect(page.locator(".section-kicker", { hasText: "统计分析" })).toBeVisible()
+    await expect(page.locator(".section-kicker", { hasText: "经营数据" })).toBeVisible()
 
     // 验证图表容器存在
     await expect(page.locator(".recharts-wrapper, [class*='chart']").first()).toBeVisible({ timeout: 10000 })
@@ -133,7 +133,7 @@ test.describe("批量录入数据与数据面板验证", () => {
     const orderBody = await orderRes.json()
     const apiTotal = orderBody.data?.total || 0
 
-    await login(page, "admin", "admin123")
+    await login(page, "13800138000", "123456")
     await page.waitForTimeout(1000)
 
     // 验证页面不崩溃

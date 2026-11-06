@@ -6,6 +6,7 @@ import com.petfoster.security.JwtAuthenticationFilter;
 import com.petfoster.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -57,6 +58,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/login").permitAll()
                 .requestMatchers("/api/mp/auth/login").permitAll()
+                // 现场照片读取：小程序 <image> 不带 Authorization，仅放行 GET
+                .requestMatchers(HttpMethod.GET, "/api/files/**").permitAll()
                 .requestMatchers("/health").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()

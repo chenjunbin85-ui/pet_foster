@@ -13,6 +13,7 @@ public class Pet {
     private Long customerId;
     private String name;
     private String breed;
+    private String species;
     private String gender;
     private Integer age;
     private BigDecimal weight;

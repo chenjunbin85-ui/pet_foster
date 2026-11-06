@@ -32,4 +32,19 @@ public class FosterOrder {
     private LocalDateTime createTime;
     @TableLogic
     private Integer deleted;
+
+    /** 计费日数（含离店日，快照） */
+    private Integer chargeDays;
+    /** 定金金额 */
+    private BigDecimal depositFee;
+    /** 优惠金额 */
+    private BigDecimal discountFee;
+    /** 增值服务金额 */
+    private BigDecimal extraFee;
+    /** 锁定房间ID */
+    private Long roomId;
+    /** 实际入店时间 */
+    private LocalDateTime checkInTime;
+    /** 实际离店时间 */
+    private LocalDateTime checkOutTime;
 }

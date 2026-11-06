@@ -22,7 +22,7 @@ async function switchRole(page: Page, roleLabel: string, username: string, passw
 
 test.describe("布局与角色菜单", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "admin", "admin123")
+    await login(page, "13800138000", "123456")
   })
 
   test("底部更多操作菜单可展开且不白屏", async ({ page }) => {
@@ -108,13 +108,13 @@ test.describe("布局与角色菜单", () => {
     await page.getByRole("menuitem", { name: "切换为工作人员" }).click()
     await expect(page.getByRole("dialog")).toBeVisible()
     await expect(page.getByRole("dialog")).toContainText("切换到工作人员")
-    await expect(page.getByLabel("账号")).toHaveValue("staff01")
+    await expect(page.getByLabel("账号")).toHaveValue("13800138011")
     await expect(page.getByLabel("密码")).toHaveValue("")
   })
 
   test("密码错误时提示错误且不切换账号", async ({ page }) => {
     const tokenBefore = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
-    await switchRole(page, "工作人员", "staff01", "wrong-password")
+    await switchRole(page, "工作人员", "13800138011", "wrong-password")
     await expect(dialogAlert(page)).toContainText("密码错误")
     // 浮窗保持打开，账号与 token 均未变化
     await expect(page.getByRole("dialog")).toBeVisible()
@@ -126,7 +126,7 @@ test.describe("布局与角色菜单", () => {
 
   test("密码正确后切换为工作人员并换发 token、收起系统管理", async ({ page }) => {
     const tokenBefore = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
-    await switchRole(page, "工作人员", "staff01", "staff123")
+    await switchRole(page, "工作人员", "13800138011", "123456")
     await expect(page.getByRole("dialog")).toBeHidden()
     await expect(profileRole(page)).toHaveText("工作人员")
     // 换发新 token，前端角色与后端接口权限保持一致
@@ -153,11 +153,11 @@ test.describe("布局与角色菜单", () => {
 
 test.describe("角色切换权限校验", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "staff01", "staff123")
+    await login(page, "13800138011", "123456")
   })
 
   test("工作人员账号不能切换为管理员", async ({ page }) => {
-    await switchRole(page, "管理员", "staff01", "staff123")
+    await switchRole(page, "管理员", "13800138011", "123456")
     await expect(dialogAlert(page)).toContainText("无法切换为")
     await expect(page.getByRole("dialog")).toBeVisible()
     await page.getByRole("button", { name: "取消" }).click()

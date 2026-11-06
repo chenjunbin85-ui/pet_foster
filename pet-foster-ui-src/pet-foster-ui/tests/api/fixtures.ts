@@ -31,13 +31,13 @@ async function authedContext(playwright: any, token: string): Promise<APIRequest
 
 export const test = base.extend<ApiFixtures>({
   admin: async ({ request, playwright }, use) => {
-    const token = await login(request, 'admin', 'admin123');
+    const token = await login(request, '13800138000', '123456');
     const ctx = await authedContext(playwright, token);
     await use(ctx);
     await ctx.dispose();
   },
   staff: async ({ request, playwright }, use) => {
-    const token = await login(request, 'staff01', 'staff123');
+    const token = await login(request, '13800138011', '123456');
     const ctx = await authedContext(playwright, token);
     await use(ctx);
     await ctx.dispose();

@@ -4,7 +4,7 @@ import { login, navigateTo } from "./helpers/auth"
 test.describe("客户管理 CRUD", () => {
   test.beforeEach(async ({ page }) => {
     // 客户为执行层业务，由工作人员操作（管理员仅看订单流水与统计）
-    await login(page, "staff01", "staff123")
+    await login(page, "13800138011", "123456")
     await navigateTo(page, "客户信息管理")
   })
 

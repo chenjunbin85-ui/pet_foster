@@ -58,6 +58,7 @@ export interface OrderVO {
   startDate: string; endDate: string; priceId?: number; pricePerDay: number; totalFee: number
   status: string; remark?: string; creatorId?: string; createdAt: string
   paymentStatus?: string; paymentMethod?: string; paymentTime?: string; paidAmount?: number
+  chargeDays?: number; depositFee?: number; extraFee?: number; discountFee?: number; roomId?: string
 }
 export const orderPage = (page: number, size: number, status?: string, customerId?: string, orderNo?: string) =>
   get<PageResult<OrderVO>>(`/api/orders?page=${page}&size=${size}${status ? `&status=${encodeURIComponent(status)}` : ""}${customerId ? `&customerId=${customerId}` : ""}${orderNo ? `&orderNo=${orderNo}` : ""}`)

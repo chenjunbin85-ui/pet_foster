@@ -24,17 +24,22 @@ Page({
   onLoad() {
     if (app.isLoggedIn()) {
       wx.switchTab({ url: '/pages/index/index' })
+      return
+    }
+    const staffToken = wx.getStorageSync('staffToken')
+    if (staffToken) {
+      wx.redirectTo({ url: '/pages/staff/home/home' })
     }
   },
 
-  // 与设计稿一致：手机号合法 + 密码≥6位 + 勾选协议，按钮才由禁用转为主色
-  checkCanSubmit(phone, password, agreed) {
-    return /^1[3-9]\d{9}$/.test(phone) && password.length >= 6 && !!agreed
+  // 统一登录：手机号非空 + 密码≥6位 + 勾选协议（后端自动识别员工/客户）
+  checkCanSubmit(account, password, agreed) {
+    return account.trim().length > 0 && password.length >= 6 && !!agreed
   },
 
   onPhoneInput(e) {
-    const phone = e.detail.value
-    this.setData({ phone, canSubmit: this.checkCanSubmit(phone, this.data.password, this.data.agreed) })
+    const account = e.detail.value
+    this.setData({ phone: account, canSubmit: this.checkCanSubmit(account, this.data.password, this.data.agreed) })
   },
   onPasswordInput(e) {
     const password = e.detail.value
@@ -78,11 +83,16 @@ Page({
     })
   },
 
+  /**
+   * 统一登录：先尝试员工端点 /api/auth/login，失败再尝试客户端点 /api/mp/auth/login。
+   * 按返回 role 自动分流：staff/admin → 员工工作台；customer → 客户端首页。
+   */
   async submit() {
     const { phone, password, agreed, loading } = this.data
     if (loading) return
-    if (!/^1[3-9]\d{9}$/.test(phone)) {
-      wx.showToast({ title: '请输入正确的手机号', icon: 'none' })
+    const account = phone.trim()
+    if (!account) {
+      wx.showToast({ title: '请输入手机号', icon: 'none' })
       return
     }
     if (password.length < 6) {
@@ -95,14 +105,30 @@ Page({
     }
     this.setData({ loading: true })
     try {
-      const res = await api.login(phone, password)
-      app.setSession(res.token, res.customer)
+      // 1) 先试员工端点（admin/staff）
+      try {
+        const staffRes = await api.staffLogin(account, password)
+        // 员工会话与客户会话隔离；userInfo.positions 由后端归一化后下发，供页面鉴权使用
+        app.setStaffSession(staffRes.token, staffRes.userInfo)
+        app.clearSession()
+        wx.showToast({ title: '员工登录成功', icon: 'success' })
+        setTimeout(() => {
+          wx.redirectTo({ url: '/pages/staff/home/home' })
+        }, 400)
+        return
+      } catch (staffErr) {
+        // 员工端点失败，继续尝试客户端点
+      }
+      // 2) 再试客户端点（customer）
+      const custRes = await api.login(account, password)
+      app.clearStaffSession()
+      app.setSession(custRes.token, custRes.customer)
       wx.showToast({ title: '登录成功', icon: 'success' })
       setTimeout(() => {
         wx.switchTab({ url: '/pages/index/index' })
       }, 400)
     } catch (e) {
-      wx.showToast({ title: e.message || '登录失败', icon: 'none' })
+      wx.showToast({ title: e.message || '账号或密码错误', icon: 'none' })
     } finally {
       this.setData({ loading: false })
     }

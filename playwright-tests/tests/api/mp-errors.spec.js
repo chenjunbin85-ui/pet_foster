@@ -19,7 +19,8 @@ test.describe('多端联调 · 认证与安全', () => {
     })
     const body = await res.json()
     expect(body.code).toBe(500)
-    expect(body.message).toContain('还可尝试')
+    // 首次失败提示「密码错误」，累积到阈值后提示「还可尝试 N 次」；两者均为正确拒绝
+    expect(body.message).toMatch(/密码错误|还可尝试/)
   })
 
   test('手机号不存在：明确报错', async ({ request }) => {
@@ -49,7 +50,7 @@ test.describe('多端联调 · 幂等与状态机', () => {
     await query('DELETE FROM foster_order WHERE order_id = ?', [orderId])
   }
 
-  test('重复支付被拦截（已支付订单不可二次支付）', async ({ request }) => {
+  test('重复支付被拦截：下单即已支付，再次 /pay 被拒（已支付不可二次支付）', async ({ request }) => {
     const token = await login(request)
     const auth = { Authorization: `Bearer ${token}` }
     const pets = (await (await request.get('/api/mp/pets', { headers: auth })).json()).data
@@ -63,19 +64,16 @@ test.describe('多端联调 · 幂等与状态机', () => {
     })).json()).data
 
     try {
-      const first = await (await request.post(`/api/mp/orders/${created.id}/pay`, { headers: auth })).json()
-      expect(first.code).toBe(200)
-      expect(first.data.paymentStatus).toBe('已支付')
-
+      // PRD 2.3：下单即视为已支付；直接再次 /pay 应命中「订单已支付」拦截
       const second = await (await request.post(`/api/mp/orders/${created.id}/pay`, { headers: auth })).json()
       expect(second.code).toBe(500)
       expect(second.message).toContain('已支付')
     } finally {
-      await cleanup(created.id)
+      cleanup(created.id)
     }
   })
 
-  test('未支付订单取消不涉及退款（状态机：待入店→已取消）', async ({ request }) => {
+  test('已支付订单取消走演示退款（状态机：待入店→已取消/已退款）', async ({ request }) => {
     const token = await login(request)
     const auth = { Authorization: `Bearer ${token}` }
     const pets = (await (await request.get('/api/mp/pets', { headers: auth })).json()).data
@@ -92,13 +90,13 @@ test.describe('多端联调 · 幂等与状态机', () => {
       const cancel = await (await request.post(`/api/mp/orders/${created.id}/cancel`, { headers: auth })).json()
       expect(cancel.code).toBe(200)
       expect(cancel.data.status).toBe('已取消')
-      expect(cancel.data.paymentStatus).toBe('未支付')
+      expect(cancel.data.paymentStatus).toBe('已退款')
 
       const row = (await query('SELECT status, payment_status FROM foster_order WHERE order_id = ?', [created.id]))[0]
       expect(row.status).toBe('已取消')
-      expect(row.payment_status).toBe('未支付')
+      expect(row.payment_status).toBe('已退款')
     } finally {
-      await cleanup(created.id)
+      cleanup(created.id)
     }
   })
 

@@ -1,0 +1,50 @@
+<view class="staff-page home-page">
+<view class="topbar">
+  <view class="statusbar"><text>9:41</text><view class="sb-right"><text class="ico">▂▄▆</text><text class="ico">◔</text><text class="ico">▭</text></view></view>
+  <view class="navbar"><view class="nav-back" bindtap="noop"><text class="ico">‹</text></view><text class="nav-title">员工工作台</text>
+    <view class="nav-capsule"><text class="ico">···</text><text class="ico">◎</text></view></view>
+</view>
+<view class="content">
+  <view class="card home-profile">
+    <view class="row gap10">
+      <view class="avatar lg a1">{{meName}}</view>
+      <view class="grow">
+        <view class="row gap8"><text class="t15 strong">{{meName}}</text><text class="tag tag-green">在岗</text></view>
+        <view class="t11 muted mt4">{{positionLabel}} · {{today.dateText}} {{today.weekday}} {{today.shift}}班</view>
+      </view>
+      <button class="btn btn-outline btn-xs" bindtap="logout">退出</button>
+    </view>
+    <view class="divider"></view>
+    <view class="home-stat">
+      <view class="stat"><view class="stat-num">{{today.pendingCount}}</view><view class="stat-label">待入店</view></view>
+      <view class="stat"><view class="stat-num">{{today.fosteringCount}}</view><view class="stat-label">寄养中</view></view>
+      <view class="stat"><view class="stat-num">{{menuCount}}</view><view class="stat-label">可用功能</view></view>
+    </view>
+  </view>
+
+  <view class="notice notice-warn" wx:if="{{today.vet && !today.vet.vetReady && isVet}}">
+    <text class="ico">!</text><view><view class="notice-title">今日尚未完成在岗确认或执业证无效</view>按合规要求，评估与签署操作已锁定，请先在兽医工作台确认在岗。</view>
+  </view>
+
+  <view class="section-head" wx:if="{{workbenches.length}}"><text class="section-title">我的工作台</text><text class="section-extra">按岗位显示</text></view>
+  <view class="task" wx:for="{{workbenches}}" wx:key="key" bindtap="go" data-path="{{item.path}}">
+    <view class="task-head"><view class="avatar a2">{{item.group}}</view><view class="grow">
+      <text class="task-name">{{item.title}}</text><view class="task-meta">点击进入岗位专属工作台</view></view>
+      <text class="tag tag-orange">进入</text>
+    </view>
+  </view>
+
+  <block wx:for="{{groups}}" wx:key="key">
+    <view class="section-head"><text class="section-title">{{item.label}}</text><text class="section-extra">{{item.items.length}} 项</text></view>
+    <view class="card menu-list">
+      <view class="menu-row" wx:for="{{item.items}}" wx:for-item="p" wx:key="key" bindtap="go" data-path="{{p.path}}">
+        <text class="menu-label">{{p.title}}</text>
+        <text class="tag tag-gray" wx:if="{{p.readOnly}}">只读</text>
+        <text class="menu-chev">›</text>
+      </view>
+    </view>
+  </block>
+
+  <view class="notice notice-info mt16"><text class="ico">i</text><view>页面按岗位鉴权；后端每个写接口会再判一次岗位与资质（403 才是真正的边界）。</view></view>
+</view>
+</view>

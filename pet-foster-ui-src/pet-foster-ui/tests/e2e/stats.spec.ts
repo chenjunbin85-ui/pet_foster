@@ -1,16 +1,16 @@
 import { test, expect } from "@playwright/test"
 import { login } from "./helpers/auth"
 
-test.describe("统计分析面板", () => {
+test.describe("经营数据面板", () => {
   test.beforeEach(async ({ page }) => {
-    await login(page, "admin", "admin123")
-    // 管理员默认展示界面即为统计分析页，无需再点击侧边栏
-    await expect(page.locator(".section-kicker", { hasText: "统计分析" })).toBeVisible()
+    await login(page, "13800138000", "123456")
+    // 管理员默认展示界面即为经营数据页，无需再点击侧边栏
+    await expect(page.locator(".section-kicker", { hasText: "经营数据" })).toBeVisible()
   })
 
-  test("管理员登录默认进入统计分析页，侧边栏仅保留统计与系统管理", async ({ page }) => {
+  test("管理员登录默认进入经营数据页，侧边栏仅保留统计与系统管理", async ({ page }) => {
     await expect(page.locator(".statistics-page")).toBeVisible()
-    // 侧边栏只保留两组：数据统计（统计分析）+ 系统管理（系统管理）
+    // 侧边栏只保留两组：数据统计（经营数据）+ 系统管理（系统管理）
     const navButtons = page.locator(".nav-item")
     await expect(navButtons).toHaveCount(2)
     await expect(page.locator('.nav-item[data-nav="stats"]')).toBeVisible()
@@ -44,14 +44,14 @@ test.describe("统计分析面板", () => {
     expect(raised.cursor).toBe("pointer")
   })
 
-  test("订单流水页返回键回到统计分析页", async ({ page }) => {
-    // 管理员从统计卡进入订单流水后，标题栏左侧返回键可回到统计分析页
+  test("订单流水页返回键回到经营数据页", async ({ page }) => {
+    // 管理员从统计卡进入订单流水后，标题栏左侧返回键可回到经营数据页
     await page.locator(".stat-card", { hasText: "已完成订单" }).click()
     await expect(page.locator(".section-kicker", { hasText: "寄养订单管理" })).toBeVisible()
     const backBtn = page.locator(".page-back-btn")
     await expect(backBtn).toBeVisible()
     await backBtn.click()
-    await expect(page.locator(".section-kicker", { hasText: "统计分析" })).toBeVisible()
+    await expect(page.locator(".section-kicker", { hasText: "经营数据" })).toBeVisible()
     await expect(page.locator(".statistics-page")).toBeVisible()
   })
 

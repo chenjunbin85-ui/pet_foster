@@ -14,14 +14,14 @@ test.describe("认证模块", () => {
   })
 
   test("管理员登录成功", async ({ page }) => {
-    await login(page, "admin", "admin123")
-    // 管理员默认展示界面为统计分析页
-    await expect(page.locator(".section-kicker", { hasText: "统计分析" })).toBeVisible()
+    await login(page, "13800138000", "123456")
+    // 管理员默认展示界面为经营数据页
+    await expect(page.locator(".section-kicker", { hasText: "经营数据" })).toBeVisible()
     await expect(page.locator(".statistics-page")).toBeVisible()
   })
 
   test("工作人员登录成功", async ({ page }) => {
-    await login(page, "staff01", "staff123")
+    await login(page, "13800138011", "123456")
     await expect(page.getByText("寄养中宠物")).toBeVisible()
   })
 

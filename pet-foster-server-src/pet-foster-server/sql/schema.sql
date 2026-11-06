@@ -133,13 +133,17 @@ CREATE TABLE foster_service_record (
 -- 初始数据
 -- ============================================
 
--- 管理员: admin/admin123（sys_admin 表）
+-- 管理员: 13800138000/123456（sys_admin 表）
 INSERT INTO sys_admin (username, password, real_name, status, create_time, remark) VALUES
-('admin', '$2b$10$JTOsPJJdw7U5wDLXUvVrhuHRx/WFbx6.EUL6XWSzetTnfkndW/2RW', '系统管理员', 1, NOW(), '超级管理员');
+('13800138000', '$2a$10$obk31JbG2WevwnaYTaFNr..u5V5jgBmQSk2m0VnZn/UGO28zCNYL2', '店长', 1, NOW(), '超级管理员');
 
--- 工作人员: staff01/staff123（staff 表，staff_id = 1）
+-- 工作人员: 统一手机号/123456（staff 表，岗位见 position）
 INSERT INTO staff (username, password, real_name, position, status, create_time, remark) VALUES
-('staff01', '$2b$10$hInT5h4a.QafYiywEVdkIu59sQ16IS6p6ty9po4wSRjfxnGsVa7my', '张护理', '护理员', 1, NOW(), '前台护理员');
+('13800138011', '$2a$10$obk31JbG2WevwnaYTaFNr..u5V5jgBmQSk2m0VnZn/UGO28zCNYL2', '护理员小陈', 'CARE',  1, NOW(), '护理'),
+('13800138012', '$2a$10$obk31JbG2WevwnaYTaFNr..u5V5jgBmQSk2m0VnZn/UGO28zCNYL2', '前台小周',   'FRONT', 1, NOW(), '前台'),
+('13800138013', '$2a$10$obk31JbG2WevwnaYTaFNr..u5V5jgBmQSk2m0VnZn/UGO28zCNYL2', '兽医小李',   'VET',   1, NOW(), '兽医'),
+('13800138014', '$2a$10$obk31JbG2WevwnaYTaFNr..u5V5jgBmQSk2m0VnZn/UGO28zCNYL2', '美容师小王', 'GROOM', 1, NOW(), '美容'),
+('13800138015', '$2a$10$obk31JbG2WevwnaYTaFNr..u5V5jgBmQSk2m0VnZn/UGO28zCNYL2', '司机小赵',   'DRIVER',1, NOW(), '接送');
 
 -- 数据字典已移除：订单状态、宠物性别等枚举由系统代码/前端固定定义
 -- 寄养价位档位初始数据（管理员可在系统管理中修改）

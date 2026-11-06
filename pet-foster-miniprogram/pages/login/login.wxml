@@ -13,8 +13,8 @@
       <view class="field-label">手机号</view>
       <input
         class="field-input"
-        type="number"
-        maxlength="11"
+        type="text"
+        maxlength="30"
         placeholder="请输入手机号"
         placeholder-class="placeholder"
         value="{{phone}}"
@@ -83,7 +83,7 @@
       <view class="sheet-copy">忘记密码、账号与安全请通过门店人工处理。\n客服电话：400-080-6060\n营业时间：09:00–21:00</view>
       <view class="sheet-actions">
         <button class="btn btn-secondary" hover-class="btn-hover" bindtap="closeContact">取消</button>
-        <button class="btn btn-primary" hover-class="btn-hover" bindtap="callStore">拨打客服</button>
+        <button class="btn btn-primary" hover-class="btn-hover" bindtap="closeContact">拨打客服</button>
       </view>
     </view>
   </view>
