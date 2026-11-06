@@ -1,3 +1,5 @@
+-- [历史脚本 · 2026-11-07 起] 内容已并入 sql/schema.sql（当前版本一体化初始化脚本）。
+-- 新环境只需执行 schema.sql；本文件仅保留用于旧库升级追溯，勿对新建库重复执行。
 -- 业务扩展：门店 / 优惠券 / 评价 / 照护记录
 CREATE TABLE IF NOT EXISTS store (
   store_id BIGINT NOT NULL AUTO_INCREMENT,

@@ -1,4 +1,6 @@
 -- 宠物寄养系统数据库索引优化脚本（修正版）
+-- [可选脚本 · 2026-11-07] 非幂等，仅对全新库执行一次；建表与主索引已在 sql/schema.sql 中。
+-- 数据字典表 sys_dict 已移除，原「7. sys_dict 表」一节同步作废。
 USE pet_foster;
 
 -- 1. customer 表
@@ -35,8 +37,8 @@ ALTER TABLE sys_admin ADD INDEX idx_admin_status (status);
 ALTER TABLE staff ADD INDEX idx_staff_username (username);
 ALTER TABLE staff ADD INDEX idx_staff_status (status);
 
--- 7. sys_dict 表
-ALTER TABLE sys_dict ADD INDEX idx_dict_type_code (type_code);
+-- 7. sys_dict 表（数据字典已移除，本节作废；保留注释以免脚本对不存在的表报错）
+-- ALTER TABLE sys_dict ADD INDEX idx_dict_type_code (type_code);
 
 -- 验证索引
 SELECT TABLE_NAME, INDEX_NAME, COLUMN_NAME, SEQ_IN_INDEX

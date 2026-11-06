@@ -1,3 +1,4 @@
+-- [历史脚本 · 2026-11-07 起] 演示种子已并入 sql/schema.sql 第二节，新环境无需执行本文件。
 -- 演示优惠券：客户1 新用户首单立减
 INSERT INTO coupon (customer_id, name, discount, min_amount, status, expire_at)
 SELECT 1, '新用户首单立减', 20.00, 0.00, 'UNUSED', '2026-12-31'
