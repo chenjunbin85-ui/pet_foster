@@ -10,6 +10,7 @@
 | 支付模块基线复现 | 11 | 1 | 10 | 3.6 min | **FAIL**，收银台入口不存在 |
 | 支付模块修复后 | 11 | 11 | 0 | 29.2 s | **PASS** |
 | 全量回归（修复后） | 120 | **120** | **0** | 8.2 min | **PASS**，无 skip、无 flaky |
+| 三项 P2 修复后全量回归（11-07） | 120 | **120** | **0** | 8.8 min | **PASS**，无 skip、无 flaky；见 §11 |
 
 **根因不是功能 bug，是测试套件与产品现状脱节**：2026-10-15「明确角色权限划分」把订单改为「创建即已支付」，收银台入口随之移除，但 `payment.spec.ts` 仍按「待支付」写，因此从第一条 UI 用例开始超时。本次按**只修测试、不动后端与产品行为**的最保守方案处置。
 
@@ -58,6 +59,8 @@
 
 ### 5.2 代码证据（文件 / 行号）
 
+> 以下为 **2026-11-06 修复前**的代码快照，行号以当时版本为准；三项 P2 已在 2026-11-07 修复，见 §11。
+
 - `FosterOrderService.java:79-84` —— `create()` 直接置 `status=待入店`、`paymentStatus=已支付`、`paymentMethod=微信`、`paymentTime=now()`，注释原文「前台创建订单即完成收款（演示），不再产生未支付订单」；`:88-89` 计算 `totalFee` 并写入 `paidAmount`。
 - `FosterOrderService.java:155-158` —— `calcTotalFee()` = `pricePerDay × (DATEDIFF+1)`，**不写 `charge_days`**（只有小程序端 `MpOrderService` 落该字段）。
 - `MpOrderService.java:153` —— 小程序下单一模一样，也置 `PAID`。
@@ -103,7 +106,7 @@ POST /api/orders/138/pay → HTTP 400 {"message":"订单已支付，请勿重复
 | 1 | `tests/e2e/payment.spec.ts` | 整份重写为「订单支付状态（创建即已支付）」：11 条用例覆盖 API 支付字段 / 拒绝边界 / UI 列表 / 详情 / 新建流程 / 旧收银台不回归 |
 | 2 | 同上 `cleanup()` | **修漏删订单**：旧版只依赖用例内登记的 `orderId`，用例在 `fetchLatestOrder()` 前失败就漏删（实测残留 3 笔）。新版按 `customerId` 反查该客户全部订单再逐个删除，并保留已登记 ID 作兜底 |
 | 3 | 同上 helpers | 抽出 `fillNewOrderForm()` 消除两条 UI 用例的重复表单代码；`createPayableOrder` → `createPaidOrder` 并保留创建接口返回的 VO 供断言 |
-| 4 | 同上断言 | 「计费天数」按产品真实现状断言：Web 端不写 `charge_days`，详情显示「—」，总费用改按 `3 × pricePerDay` 校验（首轮复测曾误按小程序口径断言 `3 天`，已修正） |
+| 4 | 同上断言 | 「计费天数」按当时的真实现状断言：Web 端不写 `charge_days`，详情显示「—」，总费用改按 `3 × pricePerDay` 校验（首轮复测曾误按小程序口径断言 `3 天`，已修正）。**2026-11-07 后端补齐该字段后，此断言已同步改为 `3` / `3 天`，见 §11** |
 
 用例数保持 11 条，全量总数仍是 120。
 
@@ -114,13 +117,13 @@ POST /api/orders/138/pay → HTTP 400 {"message":"订单已支付，请勿重复
 - **全量回归：`npx playwright test --config=_pw.config.ts --reporter=line` → 120 passed / 0 failed / 0 skipped，8.2 min。** 13 个 spec 全绿，其中 `[87/120]–[97/120]` 为重写后的支付模块 11 条。
 - 回归后再次核对数据库：`deleted=0` 且 `order_no LIKE 'FO20261106%'` 的订单仍只有历史遗留的 3 笔，**全量测试没有新增残留**，新版 `cleanup()` 生效。
 
-## 9. 遗留问题（本轮均未改，按优先级）
+## 9. 遗留问题（2026-11-06 当时均未改；三项 P2 已于 11-07 修复，见 §11）
 
 | 优先级 | 问题 | 证据 / 建议 |
 | --- | --- | --- |
-| P2 | 收银台是死代码 | `OrdersPage.tsx:670-760` 的 `<dialog>` 与 `payOrder/payMethod/paying` 等 state 无任何赋值点，约 90 行残留。建议：要么删除，要么恢复完整支付流程，不要留半截 |
-| P2 | `pay()` 判断顺序导致文案不准 | `FosterOrderService.java:171` 的 `PAID` 在 `:172` 的 `CANCELLED` 之前，已取消的已支付订单返回「请勿重复支付」而非「已取消订单无法支付」。建议调换两行顺序（需重新编译重启） |
-| P2 | Web / 小程序计费字段不一致 | Web 端 `FosterOrderService.create()` 只算 `total_fee`，`charge_days` 恒 NULL；小程序 `MpOrderService` 会落 `charge_days` 和账单明细。详情弹窗因此显示「—」 |
+| P2 ✅ 已修复 | 收银台是死代码 | `OrdersPage.tsx:670-760` 的 `<dialog>` 与 `payOrder/payMethod/paying` 等 state 无任何赋值点，约 90 行残留。**11-07 已连同 244 行 CSS 一并删除** |
+| P2 ✅ 已修复 | `pay()` 判断顺序导致文案不准 | `FosterOrderService.java:171` 的 `PAID` 在 `:172` 的 `CANCELLED` 之前，已取消的已支付订单返回「请勿重复支付」而非「已取消订单无法支付」。**11-07 已调换并重新编译重启** |
+| P2 ✅ 已修复 | Web / 小程序计费字段不一致 | Web 端 `FosterOrderService.create()` 只算 `total_fee`，`charge_days` 恒 NULL；小程序 `MpOrderService` 会落 `charge_days` 和账单明细。详情弹窗因此显示「—」。**11-07 已在 `create()/update()` 补齐快照，详情显示「N 天」** |
 | P3 | 3 笔历史 e2e 残留订单 | `129 / FO20261106007`、`138 / FO20261106016`、`148 / FO20261106026`，均 `deleted=0`，是本轮修复前旧 `cleanup()` 漏删的测试产物。未动数据库；如需清理：`DELETE FROM foster_order WHERE order_id IN (129,138,148);`（建议先确认这三笔不是演示数据） |
 | P3 | 小程序未做开发者工具编译 / 真机预览 | 本机未在常见路径检测到微信开发者工具；员工端 18 页只做过静态校验 + Node 打桩 111 断言 + 后端六岗位冒烟，源码级与接口级覆盖，非真机覆盖 |
 | P3 | `test-results/.last-run.json` 曾被误纳入版本库 | 本次工作区已删除该文件，提交后从索引移除；`.gitignore` 已补 `playwright-tests/*-out.txt`、`dump.rdb`、`*.genie`、`.agents/`、`.creative-design/`、运行时 `uploads/` |
@@ -137,6 +140,60 @@ POST /api/orders/138/pay → HTTP 400 {"message":"订单已支付，请勿重复
 提交同时包含此前未入库的员工端小程序 17 页迁移与后端 staff 接口，以及工作区既有的「毛球旅馆小程序设计稿」Figma Make 原型目录清理（36 个文件，非本轮操作）。`.gitignore` 已补运行时产物；误跟踪的 `.workbuddy/memory/MEMORY.md` 与 `test-results/.last-run.json` 已从索引移除（本地文件保留）。
 
 GitHub 推送走 `http://127.0.0.1:7897` 代理（`git config --global http.https://github.com.proxy`），`git ls-remote` 与 `git push` 均实测可用。
+
+## 11. 追加修复（2026-11-07）：§9 的三项 P2
+
+用户确认「接着处理」后，把 §9 里三项 P2 全部修掉。**产品行为「创建即已支付」仍未改动**；本轮只清死代码、修判断顺序、统一计费字段。
+
+### 11.1 决策与边界
+
+- 收银台 `payOrder` 无任何赋值点，组件 / state / 事件 / 样式全是不可达代码 → **删除**而不是恢复（恢复属产品决策，回滚路径见 §6）。
+- `pay()` 的 400 文案误导用户 → 调换判断顺序，先判订单状态、再判支付状态。
+- `charge_days` 是 PRD 2.1 明确要求的订单快照（`docs/PRD.md:89,340`），Web 端漏写 → 补齐，与小程序端口径一致。
+- **不动**：`create()` 的 `PAID` 赋值、`MpOrderService`、经营数据营收口径；历史订单 `charge_days` **不回填**，避免改动演示数据。
+- **保留**：`src/api/index.ts` 的 `orderPay` 封装与后端 `POST /api/orders/{id}/pay`。接口仍承担拒绝边界，测试也依赖它，不算死代码。
+
+### 11.2 改动清单
+
+| 文件 | 改动 |
+| --- | --- |
+| `src/components/OrdersPage.tsx` | 删除收银台 `<dialog>`（原 670-761 行）、`payOrder/payMethod/paying` state、`payDialogRef`、弹窗 `useEffect`、`doPay()`、`orderPay` / `toast` import，以及 `save()` 里因删除而变成孤儿的 `created` 变量。共 −131 行 |
+| `src/index.css` | 删除 1956 行「支付收银台」到文件末尾的 244 行 `.pay-*` 样式（`.pay-due-tag`、二维码、支付方式切换、支付中动画等）。共 −246 行 |
+| `public/images/` | `git rm` 删除 `wechat-icon.png` / `alipay-icon.png` / `wechat-qr.png` / `alipay-qr.png` 共 4 张（约 1.6 MB）：全项目 grep 零引用，仅被已删的收银台使用。`logo.png` 仍被登录页、侧栏与 favicon 使用，**保留** |
+| `service/FosterOrderService.java` | `pay()` 把 `CANCELLED` 判断移到 `PAID` 之前；新增私有 `chargeDays(start,end)`，`calcTotalFee()` 改用它，`create()/update()` 写入 `charge_days` 快照 |
+| `tests/e2e/payment.spec.ts` | 4 处断言同步：`chargeDays=3`、详情「3 天」、已取消订单返回「已取消订单无法支付」且不含「请勿重复支付」、头部注释。用例数仍 11 |
+| Git 索引 | `test-results/.last-run.json` 真正执行 `git rm --cached`（§9 的 11-06 记录称已移除，实际仍被跟踪），`test-results/` 忽略规则已验证命中 |
+
+### 11.3 验证
+
+| 项 | 命令 / 结果 |
+| --- | --- |
+| TypeScript | `npx tsc --noEmit -p tsconfig.app.json`、`-p tsconfig.node.json` 均 exit 0 |
+| 前端构建 | `npm run build` exit 0（CSS 176.01 kB / JS 978.88 kB，仅 chunk >500 kB 提示） |
+| 后端编译 | 用 PowerShell 工具调 `mvn.cmd -o -q -f <pom> compile` exit 0，`FosterOrderService.class` 14139 → 14340 字节 |
+| 服务重启 | 停旧 `java.exe`（先核对命令行含 `com.petfoster.PetFosterApplication`）→ `run-backend.bat` 重启 8090，登录 HTTP 200 |
+| 单 spec | `payment.spec.ts` **11 passed / 0 failed，35.9 s**（覆盖 `chargeDays=3`、UI「3 天」、已取消文案） |
+| 数据库落库核对 | `SELECT COUNT(*), SUM(charge_days IS NOT NULL) FROM foster_order` → 修复前 `64 / 0`；修复后新单 `charge_days` 为 `2 / 3 / 4`（与用例起止日期一致），历史订单仍 NULL 未回填，测试单均 `deleted=1` |
+| 全量回归 | 见 §11.5 |
+
+### 11.4 环境坑（本轮新增）
+
+- Git Bash 里 `cmd //c '"C:\Program Files\...\mvn.cmd" ...'` 会被 MSYS 路径转换破坏，报「不是内部或外部命令」；改用 PowerShell 工具 `& $mvn -o -q -f $pom compile`，中文路径按 Unicode 正常传递。
+- 从 Bash 调 `powershell` 被安全策略拒绝，必须走 PowerShell 工具。
+- 库里现存「已取消」订单全部是逻辑删除态（`deleted=1`），不能用它们手工复现 `pay()` 文案；由 e2e 用例「新建 → 取消 → 支付」验证。
+
+### 11.5 全量回归结果
+
+| 轮次 | 结果 |
+| --- | --- |
+| `payment.spec.ts` 单测 | **11 passed / 0 failed，35.9 s** |
+| 全量回归 | `npx playwright test --config=_pw.config.ts --reporter=line` → **120 passed / 0 failed / 0 skipped，8.8 min**；13 个 spec 全绿，`[87/120]–[97/120]` 为支付模块 |
+| 数据残留 | 回归后 `deleted=0` 且 `order_no LIKE 'FO2026110%'` 仍只有历史 3 笔（129 / 138 / 148），**无新增残留**；本轮 22 笔新单均落 `charge_days` 且已逻辑删除 |
+| 服务 | Vite 5175 / Spring Boot 8090（重启后 PID 2700）/ Redis 6379 三端保持运行 |
+
+**仍遗留（P3，未动）**：3 笔历史 e2e 残留订单（需你确认是否演示数据后再删）、小程序未做开发者工具编译与真机预览。`test-results/.last-run.json` 的误跟踪已在本轮真正解除。
+
+提交与推送记录见 §10 追加行。
 
 ## 附录：执行命令
 

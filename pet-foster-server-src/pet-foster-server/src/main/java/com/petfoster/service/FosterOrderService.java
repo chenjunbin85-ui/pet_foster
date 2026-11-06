@@ -84,7 +84,8 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         o.setRemark(dto.getRemark());
         o.setCreatorId(creatorId);
         o.setCreateTime(LocalDateTime.now());
-        // 自动计算总费用（以价位表价格为准）
+        // 自动计算总费用与计费天数（以价位表价格为准，与小程序端 charge_days 口径一致）
+        o.setChargeDays(chargeDays(dto.getStartDate(), dto.getEndDate()));
         o.setTotalFee(calcTotalFee(dto.getStartDate(), dto.getEndDate(), price.getPricePerDay()));
         o.setPaidAmount(o.getTotalFee());
         save(o);
@@ -105,6 +106,7 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         o.setPriceId(price.getPriceId());
         o.setPricePerDay(price.getPricePerDay());
         o.setRemark(dto.getRemark());
+        o.setChargeDays(chargeDays(dto.getStartDate(), dto.getEndDate()));
         o.setTotalFee(calcTotalFee(dto.getStartDate(), dto.getEndDate(), price.getPricePerDay()));
         updateById(o);
     }
@@ -151,10 +153,14 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
         return price;
     }
 
-    /** 按天计费：天数 = 离店-入住+1（同日 1 天），金额 = 单价 × 天数 */
+    /** 计费天数 = 离店 - 入住 + 1（同日 1 天）；总费用与 charge_days 快照共用同一口径 */
+    private int chargeDays(LocalDate start, LocalDate end) {
+        return Math.toIntExact(ChronoUnit.DAYS.between(start, end) + 1);
+    }
+
+    /** 按天计费：金额 = 单价 × 计费天数 */
     public BigDecimal calcTotalFee(LocalDate start, LocalDate end, BigDecimal pricePerDay) {
-        long days = ChronoUnit.DAYS.between(start, end) + 1;
-        return pricePerDay.multiply(BigDecimal.valueOf(days));
+        return pricePerDay.multiply(BigDecimal.valueOf(chargeDays(start, end)));
     }
 
     public String generateOrderNo() {
@@ -168,8 +174,9 @@ public class FosterOrderService extends ServiceImpl<FosterOrderMapper, FosterOrd
     public FosterOrderVO pay(Long id, String paymentMethod) {
         FosterOrder o = getById(id);
         if (o == null) throw new BusinessException("订单不存在");
-        if (PaymentStatus.PAID.is(o.getPaymentStatus())) throw new BusinessException("订单已支付，请勿重复支付");
+        // 先判订单状态再判支付状态：已取消订单不应被误报为「重复支付」
         if (OrderStatus.CANCELLED.is(o.getStatus())) throw new BusinessException("已取消订单无法支付");
+        if (PaymentStatus.PAID.is(o.getPaymentStatus())) throw new BusinessException("订单已支付，请勿重复支付");
         o.setPaymentStatus(PaymentStatus.PAID.getValue());
         o.setPaymentMethod(paymentMethod);
         o.setPaymentTime(LocalDateTime.now());

@@ -6,8 +6,8 @@ import { login, navigateTo } from "./helpers/auth"
  *
  * 产品行为：自 2026-10-15「明确角色权限划分」起，工作人员创建订单时即完成收款（演示口径），
  * 订单落库即 paymentStatus=已支付 / paymentMethod=微信 / paidAmount=totalFee，不再产生
- * 「待支付」订单。前端「待收款」标签与详情「立即支付」按钮已移除，OrdersPage.tsx 中的
- * 收银台 <dialog> 因 payOrder 恒为 null 不再渲染（残留组件，详见 docs/测试报告）。
+ * 「待支付」订单。前端「待收款」标签、详情「立即支付」按钮与收银台 <dialog> 均已移除
+ * （2026-11-07 清理死代码，详见 docs/Playwright全量回归报告-2026-11-06.md §9）。
  *
  * 因此本文件不再覆盖收银台交互，改为验证：
  *   - API：POST /api/orders 与 GET /api/orders/{id} 的支付字段
@@ -312,9 +312,9 @@ test.describe("订单支付状态（创建即已支付）", () => {
     expect(body.data.paymentMethod).toBe("微信")
     expect(Number(body.data.paidAmount)).toBe(order.totalFee)
     expect(body.data.paymentTime).toBeTruthy()
-    // 起止日期 +1 ~ +3，天数 = DATEDIFF + 1 = 3；Web 端只算总费用，不落 charge_days
+    // 起止日期 +1 ~ +3，计费天数 = DATEDIFF + 1 = 3；Web/小程序统一落 charge_days 快照
     expect(Number(body.data.totalFee)).toBe(3 * price.pricePerDay)
-    expect(body.data.chargeDays ?? 0).toBe(0)
+    expect(body.data.chargeDays).toBe(3)
   })
 
   test("API：已支付订单重复支付被拒绝且不改写支付方式", async ({ request }) => {
@@ -337,7 +337,7 @@ test.describe("订单支付状态（创建即已支付）", () => {
     expect(Number(vo.paidAmount)).toBe(order.totalFee)
   })
 
-  test("API：已取消订单支付被拒绝（已支付状态优先判定）", async ({ request }) => {
+  test("API：已取消订单支付被拒绝（订单状态优先判定）", async ({ request }) => {
     const order = await createPaidOrder(request, token)
     created.push(order)
 
@@ -351,10 +351,10 @@ test.describe("订单支付状态（创建即已支付）", () => {
       data: { paymentMethod: "微信" },
     })
     expect(pay.status()).toBe(400)
-    // pay() 先判 PAID 再判 CANCELLED，故文案为「订单已支付，请勿重复支付」。
-    // 该顺序属后端已知局限，如需「已取消订单无法支付」文案需调整判断顺序。
+    // pay() 先判订单状态再判支付状态：已取消订单应给出准确文案，而非误报「重复支付」
     const body = (await pay.json()) as { message: string }
-    expect(body.message).toContain("请勿重复支付")
+    expect(body.message).toContain("已取消订单无法支付")
+    expect(body.message).not.toContain("请勿重复支付")
 
     const detail = await request.get(`${API_BASE}/api/orders/${order.orderId}`, { headers: authHeader(token) })
     const vo = ((await detail.json()) as { data: OrderVO }).data
@@ -398,8 +398,8 @@ test.describe("订单支付状态（创建即已支付）", () => {
     await expect(page.locator(".customer-dialog")).toBeVisible()
     await expect(detailValue(page, "总费用")).toContainText(String(order.totalFee))
     await expect(detailValue(page, "每日单价")).toContainText(String(price.pricePerDay))
-    // Web 端订单不写 charge_days，只有小程序端 MpOrderService 落该字段，故详情显示「—」
-    await expect(detailValue(page, "计费天数")).toHaveText("—")
+    // Web 与小程序端均落 charge_days 快照；本用例订单为 +1 ~ +3，共 3 天
+    await expect(detailValue(page, "计费天数")).toHaveText("3 天")
     await expect(detailValue(page, "状态")).toHaveText("待入店")
     await expect(page.locator(".customer-dialog").getByRole("button", { name: /立即支付/ })).toHaveCount(0)
   })
