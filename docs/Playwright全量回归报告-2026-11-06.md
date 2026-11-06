@@ -139,6 +139,8 @@ POST /api/orders/138/pay → HTTP 400 {"message":"订单已支付，请勿重复
 
 提交同时包含此前未入库的员工端小程序 17 页迁移与后端 staff 接口，以及工作区既有的「毛球旅馆小程序设计稿」Figma Make 原型目录清理（36 个文件，非本轮操作）。`.gitignore` 已补运行时产物；误跟踪的 `.workbuddy/memory/MEMORY.md` 与 `test-results/.last-run.json` 已从索引移除（本地文件保留）。
 
+**2026-11-07 追加修复提交**：`07ca67c`（`e5547b7..07ca67c main -> main`），11 个文件、+88 / −400 行，已推送并确认远端 HEAD；提交信息 `fix(orders): 清理收银台死代码、修正 pay 判断顺序并补齐 charge_days`。范围含 4 张零引用支付图片与 `test-results/.last-run.json` 的删除。全量结果见 §11.5。
+
 GitHub 推送走 `http://127.0.0.1:7897` 代理（`git config --global http.https://github.com.proxy`），`git ls-remote` 与 `git push` 均实测可用。
 
 ## 11. 追加修复（2026-11-07）：§9 的三项 P2
