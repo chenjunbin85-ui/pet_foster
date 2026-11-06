@@ -127,7 +127,16 @@ POST /api/orders/138/pay → HTTP 400 {"message":"订单已支付，请勿重复
 
 ## 10. 提交与推送
 
-见文末「提交记录」。
+| 项 | 值 |
+| --- | --- |
+| 仓库 | `https://github.com/chenjunbin85-ui/pet_foster.git`（分支 `main`） |
+| 提交 | `09f6171`（`10410e7..09f6171 main -> main`），已推送，远端 HEAD 已确认 |
+| 提交范围 | 202 个文件，+8278 / −8346 行 |
+| 提交信息 | `test(e2e): Playwright 全量回归 120/120，支付用例对齐创建即已支付` |
+
+提交同时包含此前未入库的员工端小程序 17 页迁移与后端 staff 接口，以及工作区既有的「毛球旅馆小程序设计稿」Figma Make 原型目录清理（36 个文件，非本轮操作）。`.gitignore` 已补运行时产物；误跟踪的 `.workbuddy/memory/MEMORY.md` 与 `test-results/.last-run.json` 已从索引移除（本地文件保留）。
+
+GitHub 推送走 `http://127.0.0.1:7897` 代理（`git config --global http.https://github.com.proxy`），`git ls-remote` 与 `git push` 均实测可用。
 
 ## 附录：执行命令
 
