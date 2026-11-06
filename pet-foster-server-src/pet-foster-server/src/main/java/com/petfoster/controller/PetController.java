@@ -15,7 +15,7 @@ import java.util.List;
 @Tag(name = "宠物档案管理", description = "宠物档案的增删改查与分页查询（仅工作人员）")
 @RestController
 @RequestMapping("/api/pets")
-@PreAuthorize("hasRole('STAFF')")
+@PreAuthorize("@webAuth.can('pets')")
 public class PetController {
 
     private final PetService petService;
@@ -44,17 +44,20 @@ public class PetController {
     }
 
     @PostMapping
+    @PreAuthorize("@webAuth.can('pets','write')")
     public Result<Void> create(@Valid @RequestBody PetDTO dto) {
         petService.create(dto);
         return Result.success();
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@webAuth.can('pets','write')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody PetDTO dto) {
         petService.update(id, dto);
         return Result.success();
     }
 @DeleteMapping("/{id}")
+    @PreAuthorize("@webAuth.can('pets','write')")
     public Result<Void> delete(@PathVariable Long id) {
         petService.delete(id);
         return Result.success();

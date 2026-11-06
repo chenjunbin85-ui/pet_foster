@@ -170,6 +170,8 @@
 | `GROOM`  | ●    | —       | ○    | ○（当日美容单） | —          | ●（仅核销洗护） | —    | —    |
 | `DRIVER` | — | — | — | — | — | — | — | — |
 > 管理员（`sys_admin`，演示账号 admin）权限＝店长 `OWNER`（全 ●）：**不新增系统角色**，此行仅为对照现状 Web 系统管理而列（员工账号、价位、规则、报表即店长的 A 能力组）。
+>
+> **落地状态（2026-11-07）**：本矩阵已在 Web 端实现。单一事实源为后端 `security/WebAuth.java` 与前端 `src/lib/webPermissions.ts`（两份常量必须同步）；接口用 `@PreAuthorize("@webAuth.can(module, mode)")` 拦截，前端按能力过滤菜单、隐藏写按钮。管理员 OWNER 恢复八页全写。外勤 DRIVER 因 `/api/auth/login` 与小程序员工端共用，采用「登录放行 + Web 前端拦进入 + 后端 Web 接口拒绝」，小程序外勤不受影响。验收用例见 `tests/e2e/web-permissions.spec.ts`。
 
 ### 3.3 员工端小程序 5 页权限
 

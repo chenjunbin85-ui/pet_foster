@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "健康记录管理", description = "入店记录、寄养观测记录、离店记录（仅工作人员）")
 @RestController
 @RequestMapping("/api/health-records")
-@PreAuthorize("hasRole('STAFF')")
+@PreAuthorize("@webAuth.can('health')")
 public class HealthRecordController {
 
     private final HealthRecordService healthRecordService;
@@ -38,6 +38,7 @@ public class HealthRecordController {
     }
 
     @PostMapping
+    @PreAuthorize("@webAuth.can('health','write')")
     public Result<Void> create(@Valid @RequestBody HealthRecordDTO dto) {
         Long recorderId = SecurityUtil.getCurrentUserId();
         healthRecordService.create(dto, recorderId);
@@ -45,11 +46,13 @@ public class HealthRecordController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@webAuth.can('health','write')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody HealthRecordDTO dto) {
         healthRecordService.update(id, dto);
         return Result.success();
     }
 @DeleteMapping("/{id}")
+    @PreAuthorize("@webAuth.can('health','write')")
     public Result<Void> delete(@PathVariable Long id) {
         healthRecordService.removeById(id);
         return Result.success();

@@ -3,8 +3,8 @@ import { login, navigateTo } from "./helpers/auth"
 
 test.describe("订单状态流转", () => {
   test.beforeEach(async ({ page }) => {
-    // 订单列表为执行层页面（管理员侧边栏无订单入口，订单流水仅能从统计卡进入）
-    await login(page, "13800138011", "123456")
+    // 前台 FRONT 为 PRD 3.2 的 B 组可写岗位，订单写操作用例统一用它登录
+    await login(page, "13800138012", "123456")
     await navigateTo(page, "寄养订单管理")
   })
 

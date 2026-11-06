@@ -16,7 +16,7 @@ import java.util.Map;
 @Tag(name = "寄养订单管理", description = "订单增删改查、确认入店/离店/取消、模拟支付；写操作仅工作人员")
 @RestController
 @RequestMapping("/api/orders")
-@PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+@PreAuthorize("@webAuth.can('orders')")
 public class FosterOrderController {
 
     private final FosterOrderService fosterOrderService;
@@ -41,49 +41,49 @@ public class FosterOrderController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('orders','write')")
     public Result<FosterOrderVO> create(@Valid @RequestBody FosterOrderDTO dto) {
         Long creatorId = SecurityUtil.getCurrentUserId();
         return Result.success(fosterOrderService.create(dto, creatorId));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('orders','write')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody FosterOrderDTO dto) {
         fosterOrderService.update(id, dto);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('orders','write')")
     public Result<Void> delete(@PathVariable Long id) {
         fosterOrderService.removeById(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/check-in")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('orders','write')")
     public Result<Void> checkIn(@PathVariable Long id) {
         fosterOrderService.checkIn(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/check-out")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('orders','write')")
     public Result<Void> checkOut(@PathVariable Long id) {
         fosterOrderService.checkOut(id);
         return Result.success();
     }
 
     @PutMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('orders','write')")
     public Result<Void> cancel(@PathVariable Long id) {
         fosterOrderService.cancel(id);
         return Result.success();
     }
 
     @PostMapping("/{id}/pay")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('orders','write')")
     public Result<FosterOrderVO> pay(@PathVariable Long id, @RequestBody Map<String, String> body) {
         String paymentMethod = body.getOrDefault("paymentMethod", PaymentMethod.WECHAT.getValue());
         return Result.success(fosterOrderService.pay(id, paymentMethod));

@@ -4,7 +4,7 @@ import { login, relogin } from "./helpers/auth"
 test.describe("首页卡片数据展示", () => {
   test.beforeEach(async ({ page }) => {
     // 首页工作台面向工作人员（管理员默认进入经营数据页）
-    await login(page, "13800138011", "123456")
+    await login(page, "13800138012", "123456")
   })
 
   test("四个统计卡片数据完整展示", async ({ page }) => {

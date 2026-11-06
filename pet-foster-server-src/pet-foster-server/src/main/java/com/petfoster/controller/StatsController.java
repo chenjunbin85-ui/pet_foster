@@ -15,7 +15,6 @@ import java.util.List;
 @Tag(name = "统计分析", description = "首页仪表盘、订单趋势、品种分布等统计接口（经营汇总仅管理员；本月寄养金额首页展示双方可见）")
 @RestController
 @RequestMapping("/api/stats")
-@PreAuthorize("hasRole('ADMIN')")
 public class StatsController {
 
     private final StatsService statsService;
@@ -25,6 +24,7 @@ public class StatsController {
     }
 
     @GetMapping("/dashboard")
+    @PreAuthorize("@webAuth.can('stats')")
     public Result<DashboardVO> dashboard() {
         return Result.success(statsService.dashboard());
     }
@@ -37,6 +37,7 @@ public class StatsController {
     }
 
     @GetMapping("/order-trend")
+    @PreAuthorize("@webAuth.can('stats')")
     public Result<List<OrderTrendVO>> orderTrend(
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate) {
@@ -44,6 +45,7 @@ public class StatsController {
     }
 
     @GetMapping("/breed-distribution")
+    @PreAuthorize("@webAuth.can('stats')")
     public Result<List<BreedDistributionVO>> breedDistribution() {
         return Result.success(statsService.breedDistribution());
     }

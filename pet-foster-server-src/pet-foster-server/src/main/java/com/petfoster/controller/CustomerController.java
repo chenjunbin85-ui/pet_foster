@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "客户管理", description = "客户信息的增删改查与分页查询（仅工作人员）")
 @RestController
 @RequestMapping("/api/customers")
-@PreAuthorize("hasRole('STAFF')")
+@PreAuthorize("@webAuth.can('customers')")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -36,18 +36,21 @@ public class CustomerController {
     }
 
     @PostMapping
+    @PreAuthorize("@webAuth.can('customers','write')")
     public Result<Void> create(@Valid @RequestBody CustomerDTO dto) {
         customerService.create(dto);
         return Result.success();
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@webAuth.can('customers','write')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody CustomerDTO dto) {
         customerService.update(id, dto);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@webAuth.can('customers','write')")
     public Result<Void> delete(@PathVariable Long id) {
         customerService.delete(id);
         return Result.success();

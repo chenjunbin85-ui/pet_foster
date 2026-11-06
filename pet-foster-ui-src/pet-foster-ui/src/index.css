@@ -1952,3 +1952,39 @@
   .loading-illustration, .paw-dot { animation: none; }
   .loading-screen { animation: loading-fade-out 0.3s ease 1.6s forwards; }
 }
+
+/* ===== Web 岗位级权限（PRD 3.2） =====
+   只读菜单标记与「无 Web 工位」提示页。样式走主题变量，亮暗主题都可读。 */
+.nav-readonly {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+.sidebar.text-hidden .nav-readonly,
+.sidebar.is-collapsed .nav-readonly { display: none; }
+
+.no-web-workbench {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--background);
+}
+.no-web-workbench-card {
+  width: min(100%, 520px);
+  display: grid;
+  gap: 14px;
+  padding: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+}
+.no-web-workbench-card h1 { margin: 0; font-size: 27px; line-height: 1.5; }
+.no-web-workbench-card p { margin: 0; font-size: 13px; line-height: 1.8; color: var(--muted-foreground); }
+.no-web-workbench-card strong { color: var(--foreground); }
+.no-web-workbench-card .primary-action { justify-self: start; margin-top: 8px; }

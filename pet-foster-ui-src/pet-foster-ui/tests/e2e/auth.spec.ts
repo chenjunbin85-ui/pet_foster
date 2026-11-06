@@ -21,7 +21,7 @@ test.describe("认证模块", () => {
   })
 
   test("工作人员登录成功", async ({ page }) => {
-    await login(page, "13800138011", "123456")
+    await login(page, "13800138012", "123456")
     await expect(page.getByText("寄养中宠物")).toBeVisible()
   })
 

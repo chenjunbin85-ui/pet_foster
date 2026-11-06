@@ -43,7 +43,7 @@ public class ExportController {
     }
 
     @GetMapping("/customers")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('customers')")
     public void exportCustomers(HttpServletResponse response) throws IOException {
         List<Customer> list = customerMapper.selectList(
                 new LambdaQueryWrapper<Customer>().orderByDesc(Customer::getCreateTime));
@@ -63,7 +63,7 @@ public class ExportController {
     }
 
     @GetMapping("/pets")
-    @PreAuthorize("hasRole('STAFF')")
+    @PreAuthorize("@webAuth.can('pets')")
     public void exportPets(HttpServletResponse response) throws IOException {
         List<Pet> list = petMapper.selectList(
                 new LambdaQueryWrapper<Pet>().orderByDesc(Pet::getCreateTime));
@@ -88,7 +88,7 @@ public class ExportController {
     }
 
     @GetMapping("/orders")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@webAuth.can('stats')")
     public void exportOrders(HttpServletResponse response) throws IOException {
         List<FosterOrder> list = fosterOrderMapper.selectList(
                 new LambdaQueryWrapper<FosterOrder>().orderByDesc(FosterOrder::getCreateTime));

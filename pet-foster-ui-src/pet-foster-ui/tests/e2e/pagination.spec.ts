@@ -42,7 +42,7 @@ test.describe("分页显示", () => {
   test("客户列表分页显示与翻页", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1080 })
     // 客户为执行层业务，由工作人员操作
-    await login(page, "13800138011", "123456")
+    await login(page, "13800138012", "123456")
     await page.waitForTimeout(4000) // 等待toast消失
 
     // 先清理可能残留的测试数据
@@ -120,7 +120,7 @@ test.describe("分页显示", () => {
   test("分页控件正常显示且按钮状态正确", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1080 })
     // 宠物为执行层业务，由工作人员操作
-    await login(page, "13800138011", "123456")
+    await login(page, "13800138012", "123456")
     await page.waitForTimeout(4000)
 
     // 进入宠物页

@@ -23,6 +23,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import type { Role } from "@/api"
+import type { Capability, WebModule } from "@/lib/webPermissions"
 
 export type PageKey =
   | "dashboard"
@@ -42,10 +43,41 @@ const roleSwitchItems: Array<{ role: Role; label: string }> = [
   { role: "staff", label: "切换为工作人员" },
 ]
 
+type NavItem = { key: PageKey; title: string; icon: typeof Users; module: WebModule }
+
+/** PRD 3.2 的 8 个页面；按岗位能力过滤，不再按 admin/staff 二分。 */
+const menus: Array<{ label: string; items: NavItem[] }> = [
+  {
+    label: "工作台",
+    items: [{ key: "dashboard", title: "系统首页", icon: Widget, module: "dashboard" }],
+  },
+  {
+    label: "业务管理",
+    items: [
+      { key: "customers", title: "客户信息管理", icon: Users, module: "customers" },
+      { key: "pets", title: "宠物档案管理", icon: Cat, module: "pets" },
+      { key: "orders", title: "寄养订单管理", icon: ClipboardList, module: "orders" },
+      { key: "health", title: "健康档案管理", icon: HeartPulse, module: "health" },
+      { key: "services", title: "寄养服务记录", icon: HandHeart, module: "services" },
+    ],
+  },
+  {
+    label: "数据统计",
+    items: [{ key: "stats", title: "经营数据", icon: ChartBar, module: "stats" }],
+  },
+  {
+    label: "系统管理",
+    items: [{ key: "system", title: "系统管理", icon: Settings, module: "system" }],
+  },
+]
+
 interface AppLayoutProps {
   role: Role
   userName: string
   page: PageKey
+  /** 按 PRD 3.2 解析出的八个模块能力，none 的菜单整项隐藏 */
+  capabilities: Record<WebModule, Capability>
+  positionLabel: string
   onNavigate: (page: PageKey) => void
   /** 发起角色切换请求（由上层弹出密码校验浮窗），组件本身不直接切换角色 */
   onRequestSwitchRole: (role: Role) => void
@@ -55,48 +87,12 @@ interface AppLayoutProps {
   children: ReactNode
 }
 
-const menus: Array<{
-  label: string
-  adminOnly?: boolean
-  staffOnly?: boolean
-  items: Array<{ key: PageKey; title: string; icon: typeof Users; staffOnly?: boolean }>
-}> = [
-  {
-    label: "工作台",
-    items: [{ key: "dashboard", title: "系统首页", icon: Widget }],
-  },
-  {
-    label: "业务管理",
-    items: [
-      { key: "customers", title: "客户信息管理", icon: Users, staffOnly: true },
-      { key: "pets", title: "宠物档案管理", icon: Cat, staffOnly: true },
-      { key: "orders", title: "寄养订单管理", icon: ClipboardList },
-      { key: "health", title: "健康档案管理", icon: HeartPulse, staffOnly: true },
-      { key: "services", title: "寄养服务记录", icon: HandHeart, staffOnly: true },
-    ],
-  },
-  {
-    label: "数据统计",
-    adminOnly: true,
-    items: [{ key: "stats", title: "经营数据", icon: ChartBar }],
-  },
-  {
-    label: "系统管理",
-    adminOnly: true,
-    items: [{ key: "system", title: "系统管理", icon: Settings }],
-  },
-]
-
-/** 菜单项按角色过滤：adminOnly 仅管理员、staffOnly 仅工作人员、其余双方可见 */
-function visibleItems(role: Role, group: (typeof menus)[number]) {
-  if (group.adminOnly && role !== "admin") return []
-  return group.items.filter((item) => !item.staffOnly || role === "staff")
-}
-
 export function AppLayout({
   role,
   userName,
   page,
+  capabilities,
+  positionLabel,
   onNavigate,
   onRequestSwitchRole,
   onLogout,
@@ -154,19 +150,17 @@ export function AppLayout({
         </div>
 
         <nav id="sidebar-navigation" aria-label="主导航">
-          {/* 管理员侧边栏只保留「数据统计」「系统管理」（运营层）；工作人员保留「工作台」「业务管理」（执行层） */}
-          {menus
-            .filter((group) => (role === "admin" ? group.adminOnly : !group.adminOnly))
-            .map((group) => {
-              const items = visibleItems(role, group)
-              if (items.length === 0) return null
-              return (
-                <div className="nav-group" key={group.label}>
-                  <p>{group.label}</p>
-                  {items.map((item) => (
+          {menus.map((group) => {
+            const items = group.items.filter((item) => capabilities[item.module] !== "none")
+            if (items.length === 0) return null
+            return (
+              <div className="nav-group" key={group.label}>
+                <p>{group.label}</p>
+                {items.map((item) => (
                   <button
                     key={item.key}
                     data-nav={item.key}
+                    data-capability={capabilities[item.module]}
                     className={page === item.key ? "nav-item selected" : "nav-item"}
                     onClick={() => onNavigate(item.key)}
                     aria-label={item.title}
@@ -175,6 +169,7 @@ export function AppLayout({
                   >
                     <item.icon />
                     <span className="nav-label">{item.title}</span>
+                    {capabilities[item.module] === "read" && <span className="nav-readonly">只读</span>}
                     {page === item.key && <span className="nav-dot" />}
                   </button>
                 ))}
@@ -184,7 +179,7 @@ export function AppLayout({
         </nav>
 
         <div className="sidebar-bottom">
-          <div className="profile" ref={profileRef}>
+          <div className="profile" ref={profileRef} title={positionLabel ? `岗位：${positionLabel}` : undefined}>
             <span className="avatar">{role === "admin" ? "管" : "员"}</span>
             <div>
               <strong>{userName}</strong>

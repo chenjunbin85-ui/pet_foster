@@ -14,7 +14,7 @@ test.describe("批量录入数据与数据面板验证", () => {
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage()
     // 业务数据由工作人员录入（执行层）
-    await login(page, "13800138011", "123456")
+    await login(page, "13800138012", "123456")
     token = await page.evaluate(() => localStorage.getItem("pet_foster_token") || "")
     await page.close()
     expect(token, "登录获取token失败").toBeTruthy()
@@ -94,7 +94,7 @@ test.describe("批量录入数据与数据面板验证", () => {
 
   test("首页统计卡片数据正确反映批量录入", async ({ page }) => {
     // 首页工作台面向工作人员（管理员默认进入经营数据页）
-    await login(page, "13800138011", "123456")
+    await login(page, "13800138012", "123456")
     await page.waitForTimeout(2000)
 
     // 验证四个统计卡片存在且有数值

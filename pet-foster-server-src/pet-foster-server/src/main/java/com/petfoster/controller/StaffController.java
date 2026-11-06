@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "工作人员管理", description = "管理员：门店护理员/前台账号的增删改查与启用禁用")
 @RestController
 @RequestMapping("/api/users")
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("@webAuth.can('system')")
 public class StaffController {
 
     private final StaffService staffService;
@@ -39,18 +39,21 @@ public class StaffController {
     }
 
     @PostMapping
+    @PreAuthorize("@webAuth.can('system','write')")
     public Result<Void> create(@Valid @RequestBody SysUserDTO dto) {
         staffService.create(dto);
         return Result.success();
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@webAuth.can('system','write')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody SysUserDTO dto) {
         staffService.update(id, dto);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@webAuth.can('system','write')")
     public Result<Void> delete(@PathVariable Long id) {
         staffService.removeById(id);
         return Result.success();

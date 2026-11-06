@@ -20,11 +20,12 @@ const SERVICES = ["日常遛狗", "喂食", "清洁护理", "陪伴玩耍", "洗
 const EMPTY = { orderId: "", petId: "", serviceName: "日常遛狗", description: "" }
 
 interface ServicesPageProps {
+  readOnly?: boolean
   quickAction?: "add" | null
   onQuickActionDone?: () => void
 }
 
-export function ServicesPage({ quickAction, onQuickActionDone }: ServicesPageProps = {}) {
+export function ServicesPage({ readOnly = false, quickAction, onQuickActionDone }: ServicesPageProps = {}) {
   const pageSize = useDynamicPageSize()
   const [rows, setRows] = useState<ServiceRecordVO[]>([])
   const [total, setTotal] = useState(0)
@@ -78,7 +79,7 @@ export function ServicesPage({ quickAction, onQuickActionDone }: ServicesPagePro
 
   // 首页快捷入口触发：自动打开新增弹窗
   useEffect(() => {
-    if (quickAction === "add") {
+    if (quickAction === "add" && !readOnly) {
       setDraft(EMPTY)
       setSelected(null)
       setDialogError("")
@@ -173,9 +174,11 @@ export function ServicesPage({ quickAction, onQuickActionDone }: ServicesPagePro
           <h1>用心照护，认真记录。</h1>
           <p>每一次喂养、清洁与陪伴，都是值得记录的关怀。</p>
         </div>
-        <button className="primary-action" onClick={() => open("add")}>
-          ＋ 登记服务记录
-        </button>
+        {!readOnly && (
+          <button className="primary-action" onClick={() => open("add")}>
+            ＋ 登记服务记录
+          </button>
+        )}
       </div>
 
       <div className="customer-list">
@@ -237,17 +240,21 @@ export function ServicesPage({ quickAction, onQuickActionDone }: ServicesPagePro
                       <button title="查看详情" aria-label="查看服务记录" onClick={() => open("view", row)}>
                         <Eye />
                       </button>
-                      <button title="编辑记录" aria-label="编辑服务记录" onClick={() => open("edit", row)}>
-                        <Pen />
-                      </button>
-                      <button
-                        className="delete-action"
-                        title="删除记录"
-                        aria-label="删除服务记录"
-                        onClick={() => open("delete", row)}
-                      >
-                        <Trash2 />
-                      </button>
+                      {!readOnly && (
+                        <>
+                        <button title="编辑记录" aria-label="编辑服务记录" onClick={() => open("edit", row)}>
+                          <Pen />
+                        </button>
+                        <button
+                          className="delete-action"
+                          title="删除记录"
+                          aria-label="删除服务记录"
+                          onClick={() => open("delete", row)}
+                        >
+                          <Trash2 />
+                        </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

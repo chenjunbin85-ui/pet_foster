@@ -31,11 +31,12 @@ const EMPTY = {
 }
 
 interface HealthPageProps {
+  readOnly?: boolean
   quickAction?: "add" | null
   onQuickActionDone?: () => void
 }
 
-export function HealthPage({ quickAction, onQuickActionDone }: HealthPageProps = {}) {
+export function HealthPage({ readOnly = false, quickAction, onQuickActionDone }: HealthPageProps = {}) {
   const pageSize = useDynamicPageSize()
   const [rows, setRows] = useState<HealthRecordVO[]>([])
   const [total, setTotal] = useState(0)
@@ -88,7 +89,7 @@ export function HealthPage({ quickAction, onQuickActionDone }: HealthPageProps =
 
   // 首页快捷入口触发：自动打开新增弹窗
   useEffect(() => {
-    if (quickAction === "add") {
+    if (quickAction === "add" && !readOnly) {
       setDraft(EMPTY)
       setSelected(null)
       setDialogError("")
@@ -192,9 +193,11 @@ export function HealthPage({ quickAction, onQuickActionDone }: HealthPageProps =
           <h1>细心观察，守护每一天。</h1>
           <p>记录体温、精神与饮食，让健康变化有迹可循。</p>
         </div>
-        <button className="primary-action" onClick={() => open("add")}>
-          ＋ 新增健康记录
-        </button>
+        {!readOnly && (
+          <button className="primary-action" onClick={() => open("add")}>
+            ＋ 新增健康记录
+          </button>
+        )}
       </div>
 
       <div className="customer-list">
@@ -263,17 +266,21 @@ export function HealthPage({ quickAction, onQuickActionDone }: HealthPageProps =
                       <button title="查看详情" aria-label="查看健康记录" onClick={() => open("view", row)}>
                         <Eye />
                       </button>
-                      <button title="编辑记录" aria-label="编辑健康记录" onClick={() => open("edit", row)}>
-                        <Pen />
-                      </button>
-                      <button
-                        className="delete-action"
-                        title="删除记录"
-                        aria-label="删除健康记录"
-                        onClick={() => open("delete", row)}
-                      >
-                        <Trash2 />
-                      </button>
+                      {!readOnly && (
+                        <>
+                        <button title="编辑记录" aria-label="编辑健康记录" onClick={() => open("edit", row)}>
+                          <Pen />
+                        </button>
+                        <button
+                          className="delete-action"
+                          title="删除记录"
+                          aria-label="删除健康记录"
+                          onClick={() => open("delete", row)}
+                        >
+                          <Trash2 />
+                        </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

@@ -25,13 +25,14 @@ public class PriceController {
 
     /** 登录用户均可查看启用档位（下单下拉选择） */
     @GetMapping("/options")
+    @PreAuthorize("isAuthenticated()")
     public Result<List<FosterPriceVO>> options() {
         return Result.success(fosterPriceService.listOptions());
     }
 
     /** 管理员：分页查看全部档位（含停用） */
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@webAuth.can('system')")
     public Result<PageResult<FosterPriceVO>> page(
             @RequestParam(defaultValue = "1") long page,
             @RequestParam(defaultValue = "10") long size,
@@ -40,27 +41,27 @@ public class PriceController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@webAuth.can('system')")
     public Result<FosterPriceVO> detail(@PathVariable Long id) {
         return Result.success(fosterPriceService.getDetail(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@webAuth.can('system','write')")
     public Result<Void> create(@Valid @RequestBody FosterPriceDTO dto) {
         fosterPriceService.create(dto);
         return Result.success();
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@webAuth.can('system','write')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody FosterPriceDTO dto) {
         fosterPriceService.update(id, dto);
         return Result.success();
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@webAuth.can('system','write')")
     public Result<Void> delete(@PathVariable Long id) {
         fosterPriceService.delete(id);
         return Result.success();

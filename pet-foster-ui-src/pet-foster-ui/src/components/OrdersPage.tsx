@@ -51,11 +51,12 @@ interface OrdersPageProps {
   initialStatus?: string
   /** 返回键回调：管理员返回统计分析页，工作人员返回系统首页 */
   onBack?: () => void
+  readOnly?: boolean
   quickAction?: "add" | null
   onQuickActionDone?: () => void
 }
 
-export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickActionDone }: OrdersPageProps) {
+export function OrdersPage({ initialStatus, onBack, readOnly = false, quickAction, onQuickActionDone }: OrdersPageProps) {
   const pageSize = useDynamicPageSize()
   const [rows, setRows] = useState<OrderVO[]>([])
   const [total, setTotal] = useState(0)
@@ -121,7 +122,7 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
 
   // 首页快捷入口触发：自动打开新增弹窗
   useEffect(() => {
-    if (quickAction === "add") {
+    if (quickAction === "add" && !readOnly) {
       setDraft(EMPTY)
       setSelected(null)
       setDialogError("")
@@ -226,7 +227,6 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
   }
 
   const pageCount = Math.max(1, Math.ceil(total / pageSize))
-  const isAdmin = role === "admin"
   const selectedPrice = prices.find((p) => p.id === draft.priceId)
 
   return (
@@ -237,7 +237,7 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
           <h1>每一次入住，都安心安排。</h1>
           <p>有序管理寄养计划，轻松掌握每一笔订单。</p>
         </div>
-        {!isAdmin && (
+        {!readOnly && (
           <button className="primary-action" onClick={openAdd}>
             ＋ 新建寄养订单
           </button>
@@ -350,7 +350,7 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
                       <button title="查看详情" aria-label={`查看${row.orderNo}`} onClick={() => openDetail(row)}>
                         <Eye />
                       </button>
-                      {!isAdmin && row.status === "待入店" && (
+                      {!readOnly && row.status === "待入店" && (
                         <>
                           <button
                             className="text-action"
@@ -366,7 +366,7 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
                           </button>
                         </>
                       )}
-                      {!isAdmin && row.status === "寄养中" && (
+                      {!readOnly && row.status === "寄养中" && (
                         <button
                           className="text-action"
                           onClick={() => doAction(row.id, "check-out", `订单 ${row.orderNo} 已完成离店。`)}
@@ -495,7 +495,7 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
                 )}
               </div>
 
-              {!isAdmin && selected?.status === "待入店" && (
+              {!readOnly && selected?.status === "待入店" && (
                 <div className="dialog-actions">
                   <button className="primary-action" onClick={() => doAction(selected.id, "check-in", `订单 ${selected.orderNo} 已确认入店。`)}>
                     确认入店
@@ -505,7 +505,7 @@ export function OrdersPage({ role, initialStatus, onBack, quickAction, onQuickAc
                   </button>
                 </div>
               )}
-              {!isAdmin && selected?.status === "寄养中" && (
+              {!readOnly && selected?.status === "寄养中" && (
                 <div className="dialog-actions">
                   <button className="primary-action" onClick={() => doAction(selected.id, "check-out", `订单 ${selected.orderNo} 已完成离店。`)}>
                     完成离店

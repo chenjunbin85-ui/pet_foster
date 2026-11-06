@@ -55,7 +55,7 @@ function fmtDate(d: Date): string {
 async function apiLogin(request: APIRequestContext): Promise<string> {
   // 订单为客户接待执行层业务，由工作人员账号驱动
   const res = await request.post(`${API_BASE}/api/auth/login`, {
-    data: { username: "13800138011", password: "123456" },
+    data: { username: "13800138012", password: "123456" },
   })
   expect(res.status(), "工作人员登录失败").toBe(200)
   const body = (await res.json()) as { data: { token: string } }
@@ -225,7 +225,7 @@ async function cleanup(request: APIRequestContext, token: string, created: TestO
 // ---------- UI helpers ----------
 
 async function openOrders(page: Page) {
-  await login(page, "13800138011", "123456")
+  await login(page, "13800138012", "123456")
   await navigateTo(page, "寄养订单管理")
 }
 

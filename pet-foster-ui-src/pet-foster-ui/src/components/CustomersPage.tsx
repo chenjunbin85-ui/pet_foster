@@ -16,11 +16,12 @@ type Mode = "add" | "view" | "edit" | "delete" | null
 const EMPTY_DRAFT = { name: "", phone: "", address: "", remark: "" }
 
 interface CustomersPageProps {
+  readOnly?: boolean
   quickAction?: "add" | null
   onQuickActionDone?: () => void
 }
 
-export function CustomersPage({ quickAction, onQuickActionDone }: CustomersPageProps = {}) {
+export function CustomersPage({ readOnly = false, quickAction, onQuickActionDone }: CustomersPageProps = {}) {
   const pageSize = useDynamicPageSize()
   const [customers, setCustomers] = useState<CustomerVO[]>([])
   const [total, setTotal] = useState(0)
@@ -63,7 +64,7 @@ export function CustomersPage({ quickAction, onQuickActionDone }: CustomersPageP
 
   // 首页快捷入口触发：自动打开新增弹窗
   useEffect(() => {
-    if (quickAction === "add") {
+    if (quickAction === "add" && !readOnly) {
       setDraft(EMPTY_DRAFT)
       setSelected(null)
       setMode("add")
@@ -175,9 +176,11 @@ export function CustomersPage({ quickAction, onQuickActionDone }: CustomersPageP
           <h1>每一份信任，都用心记录。</h1>
           <p>管理客户联系信息，让每一次沟通更安心。</p>
         </div>
-        <button className="primary-action" onClick={() => open("add")}>
-          ＋ 新增客户
-        </button>
+        {!readOnly && (
+          <button className="primary-action" onClick={() => open("add")}>
+            ＋ 新增客户
+          </button>
+        )}
       </div>
 
       <div className="customer-list">
@@ -241,17 +244,21 @@ export function CustomersPage({ quickAction, onQuickActionDone }: CustomersPageP
                       <button aria-label={`查看${customer.name}`} title="查看详情" onClick={() => open("view", customer)}>
                         <Eye />
                       </button>
-                      <button aria-label={`编辑${customer.name}`} title="编辑客户" onClick={() => open("edit", customer)}>
-                        <Pen />
-                      </button>
-                      <button
-                        className="delete-action"
-                        aria-label={`删除${customer.name}`}
-                        title="删除客户"
-                        onClick={() => open("delete", customer)}
-                      >
-                        <Trash2 />
-                      </button>
+                      {!readOnly && (
+                        <>
+                        <button aria-label={`编辑${customer.name}`} title="编辑客户" onClick={() => open("edit", customer)}>
+                          <Pen />
+                        </button>
+                        <button
+                          className="delete-action"
+                          aria-label={`删除${customer.name}`}
+                          title="删除客户"
+                          onClick={() => open("delete", customer)}
+                        >
+                          <Trash2 />
+                        </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

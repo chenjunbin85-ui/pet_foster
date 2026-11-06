@@ -52,7 +52,7 @@ public class SecurityConfig {
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     response.setContentType("application/json;charset=UTF-8");
-                    response.getWriter().write(objectMapper.writeValueAsString(Result.error(403, "没有权限访问该资源")));
+                    response.getWriter().write(objectMapper.writeValueAsString(Result.error(403, "当前岗位无权访问该资源，请联系店长确认岗位权限")));
                 })
             )
             .authorizeHttpRequests(auth -> auth

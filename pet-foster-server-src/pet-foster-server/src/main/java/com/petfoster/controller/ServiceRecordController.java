@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "服务记录管理", description = "寄养期间的服务项目记录（洗澡、遛弯、喂食等，仅工作人员）")
 @RestController
 @RequestMapping("/api/service-records")
-@PreAuthorize("hasRole('STAFF')")
+@PreAuthorize("@webAuth.can('services')")
 public class ServiceRecordController {
 
     private final ServiceRecordService serviceRecordService;
@@ -38,6 +38,7 @@ public class ServiceRecordController {
     }
 
     @PostMapping
+    @PreAuthorize("@webAuth.can('services','write')")
     public Result<Void> create(@Valid @RequestBody ServiceRecordDTO dto) {
         Long keeperId = SecurityUtil.getCurrentUserId();
         serviceRecordService.create(dto, keeperId);
@@ -45,11 +46,13 @@ public class ServiceRecordController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@webAuth.can('services','write')")
     public Result<Void> update(@PathVariable Long id, @Valid @RequestBody ServiceRecordDTO dto) {
         serviceRecordService.update(id, dto);
         return Result.success();
     }
 @DeleteMapping("/{id}")
+    @PreAuthorize("@webAuth.can('services','write')")
     public Result<Void> delete(@PathVariable Long id) {
         serviceRecordService.removeById(id);
         return Result.success();

@@ -8,13 +8,13 @@ test.describe("经营数据面板", () => {
     await expect(page.locator(".section-kicker", { hasText: "经营数据" })).toBeVisible()
   })
 
-  test("管理员登录默认进入经营数据页，侧边栏仅保留统计与系统管理", async ({ page }) => {
+  test("管理员登录默认进入经营数据页，按 PRD 3.2 可见全部 8 个页面", async ({ page }) => {
     await expect(page.locator(".statistics-page")).toBeVisible()
-    // 侧边栏只保留两组：数据统计（经营数据）+ 系统管理（系统管理）
-    const navButtons = page.locator(".nav-item")
-    await expect(navButtons).toHaveCount(2)
-    await expect(page.locator('.nav-item[data-nav="stats"]')).toBeVisible()
-    await expect(page.locator('.nav-item[data-nav="system"]')).toBeVisible()
+    // OWNER 八页全写：工作台 1 + 业务 5 + 经营数据 + 系统管理
+    await expect(page.locator(".nav-item")).toHaveCount(8)
+    for (const key of ["dashboard", "customers", "pets", "orders", "health", "services", "stats", "system"]) {
+      await expect(page.locator(`.nav-item[data-nav="${key}"]`)).toBeVisible()
+    }
   })
 
   test("统计卡片点击跳转订单流水并预设状态筛选", async ({ page }) => {

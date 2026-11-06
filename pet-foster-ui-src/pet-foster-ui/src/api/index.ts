@@ -19,7 +19,7 @@ export interface PageResult<T> {
 // ===== 认证 =====
 export interface LoginResult {
   token: string
-  userInfo: { id: string; username: string; name: string; role: string; status: string }
+  userInfo: { id: string; username: string; name: string; role: string; status: string; positions?: string }
 }
 export const loginApi = (username: string, password: string) =>
   post<LoginResult>("/api/auth/login", { username, password })

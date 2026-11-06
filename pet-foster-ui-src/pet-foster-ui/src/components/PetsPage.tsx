@@ -27,11 +27,12 @@ const EMPTY = {
 }
 
 interface PetsPageProps {
+  readOnly?: boolean
   quickAction?: "add" | null
   onQuickActionDone?: () => void
 }
 
-export function PetsPage({ quickAction, onQuickActionDone }: PetsPageProps = {}) {
+export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: PetsPageProps = {}) {
   const pageSize = useDynamicPageSize()
   const [rows, setRows] = useState<PetVO[]>([])
   const [owners, setOwners] = useState<CustomerVO[]>([])
@@ -85,7 +86,7 @@ export function PetsPage({ quickAction, onQuickActionDone }: PetsPageProps = {})
 
   // 首页快捷入口触发：自动打开新增弹窗
   useEffect(() => {
-    if (quickAction === "add") {
+    if (quickAction === "add" && !readOnly) {
       setDraft(EMPTY)
       setSelected(null)
       setDialogError("")
@@ -196,9 +197,11 @@ export function PetsPage({ quickAction, onQuickActionDone }: PetsPageProps = {})
           <h1>认识每一位小伙伴。</h1>
           <p>从基本信息到疫苗情况，建立完整的宠物照护档案。</p>
         </div>
-        <button className="primary-action" onClick={() => open("add")}>
-          ＋ 新增宠物档案
-        </button>
+        {!readOnly && (
+          <button className="primary-action" onClick={() => open("add")}>
+            ＋ 新增宠物档案
+          </button>
+        )}
       </div>
 
       <div className="customer-list">
@@ -275,17 +278,21 @@ export function PetsPage({ quickAction, onQuickActionDone }: PetsPageProps = {})
                       <button title="查看详情" aria-label={`查看${row.name}`} onClick={() => open("view", row)}>
                         <Eye />
                       </button>
-                      <button title="编辑档案" aria-label={`编辑${row.name}`} onClick={() => open("edit", row)}>
-                        <Pen />
-                      </button>
-                      <button
-                        className="delete-action"
-                        title="删除档案"
-                        aria-label={`删除${row.name}`}
-                        onClick={() => open("delete", row)}
-                      >
-                        <Trash2 />
-                      </button>
+                      {!readOnly && (
+                        <>
+                        <button title="编辑档案" aria-label={`编辑${row.name}`} onClick={() => open("edit", row)}>
+                          <Pen />
+                        </button>
+                        <button
+                          className="delete-action"
+                          title="删除档案"
+                          aria-label={`删除${row.name}`}
+                          onClick={() => open("delete", row)}
+                        >
+                          <Trash2 />
+                        </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

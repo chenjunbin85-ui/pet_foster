@@ -17,7 +17,8 @@ import type { Role } from "@/api"
  * 演示环境中每个角色对应的默认账号。
  * 账号可编辑，用于登录同一角色下的其它账号。
  */
-const DEFAULT_USERNAME: Record<Role, string> = { admin: "13800138000", staff: "13800138011" }
+// 工作人员默认用前台 FRONT（PRD 3.2 B 组可写），避免切过去后业务页变成只读
+const DEFAULT_USERNAME: Record<Role, string> = { admin: "13800138000", staff: "13800138012" }
 
 interface RoleSwitchDialogProps {
   /** 待切换的目标角色；为 null 时弹窗关闭 */
