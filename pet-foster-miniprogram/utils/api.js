@@ -1,10 +1,13 @@
 /**
  * 毛球旅馆 · 接口封装
- * 后端：pet-foster-server（Spring Boot，端口 8090）
+ * 后端：pet-foster-server（Render 线上 https://pet-foster-server.onrender.com）
  * 统一 Result: { code, message, data }；业务错误 code=500（message 为提示文案）
+ * 本地联调：把 BASE_URL 临时改回 http://127.0.0.1:8090，并在开发者工具勾选「不校验合法域名」
+ * 线上使用：需在微信公众平台把 https://pet-foster-server.onrender.com 加入
+ *           request / uploadFile / downloadFile 合法域名
  */
 const auth = require('./auth.js')
-const BASE_URL = 'http://127.0.0.1:8090'
+const BASE_URL = 'https://pet-foster-server.onrender.com'
 
 /** 后端 /api/files/** 返回的相对地址拼成小程序可直接显示的绝对地址 */
 function fileUrl(path) {
