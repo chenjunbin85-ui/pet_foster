@@ -1,0 +1,13 @@
+{
+  "name": "pet-foster-cloudrun-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "微信云托管反向代理：callContainer 专线转发到 Render 后端",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

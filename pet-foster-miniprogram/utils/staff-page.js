@@ -251,9 +251,12 @@ function createStaffPage(opts) {
             if (it.pending) {
               const up = await api.staffUpload(it.url)
               photoUrls.push(up.url)
-              it.url = api.fileUrl(up.url)
+              // it.url 保留微信本地临时路径，<image> 可直接显示，无需 downloadFile 合法域名
+              it.remoteUrl = up.url
               it.pending = false
-            } else if (it.url && /^https?:\/\//.test(it.url)) {
+            } else if (it.remoteUrl) {
+              photoUrls.push(it.remoteUrl)
+            } else if (it.url && it.url.indexOf(api.BASE_URL) === 0) {
               photoUrls.push(it.url.replace(api.BASE_URL, ''))
             }
           }

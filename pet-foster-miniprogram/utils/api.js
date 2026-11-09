@@ -1,57 +1,127 @@
 /**
  * 毛球旅馆 · 接口封装
- * 后端：pet-foster-server（Render 线上 https://pet-foster-server.onrender.com）
+ * 后端：pet-foster-server（Render https://pet-foster-server.onrender.com）
  * 统一 Result: { code, message, data }；业务错误 code=500（message 为提示文案）
- * 本地联调：把 BASE_URL 临时改回 http://127.0.0.1:8090，并在开发者工具勾选「不校验合法域名」
- * 线上使用：需在微信公众平台把 https://pet-foster-server.onrender.com 加入
- *           request / uploadFile / downloadFile 合法域名
+ *
+ * 双通道（由 utils/cloud-config.js 单一控制）：
+ *   - 云托管已配置：走 wx.cloud.callContainer 微信内网专线，无需服务器域名/ICP 备案
+ *   - 未配置：回退 wx.request 直连 Render，供本地开发与旧版使用
+ * BASE_URL 保留，仅用于拼接/还原后端返回的 /api/files/** 相对地址，不再是请求基址。
  */
 const auth = require('./auth.js')
+const cloud = require('./cloud-config.js')
 const BASE_URL = 'https://pet-foster-server.onrender.com'
 
-/** 后端 /api/files/** 返回的相对地址拼成小程序可直接显示的绝对地址 */
+/** 统一处理后端 Result 与 401 */
+function handleResult(res, resolve, reject, onUnauthorized) {
+  if (res.statusCode === 401) {
+    onUnauthorized()
+    reject(new Error('未登录'))
+    return
+  }
+  const body = res.data || {}
+  if (body.code === 200) {
+    resolve(body.data)
+  } else {
+    const err = new Error(body.message || '请求失败')
+    err.code = body.code
+    reject(err)
+  }
+}
+
+/** 微信云托管专线调用（callContainer 超时上限 15s，这里留 3s 余量） */
+function callCloud(path, method, data, header, onUnauthorized) {
+  return new Promise((resolve, reject) => {
+    wx.cloud.callContainer({
+      config: { env: cloud.env },
+      path: path,
+      method: method,
+      data: data,
+      header: Object.assign({
+        'X-WX-SERVICE': cloud.service,
+        'Content-Type': 'application/json'
+      }, header),
+      timeout: 12000,
+      success(res) { handleResult(res, resolve, reject, onUnauthorized) },
+      fail() { reject(new Error('网络异常，请检查云托管服务')) }
+    })
+  })
+}
+
+/** 传统 wx.request，未配置云托管或本地开发时回退 */
+function callHttp(path, method, data, header, onUnauthorized) {
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: BASE_URL + path,
+      method: method,
+      data: data,
+      header: Object.assign({ 'Content-Type': 'application/json' }, header),
+      success(res) { handleResult(res, resolve, reject, onUnauthorized) },
+      fail() { reject(new Error('网络异常，请检查服务是否启动')) }
+    })
+  })
+}
+
+function dispatch(path, method, data, header, onUnauthorized) {
+  return cloud.enabled && wx.cloud
+    ? callCloud(path, method, data, header, onUnauthorized)
+    : callHttp(path, method, data, header, onUnauthorized)
+}
+
+/** 后端 /api/files/** 相对地址拼成绝对地址（仅兼容旧数据与回退通道） */
 function fileUrl(path) {
   if (!path) return ''
   if (/^https?:\/\//.test(path)) return path
   return BASE_URL + path
 }
 
-function request(path, options = {}) {
-  const { method = 'GET', data = {}, auth = true } = options
+/** 云托管通道的照片上传：callContainer 不支持 multipart，交给代理 /__upload 转协议 */
+function cloudUpload(filePath) {
   return new Promise((resolve, reject) => {
-    const header = { 'Content-Type': 'application/json' }
-    const token = wx.getStorageSync('token')
-    if (auth && token) header.Authorization = 'Bearer ' + token
-    wx.request({
-      url: BASE_URL + path,
-      method,
-      data,
-      header,
-      success(res) {
-        if (res.statusCode === 401) {
-          wx.removeStorageSync('token')
-          wx.removeStorageSync('customer')
-          wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
-          setTimeout(() => {
-            wx.navigateTo({ url: '/pages/login/login' })
-          }, 600)
-          reject(new Error('未登录'))
-          return
-        }
-        const body = res.data || {}
-        if (body.code === 200) {
-          resolve(body.data)
-        } else {
-          const err = new Error(body.message || '请求失败')
-          err.code = body.code
-          reject(err)
-        }
+    wx.getFileSystemManager().readFile({
+      filePath: filePath,
+      encoding: 'base64',
+      success(file) {
+        const ext = (String(filePath).match(/\.([a-zA-Z0-9]+)$/) || [, 'jpg'])[1]
+        const header = { 'X-WX-SERVICE': cloud.service }
+        const token = wx.getStorageSync('staffToken')
+        if (token) header.Authorization = 'Bearer ' + token
+        wx.cloud.callContainer({
+          config: { env: cloud.env },
+          path: '/__upload',
+          method: 'POST',
+          header: header,
+          data: {
+            file: file.data,
+            filename: 'photo_' + Date.now() + '.' + ext,
+            contentType: ext.toLowerCase() === 'png' ? 'image/png' : 'image/jpeg'
+          },
+          timeout: 12000,
+          success(res) {
+            handleResult(res, resolve, reject, function () { auth.clearStaffSession() })
+          },
+          fail() { reject(new Error('照片上传失败，请检查云托管服务')) }
+        })
       },
-      fail() {
-        reject(new Error('网络异常，请检查服务是否启动'))
-      }
+      fail() { reject(new Error('读取照片失败')) }
     })
   })
+}
+
+function request(path, options = {}) {
+  const { method = 'GET', data = {}, auth = true } = options
+  const header = {}
+  const token = wx.getStorageSync('token')
+  if (auth && token) header.Authorization = 'Bearer ' + token
+  const onUnauthorized = function () {
+    wx.removeStorageSync('token')
+    wx.removeStorageSync('customer')
+    wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+    setTimeout(() => {
+      wx.navigateTo({ url: '/pages/login/login' })
+    }, 600)
+  }
+  return dispatch(path, method, data, header, onUnauthorized)
 }
 
 module.exports = {
@@ -143,36 +213,17 @@ module.exports = {
   // ===== 员工端（同一小程序按角色分流）=====
   staffRequest(path, options = {}) {
     const { method = 'GET', data = {} } = options
-    return new Promise((resolve, reject) => {
-      const header = { 'Content-Type': 'application/json' }
-      const token = wx.getStorageSync('staffToken')
-      if (token) header.Authorization = 'Bearer ' + token
-      wx.request({
-        url: BASE_URL + path,
-        method,
-        data,
-        header,
-        success(res) {
-          if (res.statusCode === 401) {
-            auth.clearStaffSession()
-            wx.showToast({ title: '员工登录已过期', icon: 'none' })
-            setTimeout(function () {
-              wx.redirectTo({ url: '/pages/login/login' })
-            }, 600)
-            reject(new Error('未登录'))
-            return
-          }
-          const body = res.data || {}
-          if (body.code === 200) resolve(body.data)
-          else {
-            const err = new Error(body.message || '请求失败')
-            err.code = body.code
-            reject(err)
-          }
-        },
-        fail() { reject(new Error('网络异常')) }
-      })
-    })
+    const header = {}
+    const token = wx.getStorageSync('staffToken')
+    if (token) header.Authorization = 'Bearer ' + token
+    const onUnauthorized = function () {
+      auth.clearStaffSession()
+      wx.showToast({ title: '员工登录已过期', icon: 'none' })
+      setTimeout(function () {
+        wx.redirectTo({ url: '/pages/login/login' })
+      }, 600)
+    }
+    return dispatch(path, method, data, header, onUnauthorized)
   },
 
   staffLogin(username, password) {
@@ -224,8 +275,9 @@ module.exports = {
     return this.staffRequest('/api/staff/incidents/' + id + '/authorize', { method: 'POST', data: body })
   },
 
-  /** 现场照片上传：wx.uploadFile 走 multipart，token 放 header */
+  /** 现场照片上传：云托管走 base64 + 代理转 multipart；回退通道仍用 wx.uploadFile */
   staffUpload(filePath) {
+    if (cloud.enabled && wx.cloud) return cloudUpload(filePath)
     return new Promise((resolve, reject) => {
       const header = {}
       const token = wx.getStorageSync('staffToken')

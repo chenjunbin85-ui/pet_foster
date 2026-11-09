@@ -1,3 +1,5 @@
+const cloudConfig = require('./utils/cloud-config.js')
+
 App({
   globalData: {
     token: '',
@@ -8,6 +10,10 @@ App({
   },
 
   onLaunch() {
+    // 云托管专线：基础库需 >= 2.23.0；未配置环境时保持 wx.request 直连
+    if (cloudConfig.enabled && wx.cloud) {
+      wx.cloud.init({ env: cloudConfig.env })
+    }
     this.globalData.token = wx.getStorageSync('token') || ''
     this.globalData.customer = wx.getStorageSync('customer') || null
     this.globalData.staffToken = wx.getStorageSync('staffToken') || ''
