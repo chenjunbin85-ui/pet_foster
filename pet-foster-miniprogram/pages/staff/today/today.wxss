@@ -1,0 +1,60 @@
+/* 今日：一级·聚合页，复用 styles/staff.wxss 令牌，仅补结构样式 */
+.staff-page .shift-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  padding: 8rpx 4rpx 20rpx;
+  font-size: 24rpx;
+}
+.staff-page .shift-main { color: var(--text); font-weight: 500; }
+.staff-page .shift-dot { color: var(--sub); }
+.staff-page .shift-bar .tag { margin-left: auto; }
+
+.staff-page .progress-row {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+  background: var(--card);
+  border: 1rpx solid var(--line);
+  border-radius: var(--pf-r-card, 40rpx);
+  box-shadow: var(--pf-shadow-card, 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04));
+  padding: 28rpx 0;
+  }
+.staff-page .progress-cell {
+  flex: 1;
+  background: transparent;
+  border-radius: 0;
+  padding: 0 12rpx;
+  text-align: center;
+  border-right: 1rpx solid var(--line);
+  }
+.staff-page .progress-num { font-size: 56rpx; font-weight: 700; line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  }
+.staff-page .progress-num.warn { color: var(--orange); }
+.staff-page .progress-label { font-size: 22rpx; color: var(--sub); margin-top: 8rpx; }
+
+.staff-page .task-foot {
+  justify-content: space-between;
+  color: var(--sub);
+}
+.staff-page .task-time { font-size: 22rpx; }
+
+.staff-page .state-card {
+  background: #fff;
+  border-radius: var(--pf-r-card, 40rpx);
+  padding: 48rpx 32rpx;
+  margin: 32rpx 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1rpx solid var(--line);
+  }
+.staff-page .state-title { font-size: 30rpx; font-weight: 600; }
+.staff-page .state-copy { font-size: 22rpx; color: var(--sub); margin-top: 12rpx; line-height: 1.6; }
+.staff-page .foot-note { font-size: 20rpx; color: var(--sub); text-align: center; padding: 24rpx 0 8rpx; }
+
+/* ===== Warm Petcare OS · 版式对齐 ===== */
+.staff-page .progress-cell:last-child { border-right: none; }

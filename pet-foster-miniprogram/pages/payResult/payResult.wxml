@@ -5,10 +5,20 @@
       <view class="success-icon">
         <text class="success-mark">✓</text>
       </view>
-      <view class="result-title">支付成功</view>
-      <view class="result-copy">本次托付已确认，我们会好好照顾 {{order.petName}}。</view>
+      <view class="result-title">支付成功！</view>
+      <view class="result-copy">房位已为您锁定，管家正在准备 {{order.petName}} 的欢迎礼与专属小窝。</view>
       <view class="result-fee">¥{{order.totalFeeText}}</view>
       <view class="result-order">订单号 {{order.orderNo}}</view>
+      <view class="result-sync">✓ 健康档案已同步 · 房间已做臭氧消杀</view>
+    </view>
+
+    <!-- 入住凭证 -->
+    <view class="voucher-card">
+      <view>
+        <view class="voucher-label">入住凭证 · 到店向前台管家出示核销码</view>
+        <view class="voucher-code">{{order.orderNo}}</view>
+      </view>
+      <text class="voucher-pill">请出示</text>
     </view>
 
     <!-- 订单信息 -->

@@ -1,0 +1,17 @@
+<view class="tabbar">
+  <view
+    class="tabbar-item {{selected === index ? 'on' : ''}}"
+    wx:for="{{list}}"
+    wx:key="pagePath"
+    data-index="{{index}}"
+    bindtap="onTap"
+    hover-class="tabbar-item-hover"
+    hover-stay-time="100"
+  >
+    <view class="tabbar-icon-wrap">
+      <image class="tabbar-icon" src="{{selected === index ? item.selectedIconPath : item.iconPath}}" mode="aspectFit" />
+      <view class="tabbar-badge" wx:if="{{item.badge > 0}}">{{item.badge > 99 ? '99+' : item.badge}}</view>
+    </view>
+    <text class="tabbar-text">{{item.text}}</text>
+  </view>
+</view>

@@ -142,7 +142,7 @@ Page({
   },
 
   bookAgain() {
-    wx.switchTab({ url: '/pages/index/index' })
+    wx.reLaunch({ url: '/pages/index/index' })
   },
 
   back() {

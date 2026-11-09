@@ -1,6 +1,6 @@
 /* 我的宠物 · 还原设计稿宠物档案卡 */
 .pets-page { padding: 40rpx 36rpx 60rpx;
-  padding-top: 176rpx; }
+  padding-top: 48rpx; }
 
 .pets-toolbar {
   display: flex;
@@ -11,13 +11,13 @@
 }
 .pets-count {
   font-size: 27rpx;
-  color: #5C5750;
+  color: var(--pf-ink-2, #4A443E);
 }
 .btn-add {
   width: auto;
   height: 88rpx;
   font-size: 30rpx;
-  border-radius: 30rpx;
+  border-radius: var(--pf-r-pill, 999rpx);
   padding: 0 34rpx;
   font-weight: 600;
 }
@@ -26,11 +26,11 @@
 .pet-list { display: flex; flex-direction: column; gap: 26rpx; }
 .pet-card {
   background: #FFFFFF;
-  border: 1rpx solid #F0E8DF;
-  border-radius: 44rpx;
-  padding: 36rpx 38rpx;
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  border-radius: var(--pf-r-card, 40rpx);
+  padding: 32rpx;
   margin-bottom: 26rpx;
-  box-shadow: 0 8rpx 32rpx rgba(201, 107, 61, 0.08);
+  box-shadow: 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04), 0 4rpx 12rpx -2rpx rgba(92, 60, 30, 0.02);
 }
 .pet-head {
   display: flex;
@@ -40,8 +40,8 @@
 .pet-avatar-img {
   width: 104rpx;
   height: 104rpx;
-  border-radius: 24rpx;
-  background: #FFF0E3;
+  border-radius: 50%;
+  background: var(--pf-brand-soft, #FFF0E8);
   flex-shrink: 0;
 }
 .pet-name {
@@ -49,13 +49,13 @@
   min-width: 0;
   font-size: 38rpx;      /* 19px */
   font-weight: 600;
-  color: #302D2A;
+  color: var(--pf-ink, #1E1B18);
 }
 .pet-edit {
   display: flex;
   align-items: center;
   gap: 6rpx;
-  color: #F47732;
+  color: var(--pf-brand, #FF6B35);
   font-size: 25rpx;
   min-height: 84rpx;
   flex-shrink: 0;
@@ -64,13 +64,13 @@
 
 .pet-meta {
   font-size: 27rpx;      /* 14px */
-  color: #5C5750;
+  color: var(--pf-ink-2, #4A443E);
   margin-top: 22rpx;
   line-height: 1.7;
 }
 .pet-divider {
   height: 1rpx;
-  background: #F0E8DF;
+  background: var(--pf-border, #F0E6DE);
   margin: 26rpx 0 22rpx;
 }
 .pet-vaccine-row {
@@ -81,14 +81,14 @@
 .pet-vaccine-row .badge {
   font-size: 23rpx;
   padding: 6rpx 16rpx;
-  border-radius: 14rpx;
+  border-radius: var(--pf-r-pill, 999rpx);
   flex-shrink: 0;
 }
 .pet-vaccine-name {
   flex: 1;
   min-width: 0;
   font-size: 25rpx;
-  color: #96918C;
+  color: var(--pf-ink-3, #7A7269);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -98,20 +98,20 @@
   align-items: center;
   gap: 6rpx;
   font-size: 23rpx;
-  color: #96918C;
+  color: var(--pf-ink-3, #7A7269);
   flex-shrink: 0;
 }
 .lock-icon { width: 26rpx; height: 26rpx; opacity: 0.55; }
 .pet-remark {
   font-size: 25rpx;
-  color: #96918C;
+  color: var(--pf-ink-3, #7A7269);
   margin-top: 20rpx;
   line-height: 1.7;
 }
 
 .pets-note {
   font-size: 23rpx;
-  color: #B8B2AB;
+  color: var(--pf-ink-4, #A8A096);
   line-height: 1.9;
   margin: 34rpx 0 28rpx;
 }

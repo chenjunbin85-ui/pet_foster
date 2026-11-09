@@ -7,7 +7,7 @@ createStaffPage({
   needSummary: false,
   needDuty: false,
   data: {
-    form: {"abtype2": "食欲", "f1": "18:00 巡视发现今日晚餐剩余约三分之二，饮水量较昨日减少，精神状态尚可。"},
+    form: {"abtype": "食欲", "f1": "18:00 巡视发现今日晚餐剩余约三分之二，饮水量较昨日减少，精神状态尚可。"},
     photos: {"p1": {"items": [{"uid": "p1_0", "wm": "11-06 18:05 · B-108", "badge": "食盆", "url": ""}, {"uid": "p1_1", "wm": "11-06 18:06 · B-108", "badge": "宠物", "url": ""}]}}
   }
   ,build: function (photoUrls) {

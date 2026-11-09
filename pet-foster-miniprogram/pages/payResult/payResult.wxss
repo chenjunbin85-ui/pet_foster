@@ -1,6 +1,6 @@
 /* 支付结果 · 还原设计稿 payment-result */
 .result-page { padding: 40rpx 36rpx 60rpx;
-  padding-top: 176rpx; }
+  padding-top: 48rpx; }
 
 .result-hero {
   text-align: center;
@@ -10,26 +10,27 @@
   width: 176rpx;       /* 88px */
   height: 176rpx;
   border-radius: 50%;
-  background: #edf7ef;
+  background: var(--pf-success-bg, #E8F5E9);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 34rpx;
-}
+  box-shadow: 0 0 0 20rpx rgba(232, 245, 233, 0.45);
+  }
 .success-mark {
   font-size: 76rpx;
-  color: #6EA782;
+  color: var(--pf-success, #2E7D32);
   line-height: 1;
   font-weight: 600;
 }
 .result-title {
   font-size: 44rpx;
   font-weight: 600;
-  color: #302D2A;
+  color: var(--pf-ink, #1E1B18);
 }
 .result-copy {
   font-size: 25rpx;
-  color: #96918C;
+  color: var(--pf-ink-3, #7A7269);
   margin-top: 14rpx;
   line-height: 1.7;
   padding: 0 20rpx;
@@ -38,31 +39,33 @@
   font-size: 64rpx;    /* 32px */
   font-weight: 600;
   font-family: Arial, sans-serif;
-  color: #F47732;
+  color: var(--pf-brand, #FF6B35);
   margin-top: 26rpx;
-}
+  font-variant-numeric: tabular-nums;
+  }
 .result-order {
   font-size: 23rpx;
-  color: #B8B2AB;
+  color: var(--pf-ink-4, #A8A096);
   margin-top: 8rpx;
   font-variant-numeric: tabular-nums;
 }
 
 .panel {
-  border: 1rpx solid #F0E8DF;
-  border-radius: 32rpx;
-  padding: 38rpx;
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  border-radius: var(--pf-r-card, 40rpx);
+  padding: 32rpx;
   margin: 40rpx 0 26rpx;
   background: #FFFFFF;
-}
+  box-shadow: var(--pf-shadow-card, 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04));
+  }
 
 .demo-payment-tip {
-  background: #FFF0E3;
-  border-radius: 24rpx;
+  background: var(--pf-brand-soft, #FFF0E8);
+  border-radius: var(--pf-r-tile, 24rpx);
   padding: 26rpx 30rpx;
   font-size: 25rpx;
   line-height: 1.8;
-  color: #C96B3D;
+  color: var(--pf-warning, #E65100);
   margin-bottom: 34rpx;
 }
 .tip-strong { font-weight: 600; margin-right: 6rpx; }
@@ -72,3 +75,31 @@
   gap: 20rpx;
 }
 .result-actions .btn { flex: 1; }
+
+/* ===== Warm Petcare OS · 版式对齐 ===== */
+.result-kicker { font-size: 20rpx; font-weight: 700; letter-spacing: 3rpx; color: var(--pf-success, #2E7D32); }
+.result-sync {
+  display: inline-flex; align-items: center; gap: 8rpx;
+  margin-top: 24rpx; padding: 8rpx 24rpx;
+  border-radius: var(--pf-r-pill, 999rpx);
+  background: var(--pf-success-bg, #E8F5E9); color: var(--pf-success, #2E7D32);
+  font-size: 22rpx; font-weight: 600;
+}
+.voucher-card {
+  background: var(--pf-surface, #FFFFFF);
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  border-radius: var(--pf-r-card, 40rpx);
+  box-shadow: var(--pf-shadow-card, 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04));
+  padding: 32rpx; margin-bottom: 24rpx;
+  display: flex; align-items: center; justify-content: space-between; gap: 24rpx;
+}
+.voucher-label { font-size: 24rpx; color: var(--pf-ink-3, #7A7269); line-height: 1.6; }
+.voucher-code {
+  font-size: 36rpx; font-weight: 700; letter-spacing: 2rpx;
+  color: var(--pf-ink, #1E1B18); font-variant-numeric: tabular-nums;
+}
+.voucher-pill {
+  font-size: 20rpx; font-weight: 700; white-space: nowrap;
+  padding: 6rpx 20rpx; border-radius: var(--pf-r-pill, 999rpx);
+  background: var(--pf-mint-bg, #D8F3E5); color: var(--pf-mint, #1E6547);
+}

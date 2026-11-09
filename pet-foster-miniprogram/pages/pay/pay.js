@@ -18,7 +18,7 @@ Page({
     }
     if (!orderId) {
       wx.showToast({ title: '未找到待支付订单', icon: 'none' })
-      setTimeout(() => wx.switchTab({ url: '/pages/orders/orders' }), 600)
+      setTimeout(() => wx.reLaunch({ url: '/pages/orders/orders' }), 600)
       return
     }
     this.orderId = orderId
@@ -74,7 +74,7 @@ Page({
   },
 
   goHome() {
-    wx.switchTab({ url: '/pages/index/index' })
+    wx.reLaunch({ url: '/pages/index/index' })
   },
   viewResult() {
     wx.redirectTo({ url: '/pages/payResult/payResult?orderId=' + this.data.order.id })

@@ -1,0 +1,74 @@
+/* Warm Petcare OS · 底部标签栏：毛玻璃 + 暖色发丝线 + 44px 触控热区 */
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24rpx);
+  -webkit-backdrop-filter: blur(24rpx);
+  border-top: 1rpx solid var(--pf-border, #F0E6DE);
+  box-shadow: 0 -8rpx 32rpx -12rpx rgba(92, 60, 30, 0.08);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabbar-item {
+  flex: 1;
+  height: 108rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+  color: var(--pf-ink-3, #7A7269);
+}
+
+.tabbar-item-hover {
+  background: var(--pf-surface-low, #FAF2EC);
+  border-radius: var(--pf-r-tile, 24rpx);
+}
+
+.tabbar-icon-wrap {
+  position: relative;
+  width: 44rpx;
+  height: 44rpx;
+}
+
+.tabbar-icon {
+  width: 44rpx;
+  height: 44rpx;
+  display: block;
+}
+
+.tabbar-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -16rpx;
+  min-width: 28rpx;
+  height: 28rpx;
+  padding: 0 6rpx;
+  border-radius: var(--pf-r-pill, 999rpx);
+  background: var(--pf-danger, #C62828);
+  color: #FFFFFF;
+  font-size: 18rpx;
+  line-height: 28rpx;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.tabbar-text {
+  font-size: 22rpx;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.tabbar-item.on {
+  color: var(--pf-brand, #FF6B35);
+}
+
+.tabbar-item.on .tabbar-text {
+  font-weight: 700;
+}

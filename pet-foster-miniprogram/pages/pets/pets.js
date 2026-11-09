@@ -54,7 +54,7 @@ Page({
   },
 
   backHome() {
-    wx.switchTab({ url: '/pages/index/index' })
+    wx.reLaunch({ url: '/pages/index/index' })
   },
 
   noop() {},

@@ -60,7 +60,10 @@ const MODULES = [
  * 未列入本表的页面一律拒绝（fail closed）。
  */
 const PAGE_RULES = {
-  'staff/home': { title: '员工工作台', module: 'todo', group: '工作台', positions: ALL, mode: 'write', workbench: false },
+  'staff/today': { title: '今日', module: 'todo', group: '工作台', positions: ALL, mode: 'write', workbench: false },
+  'staff/queue': { title: '岗位队列', module: 'todo', group: '工作台', positions: ALL, mode: 'write', workbench: false },
+  'staff/home': { title: '全部功能', module: 'todo', group: '工作台', positions: ALL, mode: 'write', workbench: false },
+  'staff/mine': { title: '我的', module: 'todo', group: '工作台', positions: ALL, mode: 'write', workbench: false },
 
   // ---- 护理员 CARE（6 页）----
   'staff/c1': { title: '护理工作台 · 班次待办', module: 'todo', group: 'CARE', positions: ['CARE', 'OWNER'], mode: { CARE: 'write', OWNER: 'read' }, workbench: true },
@@ -171,7 +174,8 @@ function menuFor(positions) {
     const items = []
     Object.keys(PAGE_RULES).forEach(function (key) {
       const rule = PAGE_RULES[key]
-      if (rule.module !== mod.key || key === 'staff/home' || rule.workbench) return
+      if (rule.module !== mod.key || key === 'staff/home' || key === 'staff/mine' ||
+        key === 'staff/today' || key === 'staff/queue' || rule.workbench) return
       if (!can(key, positions)) return
       items.push({
         key: key,
@@ -208,7 +212,7 @@ function workbenches(positions) {
  */
 function guard(page, key) {
   const session = getSession()
-  const fallback = '/pages/staff/home/home'
+  const fallback = '/pages/staff/today/today'
 
   if (!session.token) {
     wx.redirectTo({ url: '/pages/login/login' })
@@ -234,11 +238,11 @@ function guard(page, key) {
       content: '当前岗位（' + session.label + '）无权访问「' + (rule ? rule.title : '该页面') + '」，需要「' + need + '」岗位。',
       showCancel: false,
       complete: function () {
-        if (key === 'staff/home') {
+        if (key === 'staff/today') {
           clearStaffSession()
           wx.redirectTo({ url: '/pages/login/login' })
         } else {
-          wx.redirectTo({ url: fallback })
+          wx.reLaunch({ url: fallback })
         }
       }
     })

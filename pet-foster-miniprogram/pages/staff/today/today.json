@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "今日",
+  "navigationBarBackgroundColor": "#FFF8F3",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF8F3",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "tabbar": "/components/tabbar/index"
+  }
+}

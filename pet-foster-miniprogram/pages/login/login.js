@@ -23,12 +23,12 @@ Page({
 
   onLoad() {
     if (app.isLoggedIn()) {
-      wx.switchTab({ url: '/pages/index/index' })
+      wx.reLaunch({ url: '/pages/index/index' })
       return
     }
     const staffToken = wx.getStorageSync('staffToken')
     if (staffToken) {
-      wx.redirectTo({ url: '/pages/staff/home/home' })
+      wx.reLaunch({ url: '/pages/staff/today/today' })
     }
   },
 
@@ -113,7 +113,7 @@ Page({
         app.clearSession()
         wx.showToast({ title: '员工登录成功', icon: 'success' })
         setTimeout(() => {
-          wx.redirectTo({ url: '/pages/staff/home/home' })
+          wx.reLaunch({ url: '/pages/staff/today/today' })
         }, 400)
         return
       } catch (staffErr) {
@@ -125,7 +125,7 @@ Page({
       app.setSession(custRes.token, custRes.customer)
       wx.showToast({ title: '登录成功', icon: 'success' })
       setTimeout(() => {
-        wx.switchTab({ url: '/pages/index/index' })
+        wx.reLaunch({ url: '/pages/index/index' })
       }, 400)
     } catch (e) {
       wx.showToast({ title: e.message || '账号或密码错误', icon: 'none' })

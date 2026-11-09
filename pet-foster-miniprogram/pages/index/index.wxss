@@ -1,8 +1,8 @@
 /* 首页 · 现代简约（375px 基准 → 1px = 2rpx）
-   底色 #f5f1eb / 卡片 #ffffff 12px / 主字 #1a1a1a / 次字 #999 / 强调 #e8743b */
+   底色 var(--pf-canvas, #FFF8F3) / 卡片 #ffffff 12px / 主字 var(--pf-ink, #1E1B18) / 次字 #999 / 强调 var(--pf-brand, #FF6B35) */
 .home-page {
-  padding: 34rpx 32rpx 340rpx;
-  padding-top: 176rpx;
+  padding: 40rpx 32rpx 340rpx;
+  padding-top: 48rpx;
 }
 
 /* 顶部品牌区：店名 + 营业状态 */
@@ -23,7 +23,7 @@
   font-weight: 600;
   letter-spacing: 0.5rpx;
   line-height: 1.2;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
   white-space: nowrap;
 }
 .store-open {
@@ -31,36 +31,37 @@
   align-items: center;
   gap: 8rpx;
   font-size: 22rpx;      /* 11px */
-  color: #6EA782;
+  color: var(--pf-success, #2E7D32);
   flex-shrink: 0;
 }
 .store-open .dot {
   width: 10rpx;
   height: 10rpx;
   border-radius: 50%;
-  background: #6EA782;
+  background: var(--pf-success, #2E7D32);
 }
 
 /* 预订信息卡 */
 .booking-panel {
   background: #FFFFFF;
-  border-radius: 24rpx;  /* 12px */
-  padding: 0 28rpx 24rpx;
+  border-radius: var(--pf-r-card, 40rpx);  /* 12px */
+  padding: 0 32rpx 28rpx;
   margin-bottom: 36rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.04);
-}
+  box-shadow: var(--pf-shadow-card, 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04));
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  }
 .pet-row {
   display: flex;
   align-items: center;
   gap: 20rpx;
-  min-height: 104rpx;
-  border-bottom: 1rpx solid #F5F5F5;
+  min-height: 112rpx;
+  border-bottom: 1rpx solid var(--pf-surface-low, #FAF2EC);
 }
 .hotel-field-label {
   display: flex;
   align-items: center;
   gap: 10rpx;
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
   font-size: 24rpx;      /* 12px */
   flex-shrink: 0;
 }
@@ -70,7 +71,7 @@
   min-width: 0;
   font-size: 29rpx;
   font-weight: 500;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -94,38 +95,39 @@
 }
 .date-label {
   font-size: 22rpx;      /* 11px */
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
 }
 .date-value {
   font-size: 48rpx;      /* 24px */
   font-weight: 700;
   font-family: -apple-system, "Helvetica Neue", Arial, sans-serif;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
   margin-top: 12rpx;
   letter-spacing: 0.5rpx;
 }
 .date-tip {
   font-size: 20rpx;      /* 10px */
-  color: #AAAAAA;
+  color: var(--pf-ink-3, #7A7269);
   margin-top: 8rpx;
 }
 .duration-chip {
   min-width: 112rpx;
   padding: 10rpx 14rpx;
-  border: 1rpx dashed #E8743B;
-  border-radius: 14rpx;
-  color: #E8743B;
+  border: none;
+  border-radius: var(--pf-r-pill, 999rpx);
+  color: var(--pf-brand, #FF6B35);
   font-size: 22rpx;
   text-align: center;
   flex-shrink: 0;
   box-sizing: border-box;
-}
+  background: var(--pf-brand-soft, #FFF0E8);
+  }
 .billing-note {
   margin-top: 16rpx;
   font-size: 20rpx;
   line-height: 1.8;
   text-align: center;
-  color: #D9534F;
+  color: var(--pf-danger, #C62828);
 }
 
 /* 房型三列卡 */
@@ -135,7 +137,7 @@
   font-size: 32rpx;
   font-weight: 600;
   letter-spacing: 0.4rpx;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
 }
 .room-grid {
   display: flex;
@@ -149,17 +151,17 @@
   flex-direction: column;
   align-items: center;
   background: #FFFFFF;
-  border: 1rpx solid rgba(0, 0, 0, 0.04);
-  border-radius: 24rpx;
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  border-radius: 32rpx;
   padding: 40rpx 12rpx 26rpx;
   box-sizing: border-box;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--pf-shadow-card, 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04));
 }
 .room-card.selected {
-  border: 2rpx solid #E8743B;
+  border: 2rpx solid var(--pf-brand, #FF6B35);
   padding: 39rpx 11rpx 25rpx;
-  background: #FFFAF5;
-  box-shadow: 0 4rpx 16rpx rgba(232, 116, 59, 0.12);
+  background: var(--pf-brand-soft, #FFF0E8);
+  box-shadow: 0 12rpx 32rpx -4rpx rgba(255, 107, 53, 0.18);
 }
 .room-radio {
   position: absolute;
@@ -168,7 +170,7 @@
   width: 26rpx;
   height: 26rpx;
   border-width: 1rpx;
-  border-color: #CFC8BE;
+  border-color: var(--pf-border, #F0E6DE);
 }
 .check-mark { font-size: 16rpx; line-height: 1; color: #FFFFFF; }
 .room-icon {
@@ -179,14 +181,14 @@
 .room-name {
   font-size: 27rpx;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
 }
 .room-price {
   display: flex;
   align-items: baseline;
   justify-content: center;
   gap: 2rpx;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
   font-size: 44rpx;
   font-weight: 700;
   font-family: Arial, sans-serif;
@@ -194,36 +196,36 @@
   line-height: 1.2;
 }
 .room-price .yuan { font-size: 22rpx; font-weight: 500; }
-.room-price .per { font-size: 20rpx; font-weight: 400; color: #AAAAAA; }
+.room-price .per { font-size: 20rpx; font-weight: 400; color: var(--pf-ink-3, #7A7269); }
 
 /* 增值服务 / 备注 */
 .extras-section { margin-top: -4rpx; }
 .extras-list { display: flex; flex-wrap: wrap; gap: 16rpx; }
 .extra-chip {
   padding: 14rpx 28rpx;
-  border: 1rpx solid #ECE7E0;
+  border: 1rpx solid var(--pf-border, #F0E6DE);
   border-radius: 32rpx;
-  color: #666666;
+  color: var(--pf-ink-2, #4A443E);
   font-size: 24rpx;
   background: #FFFFFF;
 }
 .extra-chip.on {
-  border-color: #E8743B;
-  color: #E8743B;
-  background: #FFF6EF;
+  border-color: var(--pf-brand, #FF6B35);
+  color: var(--pf-brand, #FF6B35);
+  background: var(--pf-brand-soft, #FFF0E8);
 }
 .extras-textarea {
   width: 100%;
   min-height: 132rpx;
   background: #FFFFFF;
-  border-radius: 24rpx;
+  border-radius: var(--pf-r-tile, 24rpx);
   padding: 24rpx;
   font-size: 26rpx;
   line-height: 1.6;
   box-sizing: border-box;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04), 0 4rpx 12rpx -2rpx rgba(92, 60, 30, 0.02);
 }
-.placeholder { color: #BBBBBB; }
+.placeholder { color: var(--pf-ink-4, #A8A096); }
 
 /* 底部动作栏 */
 .hotel-actions { display: block; }
@@ -235,13 +237,13 @@
 }
 .action-label {
   font-size: 22rpx;
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
 }
 .action-fee {
   font-size: 50rpx;
   font-weight: 700;
   font-family: Arial, sans-serif;
-  color: #E8743B;
+  color: var(--pf-brand, #FF6B35);
   letter-spacing: 0.5rpx;
 }
 .hotel-action-buttons {
@@ -274,38 +276,38 @@
   font-weight: 600;
   text-align: center;
   margin-bottom: 34rpx;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
 }
 .pet-picker-list { display: flex; flex-direction: column; gap: 20rpx; }
 .pet-picker-option {
   display: flex;
   align-items: center;
   gap: 22rpx;
-  border: 1rpx solid #ECE7E0;
-  border-radius: 24rpx;
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  border-radius: var(--pf-r-tile, 24rpx);
   padding: 28rpx 24rpx;
   text-align: left;
 }
 .pet-picker-option.selected {
-  border: 2rpx solid #E8743B;
+  border: 2rpx solid var(--pf-brand, #FF6B35);
   padding: 27rpx 23rpx;
 }
 .pet-avatar-img {
   width: 96rpx;
   height: 96rpx;
   border-radius: 50%;
-  background: #FEF3E8;
+  background: var(--pf-brand-soft, #FFF0E8);
   flex-shrink: 0;
 }
 .pet-picker-info { flex: 1; min-width: 0; }
 .pet-picker-name {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
 }
 .pet-picker-meta {
   font-size: 22rpx;
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
   margin: 6rpx 0 12rpx;
 }
 .badge-green, .badge-gray { font-size: 22rpx; padding: 4rpx 14rpx; border-radius: 14rpx; }
@@ -316,7 +318,74 @@
 .pet-picker-empty {
   padding: 40rpx 0;
   text-align: center;
-  color: #AAAAAA;
+  color: var(--pf-ink-3, #7A7269);
   font-size: 26rpx;
 }
 .modal-confirm { margin-top: 34rpx; }
+
+/* 自定义 tabBar 由页面自身绘制，固定操作条需让出底栏高度 */
+.home-page .action-bar {
+  bottom: calc(108rpx + env(safe-area-inset-bottom));  /* 对齐新 tabbar 高度 108rpx */
+  padding-bottom: 16rpx;
+}
+/* 方案 B：自绘底栏 fixed，一级页自行留白，避免内容被压住 */
+.page { padding-bottom: calc(140rpx + env(safe-area-inset-bottom)); }
+
+/* ===== Warm Petcare OS · 版式对齐 ===== */
+.home-head {
+  margin-bottom: 32rpx;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+.home-brand { flex-direction: column; align-items: flex-start; gap: 8rpx; }
+.brand-kicker { font-size: 20rpx; font-weight: 700; letter-spacing: 2rpx; color: var(--pf-brand-ink, #E55620); }
+.brand-line { display: flex; align-items: center; gap: 12rpx; }
+.store-badge {
+  font-size: 18rpx; font-weight: 700; color: var(--pf-brand-ink, #E55620);
+  background: var(--pf-brand-soft, #FFF0E8);
+  padding: 4rpx 14rpx; border-radius: var(--pf-r-pill, 999rpx);
+}
+.home-pet-avatar {
+  width: 64rpx; height: 64rpx; border-radius: 50%;
+  background: var(--pf-brand-soft, #FFF0E8); flex-shrink: 0;
+}
+.home-promise {
+  display: flex; align-items: center; gap: 10rpx;
+  margin: 0 -32rpx -28rpx; padding: 20rpx 32rpx;
+  border-top: 1rpx solid var(--pf-hairline, #F2EFEB);
+  font-size: 22rpx; color: var(--pf-success, #2E7D32);
+}
+.room-card { position: relative; padding: 40rpx 8rpx 24rpx; }
+.room-name { white-space: nowrap; }
+.room-popular {
+  position: absolute; top: -14rpx; left: 50%; transform: translateX(-50%);
+  background: var(--pf-brand, #FF6B35); color: #FFFFFF;
+  font-size: 18rpx; font-weight: 700; letter-spacing: 0.5rpx;
+  padding: 6rpx 16rpx; border-radius: var(--pf-r-pill, 999rpx);
+  white-space: nowrap; z-index: 2;
+}
+.room-desc {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 18rpx; color: var(--pf-ink-3, #7A7269);
+  line-height: 1.35; text-align: center; min-height: 48rpx;
+  margin-top: 8rpx;
+}
+.room-feature-row {
+  display: flex; align-items: center; justify-content: space-around; gap: 12rpx;
+  margin: -8rpx 0 32rpx; padding: 16rpx 12rpx;
+  background: var(--pf-surface-low, #FAF2EC);
+  border-radius: var(--pf-r-pill, 999rpx);
+  font-size: 18rpx; color: var(--pf-ink-2, #4A443E);
+}
+.care-card {
+  background: var(--pf-surface, #FFFFFF);
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  border-radius: var(--pf-r-card, 40rpx);
+  padding: 24rpx; box-shadow: var(--pf-shadow-card, 0 8rpx 40rpx -4rpx rgba(92, 60, 30, 0.04));
+}
+.care-card .extras-textarea { box-shadow: none; background: var(--pf-surface-low, #FAF2EC); }
+.page.home-page {
+  padding-bottom: calc(360rpx + env(safe-area-inset-bottom));
+}

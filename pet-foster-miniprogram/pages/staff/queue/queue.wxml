@@ -1,0 +1,76 @@
+<view class="staff-page with-tabbar">
+  <view class="content">
+
+    <!-- 一人多岗：岗位分段（单岗不显示） -->
+    <view class="segment" wx:if="{{segments.length > 1}}">
+      <view class="segment-item {{item.key === activePos ? 'active' : ''}}"
+            wx:for="{{segments}}" wx:key="key"
+            bindtap="switchSegment" data-pos="{{item.key}}">{{item.label}}</view>
+    </view>
+
+    <view class="state-card" wx:if="{{loading}}">
+      <text class="state-title">正在加载队列…</text>
+      <text class="state-copy">按当前岗位聚合作业单</text>
+    </view>
+    <view class="state-card" wx:elif="{{error}}">
+      <text class="state-title">队列暂时取不到</text>
+      <text class="state-copy">{{error}}</text>
+      <button class="btn btn-outline btn-sm mt12" bindtap="reload">重试</button>
+    </view>
+
+    <block wx:else>
+      <!-- 岗位徽标 + 一句职责 -->
+      <view class="role-bar">
+        <text class="tag tag-orange">{{roleLabel}}</text>
+        <text class="role-desc">{{roleDesc}}</text>
+      </view>
+
+      <!-- 3 个数字 -->
+      <view class="progress-row">
+        <view class="progress-cell"><view class="progress-num warn">{{counts.todo}}</view><view class="progress-label">待做</view></view>
+        <view class="progress-cell"><view class="progress-num">{{counts.doing}}</view><view class="progress-label">进行中</view></view>
+        <view class="progress-cell"><view class="progress-num">{{counts.done}}</view><view class="progress-label">已完成</view></view>
+      </view>
+
+      <!-- OWNER 红标区：其它岗位不可见 -->
+      <block wx:if="{{isOwner}}">
+        <view class="section-head"><text class="section-title">门店红标</text></view>
+        <view class="card red-grid">
+          <view class="red-item" wx:for="{{alerts}}" wx:key="label">
+            <text class="red-num">{{item.value}}</text>
+            <text class="red-label">{{item.label}}</text>
+          </view>
+        </view>
+      </block>
+
+      <!-- 队列卡：每卡 3 行 + 1 主操作 -->
+      <view class="section-head">
+        <text class="section-title">{{queueTitle}}</text>
+        <text class="section-extra">{{cards.length}} 单</text>
+      </view>
+      <view class="task" wx:for="{{cards}}" wx:key="id">
+        <view class="task-head">
+          <view class="avatar a2">{{item.petInitial}}</view>
+          <view class="grow">
+            <text class="task-name">{{item.petName}} · {{item.roomLabel}}</text>
+            <view class="task-meta">{{item.orderNo}} · {{item.status}}</view>
+          </view>
+          <text class="tag {{item.tagClass}}">{{item.badge}}</text>
+        </view>
+        <view class="queue-line">{{item.customerName}} · {{item.startDate}} 入住 · {{item.roomType}}</view>
+        <view class="task-foot">
+          <text class="task-time">{{item.hint}}</text>
+          <button class="btn btn-primary btn-xs" bindtap="goTask" data-id="{{item.id}}" data-path="{{item.path}}">{{action}}</button>
+        </view>
+      </view>
+
+      <view class="state-card" wx:if="{{!cards.length}}">
+        <text class="state-title">队列已清空</text>
+        <text class="state-copy">当前岗位没有待处理的作业单</text>
+      </view>
+      <view class="foot-note">同一套队列页按岗位渲染 · 角标口径由今日待办统一计算</view>
+    </block>
+  </view>
+</view>
+
+<tabbar id="tabbar" mode="staff" selected="{{1}}" badges="{{badges}}" />

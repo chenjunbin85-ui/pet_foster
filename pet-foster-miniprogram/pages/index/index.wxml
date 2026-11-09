@@ -2,7 +2,11 @@
   <!-- 顶部：店名 + 营业状态 -->
   <view class="home-head">
     <view class="home-brand">
-      <text class="brand-name">毛球旅馆</text>
+      <text class="brand-kicker">WARM PETCARE OS</text>
+      <view class="brand-line">
+        <text class="brand-name">毛球旅馆</text>
+        <text class="store-badge">旗舰店</text>
+      </view>
     </view>
     <view class="store-open">
       <view class="dot"></view>
@@ -10,13 +14,16 @@
     </view>
   </view>
 
+  <!-- 分区标题：寄养爱宠 -->
+  <view class="section-head">
+    <text class="section-head-title">寄养爱宠</text>
+    <text class="section-head-aside" bindtap="openPetPicker">管理爱宠 ›</text>
+  </view>
+
   <!-- 预订信息卡 -->
   <view class="booking-panel">
     <view class="pet-row" bindtap="openPetPicker">
-      <view class="hotel-field-label">
-        <image class="paw-icon" src="/images/icon-paw-gray.png" mode="aspectFit" />
-        <text>宠物</text>
-      </view>
+      <image class="home-pet-avatar" src="/images/pet-{{pet && pet.breed && pet.breed.indexOf('猫') > -1 ? 'cat' : 'dog'}}.png" mode="aspectFit" />
       <view class="pet-row-name">{{pet ? pet.name + '（' + (pet.breed || '未知品种') + '）' : '请选择或新增宠物'}}</view>
       <image class="chev-icon" src="/images/icon-chevron-gray.png" mode="aspectFit" />
     </view>
@@ -40,12 +47,18 @@
     </view>
 
     <view class="billing-note error" wx:if="{{bookingReason}}">{{bookingReason}}</view>
+
+    <view class="home-promise">
+      <text>✓</text>
+      <text>免费取消保护 · 入住前 24 小时可退</text>
+    </view>
   </view>
 
   <!-- 热门房型：三列卡 -->
   <view class="room-section">
     <view class="section-head">
       <text class="section-head-title">热门房型</text>
+      <text class="section-head-aside">实时房态</text>
     </view>
     <view class="room-grid">
       <view
@@ -58,27 +71,37 @@
         <view class="radio-dot room-radio {{priceId === item.id ? 'checked' : ''}}">
           <text wx:if="{{priceId === item.id}}" class="check-mark">✓</text>
         </view>
+        <view wx:if="{{index == 1}}" class="room-popular">最受欢迎</view>
         <image class="room-icon" src="/images/room-{{index}}{{priceId === item.id ? '-active' : ''}}.png" mode="aspectFit" />
         <view class="room-name">{{item.levelName}}</view>
+        <view class="room-desc">{{index == 0 ? '独立小屋 · 小型犬' : (index == 1 ? '加氧新风 · 阳光房' : '全景平层 · 私庭院')}}</view>
         <view class="room-price"><text class="yuan">¥</text>{{item.pricePerDay}}<text class="per">/晚</text></view>
       </view>
+    </view>
+
+    <view class="room-feature-row">
+      <text>24h 实时直播</text>
+      <text>24℃ 恒温新风</text>
+      <text>每日驻店体检</text>
     </view>
   </view>
 
   <!-- 特殊照护备注 -->
   <view class="room-section">
     <view class="section-head"><text class="section-head-title">特殊照护需求（选填）</text></view>
-    <textarea
-      class="extras-textarea"
-      placeholder="如：饮食习惯、需按时喂药、怕生等"
-      placeholder-class="placeholder"
-      maxlength="200"
-      value="{{remark}}"
-      bindinput="onRemarkInput"
-    ></textarea>
+    <view class="care-card">
+      <textarea
+        class="extras-textarea"
+        placeholder="如：饮食习惯、需按时喂药、怕生等"
+        placeholder-class="placeholder"
+        maxlength="200"
+        value="{{remark}}"
+        bindinput="onRemarkInput"
+      ></textarea>
+    </view>
   </view>
 
-  <!-- 底部动作栏：金额整行 + 双按钮 -->
+  <!-- 底部动作栏：金额整行 + 双按钮（贴底，悬浮在 tabbar 上方） -->
   <view class="action-bar hotel-actions">
     <view class="action-summary">
       <text class="action-label">预估金额 · {{stayLabel}}</text>
@@ -122,3 +145,4 @@
     </view>
   </view>
 </view>
+<tabbar id="tabbar" mode="client" selected="{{0}}" />

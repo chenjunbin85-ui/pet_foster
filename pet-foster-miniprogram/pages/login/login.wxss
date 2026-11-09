@@ -1,7 +1,7 @@
 /* 登录页 · 与首页/订单/我的同一套 token */
 .login-page {
   min-height: 100vh;
-  background: #F5F1EB;
+  background: var(--pf-canvas, #FFF8F3);
   padding: 0 32rpx 48rpx;
   box-sizing: border-box;
 }
@@ -11,13 +11,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 260rpx 0 64rpx;
+  padding: 210rpx 0 56rpx;
 }
 .brand-logo {
   width: 166rpx;        /* 83px（放大 115%） */
   height: 166rpx;
   border-radius: 50%;
-  background: #FEF3E8;
+  background: var(--pf-brand-soft, #FFF0E8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,31 +28,31 @@
   font-size: 40rpx;      /* 20px */
   font-weight: 600;
   letter-spacing: 1rpx;
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
 }
 
 /* 表单卡 */
 .login-card {
   background: #FFFFFF;
-  border-radius: 24rpx;
-  border: 1rpx solid rgba(0, 0, 0, 0.03);
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.04);
-  padding: 24rpx 32rpx 36rpx;
+  border-radius: var(--pf-r-card, 40rpx);
+  border: 1rpx solid var(--pf-border, #F0E6DE);
+  box-shadow: 0 24rpx 64rpx rgba(42, 39, 35, 0.08);
+  padding: 32rpx 32rpx 40rpx;
 }
 .field {
   padding: 20rpx 0 12rpx;
-  border-bottom: 1rpx solid #F5F5F5;
+  border-bottom: 1rpx solid var(--pf-surface-low, #FAF2EC);
 }
 .field-label {
   font-size: 22rpx;      /* 11px */
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
   margin-bottom: 2rpx;
 }
 .field-input {
   width: 100%;
   height: 80rpx;
   font-size: 30rpx;      /* 15px */
-  color: #1A1A1A;
+  color: var(--pf-ink, #1E1B18);
   background: transparent;
   padding: 0;
   box-sizing: border-box;
@@ -71,7 +71,7 @@
 }
 .forgot-link {
   font-size: 24rpx;
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
 }
 
 /* 协议勾选 */
@@ -85,7 +85,7 @@
   width: 32rpx;
   height: 32rpx;
   border-radius: 8rpx;
-  border: 1rpx solid #DDD6CC;
+  border: 1rpx solid var(--pf-border, #F0E6DE);
   margin-top: 3rpx;
   display: flex;
   align-items: center;
@@ -94,27 +94,27 @@
   box-sizing: border-box;
 }
 .checkbox.checked {
-  background: #E8743B;
-  border-color: #E8743B;
+  background: var(--pf-brand, #FF6B35);
+  border-color: var(--pf-brand, #FF6B35);
 }
 .check-mark { color: #FFFFFF; font-size: 22rpx; line-height: 1; }
 .agree-text {
   flex: 1;
   font-size: 24rpx;
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
   line-height: 1.6;
 }
-.link { color: #E8743B; }
+.link { color: var(--pf-brand, #FF6B35); }
 
 .login-btn {
-  border-radius: 24rpx;
+  border-radius: var(--pf-r-pill, 999rpx);
   height: 96rpx;
   font-size: 32rpx;
 }
 .login-tip {
   text-align: center;
   font-size: 22rpx;
-  color: #BBBBBB;
+  color: var(--pf-ink-4, #A8A096);
   margin-top: 18rpx;
   line-height: 1.6;
 }
@@ -129,14 +129,14 @@
 }
 .foot-text {
   font-size: 26rpx;
-  color: #999999;
+  color: var(--pf-ink-3, #7A7269);
 }
 .foot-link {
   font-size: 26rpx;
-  color: #E8743B;
+  color: var(--pf-brand, #FF6B35);
 }
 .foot-sep {
-  color: #DDD6CC;
+  color: var(--pf-border, #F0E6DE);
   font-size: 24rpx;
 }
 
@@ -147,11 +147,15 @@
   gap: 16rpx;
   margin-top: 24rpx;
   font-size: 22rpx;
-  color: #BBBBBB;
+  color: var(--pf-ink-4, #A8A096);
 }
 .demo-fill {
-  color: #E8743B;
+  color: var(--pf-brand, #FF6B35);
 }
 
 .policy-scroll { max-height: 480rpx; }
-.policy-copy { text-align: left; line-height: 1.9; font-size: 26rpx; color: #5C5750; }
+.policy-copy { text-align: left; line-height: 1.9; font-size: 26rpx; color: var(--pf-ink-2, #4A443E); }
+
+/* ===== Warm Petcare OS · 版式对齐 ===== */
+.brand-slogan { font-size: 24rpx; color: var(--pf-ink-3, #7A7269); margin-top: 12rpx; letter-spacing: 1rpx; }
+.brand-kicker { font-size: 20rpx; font-weight: 700; letter-spacing: 3rpx; color: var(--pf-brand-ink, #E55620); margin-bottom: 8rpx; }

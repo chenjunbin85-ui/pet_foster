@@ -92,7 +92,7 @@ Page({
       app.setSession(res.token, res.customer)
       wx.showToast({ title: '注册成功', icon: 'success' })
       setTimeout(() => {
-        wx.switchTab({ url: '/pages/index/index' })
+        wx.reLaunch({ url: '/pages/index/index' })
       }, 600)
     } catch (e) {
       this.setData({ tip: e.message || '注册失败，请稍后再试' })

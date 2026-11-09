@@ -1,5 +1,9 @@
 {
   "navigationBarTitleText": "入店健康评估签署",
-  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#FFF8F3",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF8F3",
+  "backgroundTextStyle": "dark",
+  "navigationStyle": "default",
   "usingComponents": {}
 }

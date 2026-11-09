@@ -1,5 +1,9 @@
 {
   "navigationBarTitleText": "员工工作台",
-  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#FFF8F3",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF8F3",
+  "backgroundTextStyle": "dark",
+  "navigationStyle": "default",
   "usingComponents": {}
 }

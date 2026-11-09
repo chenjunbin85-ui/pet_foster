@@ -4,7 +4,9 @@
     <view class="brand-logo">
       <image class="brand-paw" src="/images/logo.png" mode="aspectFit" />
     </view>
+    <text class="brand-kicker">WARM PETCARE OS</text>
     <view class="brand-name">毛球旅馆</view>
+    <view class="brand-slogan">让每一次托付，都温暖如家</view>
   </view>
 
   <!-- 登录表单卡 -->

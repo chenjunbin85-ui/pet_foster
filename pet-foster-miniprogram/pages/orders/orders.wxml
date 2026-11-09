@@ -66,3 +66,4 @@
     <view wx:if="{{loading}}" class="list-end">加载中…</view>
   </view>
 </view>
+<tabbar id="tabbar" mode="client" selected="{{1}}" />

@@ -1,5 +1,9 @@
 {
   "navigationBarTitleText": "异常上报",
-  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#FFF8F3",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF8F3",
+  "backgroundTextStyle": "dark",
+  "navigationStyle": "default",
   "usingComponents": {}
 }

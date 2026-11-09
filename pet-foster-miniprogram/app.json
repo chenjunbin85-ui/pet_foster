@@ -11,7 +11,10 @@
     "pages/pets/pets",
     "pages/petEdit/petEdit",
     "pages/mine/mine",
+    "pages/staff/today/today",
+    "pages/staff/queue/queue",
     "pages/staff/home/home",
+    "pages/staff/mine/mine",
     "pages/staff/c1/c1",
     "pages/staff/c2/c2",
     "pages/staff/c3/c3",
@@ -31,38 +34,11 @@
     "pages/staff/d3/d3"
   ],
   "window": {
-    "navigationStyle": "custom",
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarBackgroundColor": "#FFF8F3",
     "navigationBarTitleText": "毛球旅馆",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#ffffff",
-    "backgroundTextStyle": "light"
-  },
-  "tabBar": {
-    "color": "#96918C",
-    "selectedColor": "#F47732",
-    "backgroundColor": "#ffffff",
-    "borderStyle": "white",
-    "list": [
-      {
-        "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "images/tab-home.png",
-        "selectedIconPath": "images/tab-home-active.png"
-      },
-      {
-        "pagePath": "pages/orders/orders",
-        "text": "历史订单",
-        "iconPath": "images/tab-calendar.png",
-        "selectedIconPath": "images/tab-calendar-active.png"
-      },
-      {
-        "pagePath": "pages/mine/mine",
-        "text": "我的",
-        "iconPath": "images/tab-user.png",
-        "selectedIconPath": "images/tab-user-active.png"
-      }
-    ]
+    "backgroundColor": "#FFF8F3",
+    "backgroundTextStyle": "dark"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",

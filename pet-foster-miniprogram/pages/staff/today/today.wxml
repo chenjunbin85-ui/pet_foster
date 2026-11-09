@@ -1,0 +1,85 @@
+<view class="staff-page with-tabbar">
+  <view class="content">
+
+    <!-- 四态：加载 / 失败 / 空 / 正常 -->
+    <view class="state-card" wx:if="{{loading}}">
+      <text class="state-title">正在加载今日待办…</text>
+      <text class="state-copy">按岗位与当日班次聚合作业队列</text>
+    </view>
+    <view class="state-card" wx:elif="{{error}}">
+      <text class="state-title">待办暂时取不到</text>
+      <text class="state-copy">{{error}}</text>
+      <button class="btn btn-outline btn-sm mt12" bindtap="reload">重试</button>
+    </view>
+
+    <block wx:else>
+      <!-- 一行班次状态：人与班次不占卡片 -->
+      <view class="shift-bar">
+        <text class="shift-main">{{positionLabel}}</text>
+        <text class="shift-dot">·</text>
+        <text class="shift-main">{{today.dateText}} {{today.weekday}}</text>
+        <text class="shift-dot">·</text>
+        <text class="shift-main">{{today.shift ? today.shift + '班' : '未排班'}}</text>
+        <text class="tag {{onDuty ? 'tag-green' : 'tag-gray'}}">{{onDuty ? '在岗' : '未确认在岗'}}</text>
+      </view>
+
+      <!-- 首屏回答「我下一步做什么」 -->
+      <view class="progress-row">
+        <view class="progress-cell">
+          <view class="progress-num">{{progress.done}}</view>
+          <view class="progress-label">已完成</view>
+        </view>
+        <view class="progress-cell">
+          <view class="progress-num warn">{{progress.todo}}</view>
+          <view class="progress-label">待办</view>
+        </view>
+        <view class="progress-cell">
+          <view class="progress-num">{{progress.upload}}</view>
+          <view class="progress-label">待补传</view>
+        </view>
+      </view>
+
+      <!-- 按状态分组的队列 -->
+      <block wx:for="{{sections}}" wx:key="key">
+        <view class="section-head">
+          <view class="section-title pf-marker">{{item.title}}</view>
+          <text class="section-extra">{{item.items.length}} 项</text>
+        </view>
+        <view class="task" wx:for="{{item.items}}" wx:for-item="t" wx:key="id" bindtap="goTask" data-id="{{t.id}}" data-path="{{t.path}}">
+          <view class="task-head">
+            <view class="avatar a2">{{t.petInitial}}</view>
+            <view class="grow">
+              <text class="task-name">{{t.petName}} · {{t.roomLabel}}</text>
+              <view class="task-meta">{{t.orderNo}} · {{t.status}}</view>
+            </view>
+            <text class="tag {{t.tagClass}}">{{t.action}}</text>
+          </view>
+          <view class="task-foot">
+            <text class="task-time">{{t.customerName}} · {{t.startDate}} 入住</text>
+            <text class="menu-chev">›</text>
+          </view>
+        </view>
+      </block>
+
+      <view class="state-card" wx:if="{{!sections.length}}">
+        <text class="state-title">今日暂无待办</text>
+        <text class="state-copy">新订单入店后会自动出现在这里</text>
+      </view>
+
+      <view class="section-head"><view class="section-title pf-marker">更多</view></view>
+      <view class="card menu-list">
+        <view class="menu-row" bindtap="goAll">
+          <text class="menu-label">全部功能 / 门店总览</text>
+          <text class="menu-chev">›</text>
+        </view>
+        <view class="menu-row" bindtap="goQueue">
+          <text class="menu-label">进入岗位队列</text>
+          <text class="menu-chev">›</text>
+        </view>
+      </view>
+      <view class="foot-note">待办按当日班次与岗位聚合 · 与 Web 端同源</view>
+    </block>
+  </view>
+</view>
+
+<tabbar id="tabbar" mode="staff" selected="{{0}}" badges="{{badges}}" />

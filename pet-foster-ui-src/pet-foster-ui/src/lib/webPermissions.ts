@@ -21,14 +21,18 @@ export const POSITION_LABELS: Record<Position, string> = {
 const W: Capability = "write"
 const R: Capability = "read"
 
-/** 未列出的岗位即 none：DRIVER 整行不可见，GROOM 无客户模块。 */
+/**
+ * Web 后台仅 OWNER / FRONT 有工位；CARE / VET / GROOM / DRIVER 一律 none，
+ * 作业入口只在小程序端。登录端点与小程序共用，不能拦登录，只能提示改用小程序。
+ * 未列出的岗位即 none。
+ */
 const MATRIX: Record<WebModule, Partial<Record<Position, Capability>>> = {
-  dashboard: { OWNER: W, FRONT: W, CARE: W, VET: W, GROOM: W },
-  customers: { OWNER: W, FRONT: W, CARE: R, VET: R },
-  pets:      { OWNER: W, FRONT: W, CARE: R, VET: R, GROOM: R },
-  orders:    { OWNER: W, FRONT: W, CARE: R, VET: R, GROOM: R },
-  health:    { OWNER: W, FRONT: R, CARE: W, VET: W },
-  services:  { OWNER: W, FRONT: R, CARE: W, VET: R, GROOM: W },
+  dashboard: { OWNER: W, FRONT: W },
+  customers: { OWNER: W, FRONT: W },
+  pets:      { OWNER: W, FRONT: W },
+  orders:    { OWNER: W, FRONT: W },
+  health:    { OWNER: W, FRONT: R },
+  services:  { OWNER: W, FRONT: R },
   stats:     { OWNER: W },
   system:    { OWNER: W },
 }
@@ -71,7 +75,7 @@ export function resolveCapabilities(role: string, raw?: string | null): Record<W
   return out
 }
 
-/** DRIVER 等无 Web 工位的岗位：八个模块全 none。 */
+/** CARE / VET / GROOM / DRIVER 等无 Web 工位的岗位：八个模块全 none。 */
 export function hasWebWorkbench(caps: Record<WebModule, Capability>): boolean {
   return WEB_MODULES.some((m) => caps[m] !== "none")
 }

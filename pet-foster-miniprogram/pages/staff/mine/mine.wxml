@@ -1,0 +1,99 @@
+<view class="staff-page with-tabbar">
+  <view class="content">
+
+    <!-- 身份：只留现场需要的信息，删「员工编号 / 账号角色 / 可用功能 n 项」后台字段 -->
+    <view class="card">
+      <view class="row gap10">
+        <view class="avatar lg a1">{{meInitial}}</view>
+        <view class="grow">
+          <view class="row gap8">
+            <text class="hero-name">{{me.name || meName}}</text>
+            <text class="tag {{onDuty ? 'tag-green' : 'tag-gray'}}">{{onDuty ? '在岗' : '未在岗'}}</text>
+          </view>
+          <view class="hero-meta">{{positionLabel}} · {{today.shift ? today.shift + '班' : '未排班'}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 今日数据：数字放在最上面 -->
+    <view class="progress-row">
+      <view class="progress-cell"><view class="progress-num">{{progress.done}}</view><view class="progress-label">完成</view></view>
+      <view class="progress-cell"><view class="progress-num warn">{{progress.todo}}</view><view class="progress-label">待办</view></view>
+      <view class="progress-cell"><view class="progress-num">{{progress.upload}}</view><view class="progress-label">待补传</view></view>
+    </view>
+
+    <!-- 三宫格：消息 / 我的记录 / 我的班次 -->
+    <view class="quick-grid">
+      <view class="quick-item" bindtap="goNotices">
+        <view class="quick-icon">消息</view>
+        <text class="quick-label">消息</text>
+        <view class="quick-badge" wx:if="{{noticeCount > 0}}">{{noticeCount}}</view>
+      </view>
+      <view class="quick-item" bindtap="goRecords">
+        <view class="quick-icon">记录</view>
+        <text class="quick-label">我的记录</text>
+      </view>
+      <view class="quick-item" bindtap="goShift">
+        <view class="quick-icon">班次</view>
+        <text class="quick-label">我的班次</text>
+      </view>
+    </view>
+
+    <!-- 按岗位显示：资质与同岗同事 -->
+    <view class="card menu-list" wx:if="{{isVet}}">
+      <view class="menu-row" bindtap="goDuty">
+        <text class="menu-label">执业资质</text>
+        <text class="tag {{me.vetReady ? 'tag-green' : 'tag-red'}}">{{me.vetReady ? '有效' : '未生效'}}</text>
+        <text class="menu-chev">›</text>
+      </view>
+    </view>
+    <view class="card menu-list">
+      <view class="menu-row" bindtap="goTeam">
+        <text class="menu-label">当班同事 / 交接对象</text>
+        <text class="t11 muted">{{today.dateText}} {{today.weekday}}</text>
+        <text class="menu-chev">›</text>
+      </view>
+      <view class="menu-row" bindtap="goWorkbench">
+        <text class="menu-label">全部功能</text>
+        <text class="menu-chev">›</text>
+      </view>
+      <view class="menu-row" bindtap="showPermissions">
+        <text class="menu-label">岗位权限范围</text>
+        <text class="menu-chev">›</text>
+      </view>
+    </view>
+
+    <!-- 账号与安全 -->
+    <view class="section-head"><text class="section-title">账号与安全</text></view>
+    <view class="card menu-list">
+      <view class="menu-row" bindtap="goSettings">
+        <text class="menu-label">修改密码</text>
+        <text class="menu-chev">›</text>
+      </view>
+      <view class="menu-row" bindtap="goNotifySettings">
+        <text class="menu-label">通知设置</text>
+        <text class="menu-chev">›</text>
+      </view>
+      <view class="menu-row" bindtap="switchAccount">
+        <text class="menu-label">切换账号</text>
+        <text class="menu-chev">›</text>
+      </view>
+      <view class="menu-row" bindtap="help">
+        <text class="menu-label">帮助与反馈</text>
+        <text class="menu-chev">›</text>
+      </view>
+      <view class="menu-row" bindtap="about">
+        <text class="menu-label">关于毛球旅馆</text>
+        <text class="tag tag-gray">v{{version}}</text>
+        <text class="menu-chev">›</text>
+      </view>
+      <view class="menu-row" bindtap="logout">
+        <text class="menu-label red">退出登录</text>
+        <text class="menu-chev">›</text>
+      </view>
+    </view>
+
+    <view class="foot-note">员工端 v{{version}} · 操作均记录操作人与时间</view>
+  </view>
+</view>
+<tabbar id="tabbar" mode="staff" selected="{{2}}" badges="{{badges}}" />

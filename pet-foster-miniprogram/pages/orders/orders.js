@@ -1,3 +1,4 @@
+const nav = require('../../utils/nav.js')
 const api = require('../../utils/api')
 const util = require('../../utils/util')
 const app = getApp()
@@ -38,6 +39,7 @@ Page({
   },
 
   onShow() {
+    nav.syncTabBar(this, 1)
     if (!app.isLoggedIn()) {
       wx.redirectTo({ url: '/pages/login/login' })
       return
@@ -219,6 +221,6 @@ Page({
   },
 
   bookAgain() {
-    wx.switchTab({ url: '/pages/index/index' })
+    wx.reLaunch({ url: '/pages/index/index' })
   }
 })

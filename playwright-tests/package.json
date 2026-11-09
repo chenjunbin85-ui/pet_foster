@@ -13,6 +13,7 @@
     "@playwright/test": "^1.49.0"
   },
   "dependencies": {
+    "miniprogram-automator": "^0.13.0",
     "mysql2": "^3.11.0"
   }
 }

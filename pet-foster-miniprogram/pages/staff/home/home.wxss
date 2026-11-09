@@ -1,1 +1,14 @@
-/* 工作台样式复用 styles/staff.wxss 的 .home-profile / .menu-list 补丁 */
+/* 全部功能（home 降级为二级页）复用 styles/staff.wxss，仅补返回条与页头 */
+.staff-page .back-bar {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 4rpx 0 16rpx;
+  font-size: 24rpx;
+  color: var(--orange);
+}
+.staff-page .back-bar .ico { font-size: 36rpx; line-height: 1; }
+
+.staff-page .page-intro { padding: 8rpx 4rpx 24rpx; }
+.staff-page .intro-title { display: block; font-size: 36rpx; font-weight: 700; }
+.staff-page .intro-copy { display: block; font-size: 22rpx; color: var(--sub); margin-top: 8rpx; }

@@ -44,7 +44,7 @@
 
     <view class="stay-summary">
       <view class="stay-main">
-        <image class="stay-icon" src="/images/icon-clock-gray.png" mode="aspectFit" />
+        <image class="stay-icon" src="/images/ass-clock.png" mode="aspectFit" />
         <text>寄养 {{stayLabel}}</text>
       </view>
       <view class="stay-note">按入住晚数计算；入住建议 10:00，离店建议 18:00</view>

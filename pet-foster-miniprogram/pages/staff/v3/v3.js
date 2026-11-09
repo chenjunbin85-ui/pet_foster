@@ -7,7 +7,7 @@ createStaffPage({
   needSummary: false,
   needDuty: false,
   data: {
-    form: {"level2": "需处置", "treatment": "", "instruction": ""},
+    form: {"level": "需处置", "treatment": "", "instruction": ""},
     photos: {"p1": {"items": [{"uid": "p1_0", "wm": "11-06 18:05 · 食盆", "badge": "现场", "url": ""}, {"uid": "p1_1", "wm": "11-06 18:06 · 宠物", "badge": "现场", "url": ""}]}}
   }
   ,build: function (photoUrls) {

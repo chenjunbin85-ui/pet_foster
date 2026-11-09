@@ -6,6 +6,8 @@
  */
 const api = require('./api.js')
 const auth = require('./auth.js')
+const nav = require('./nav.js')
+const queueState = require('./queue-state.js')
 
 function nowText() {
   const d = new Date()
@@ -39,12 +41,15 @@ function createStaffPage(opts) {
         startDate: '11-06',
         endDate: '11-12'
       },
+      // 作业页统一主语头（讨论稿 §2.2 规则 1：一页一主语）
+      subject: { petName: '宠物', roomNo: '—', round: 1, shift: '本班', context: '' },
       today: {},
       summary: {},
       incident: {},
       duty: {},
       me: null,
       meName: '',
+      meInitial: '员',
       positionLabel: '',
       positions: [],
       query: {}
@@ -56,7 +61,12 @@ function createStaffPage(opts) {
       this._session = session
       const tab = {}
       ;(opts.tabs || []).forEach(function (t) { tab[t.group] = t.initial })
-      this.setData({ query: q || {}, tab: tab, title: opts.title || '' })
+      this.setData({
+        query: q || {},
+        tab: tab,
+        title: opts.title || '',
+        meInitial: String(session.name || '员工').slice(0, 1)
+      })
       if (opts.onLoad) opts.onLoad.call(this, q || {}, session)
       this.loadData(q || {})
     },
@@ -98,6 +108,15 @@ function createStaffPage(opts) {
             const dutyRes = res[res.length - 1]
             if (dutyRes && !dutyRes.__error) patch.duty = dutyRes
           }
+          const d = patch.d || that.data.d || {}
+          const t = patch.today || that.data.today || {}
+          patch.subject = {
+            petName: d.petName || '宠物',
+            roomNo: d.roomNo || d.roomType || '—',
+            round: 1,
+            shift: (t.shift || '本班') + '班',
+            context: t.dateText ? ('今日已完成 ' + (((t.patrol || {}).done) || 0) + ' 次') : ''
+          }
           that.setData(patch)
           if (opts.afterLoad) opts.afterLoad.call(that, patch)
         })
@@ -105,7 +124,7 @@ function createStaffPage(opts) {
     },
 
     /** 分段控件 */
-    switchTab(e) {
+    switchSegment(e) {
       const ds = e.currentTarget.dataset
       if (!ds.tab) return
       this.setData({ ['tab.' + (ds.group || 'main')]: ds.tab })
@@ -252,7 +271,9 @@ function createStaffPage(opts) {
         const res = await api[built.api].apply(api, built.args || [])
         if (built.after) built.after.call(this, res)
         if (built.success !== false) this.setData({ success: true })
+        queueState.markDone(this.orderId(), opts.key)
         toast(built.successTitle || '提交成功')
+        this.afterSubmitDialog()
       } catch (err) {
         toast(err.message || '提交失败')
       } finally {
@@ -274,15 +295,43 @@ function createStaffPage(opts) {
       return list.length ? list[0].incidentId : 0
     },
 
+    /** 提交闭环：不再只是「保存成功请关闭页面」（讨论稿 §1.5 / §2.2 规则 7） */
+    afterSubmitDialog() {
+      const that = this
+      wx.showModal({
+        title: '这一单已完成',
+        content: '作业已记录。继续下一只，还是回到今日队列？',
+        confirmText: '下一只', cancelText: '回队列',
+        success(res) {
+          if (res.confirm) that.nextTask()
+          else nav.goTab('/pages/staff/today/today')
+        }
+      })
+    },
+    nextTask() {
+      const done = queueState.doneIds()
+      const list = (this.data.today && this.data.today.orders) || []
+      const next = list.filter(function (o) { return done.indexOf(String(o.id)) < 0 })[0]
+      if (!next) {
+        toast('今日队列已全部完成')
+        nav.goTab('/pages/staff/today/today')
+        return
+      }
+      const pages = getCurrentPages()
+      const route = pages.length ? '/' + pages[pages.length - 1].route : ''
+      if (!route) { nav.goTab('/pages/staff/today/today'); return }
+      wx.redirectTo({ url: route + '?id=' + next.id })
+    },
+    goQueue() { nav.goTab('/pages/staff/today/today') },
     showSuccess() { this.setData({ success: true }) },
     resetSuccess() { this.setData({ success: false }) },
 
     goBack() {
       const pages = getCurrentPages()
       if (pages.length > 1) wx.navigateBack()
-      else wx.redirectTo({ url: '/pages/staff/home/home' })
+      else wx.reLaunch({ url: '/pages/staff/today/today' })
     },
-    goHome() { wx.redirectTo({ url: '/pages/staff/home/home' }) },
+    goHome() { wx.reLaunch({ url: '/pages/staff/today/today' }) },
     go(e) {
       const ds = e.currentTarget.dataset
       if (!ds.path) return

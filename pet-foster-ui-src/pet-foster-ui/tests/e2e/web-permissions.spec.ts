@@ -1,7 +1,6 @@
 import { test, expect, type Page } from "@playwright/test"
-import { login } from "./helpers/auth"
 
-/** PRD 3.2 Web 端八页岗位矩阵：前端可见性 + 后端接口双重验证。 */
+/** PRD 3.2 Web 端岗位矩阵：仅 OWNER / FRONT 有工位，其余岗位只在小程序端作业。 */
 const ACCOUNT = {
   OWNER: "13800138000",
   FRONT: "13800138012",
@@ -13,6 +12,27 @@ const ACCOUNT = {
 const PASSWORD = "123456"
 // Vite dev server 没有 /api 代理，前端 SDK 走绝对地址；用例里直连接口也必须用同一基址
 const API = "http://127.0.0.1:8090"
+
+/**
+ * Vite dev server 首个页面要现场编译模块，等 "load" 偶发超过 30s / ERR_ABORTED。
+ * 与 helpers/auth.ts 的 relogin() 一致：domcontentloaded + 失败重试一次。
+ * 只在本 spec 内自包含处理，不改公共 helper 以免影响其余 120 条用例。
+ */
+async function openLogin(page: Page) {
+  await page.goto("/", { waitUntil: "domcontentloaded" }).catch(async () => {
+    await page.goto("/", { waitUntil: "domcontentloaded" })
+  })
+}
+
+/** 有 Web 工位的岗位：登录并等待工作区（等价于 helpers/auth.ts 的 login）。 */
+async function loginWithWorkbench(page: Page, account: string) {
+  await openLogin(page)
+  await page.getByLabel("账号").fill(account)
+  await page.getByLabel("密码").fill(PASSWORD)
+  await page.getByRole("button", { name: /登\s*录/ }).click()
+  await page.waitForFunction(() => localStorage.getItem("pet_foster_token") !== null, null, { timeout: 30000 })
+  await expect(page.locator(".dashboard-welcome")).toBeVisible()
+}
 
 async function navKeys(page: Page) {
   return page.locator(".nav-item").evaluateAll((els) =>
@@ -43,7 +63,7 @@ async function apiStatus(
 
 test.describe("Web 端岗位级权限（PRD 3.2）", () => {
   test("管理员 OWNER 八页全写，无只读标记", async ({ page }) => {
-    await login(page, ACCOUNT.OWNER, PASSWORD)
+    await loginWithWorkbench(page, ACCOUNT.OWNER)
     await expect(page.locator(".nav-item")).toHaveCount(8)
     await expect(page.locator(".nav-readonly")).toHaveCount(0)
     const keys = await navKeys(page)
@@ -51,7 +71,7 @@ test.describe("Web 端岗位级权限（PRD 3.2）", () => {
   })
 
   test("前台 FRONT 六页可见且客户可写，经营数据与系统管理不可见", async ({ page }) => {
-    await login(page, ACCOUNT.FRONT, PASSWORD)
+    await loginWithWorkbench(page, ACCOUNT.FRONT)
     const keys = await navKeys(page)
     expect(keys).toEqual(["dashboard", "customers", "pets", "orders", "health", "services"])
     await expect(page.locator('.nav-item[data-nav="stats"]')).toHaveCount(0)
@@ -63,58 +83,44 @@ test.describe("Web 端岗位级权限（PRD 3.2）", () => {
     await expect(page.locator('.nav-item[data-nav="services"]')).toHaveAttribute("data-capability", "read")
   })
 
-  test("护理员 CARE 客户/订单只读，健康与服务可写", async ({ page }) => {
-    await login(page, ACCOUNT.CARE, PASSWORD)
-    await expect(page.locator('.nav-item[data-nav="customers"]')).toHaveAttribute("data-capability", "read")
-    await expect(page.locator('.nav-item[data-nav="orders"]')).toHaveAttribute("data-capability", "read")
-    await expect(page.locator('.nav-item[data-nav="health"]')).toHaveAttribute("data-capability", "write")
-    await page.locator('.nav-item[data-nav="customers"]').click()
-    await expect(page.getByRole("button", { name: /新增客户/ })).toHaveCount(0)
-    await expect(page.locator('button[aria-label^="编辑"]')).toHaveCount(0)
-    await expect(page.locator('button[aria-label^="删除"]')).toHaveCount(0)
-    await page.locator('.nav-item[data-nav="health"]').click()
-    await expect(page.getByRole("button", { name: /新增健康记录/ })).toBeVisible()
-  })
-
-  test("兽医 VET 健康可写、服务记录只读", async ({ page }) => {
-    await login(page, ACCOUNT.VET, PASSWORD)
-    await expect(page.locator('.nav-item[data-nav="health"]')).toHaveAttribute("data-capability", "write")
-    await expect(page.locator('.nav-item[data-nav="services"]')).toHaveAttribute("data-capability", "read")
-    await page.locator('.nav-item[data-nav="services"]').click()
-    await expect(page.locator('button[aria-label="编辑服务记录"]')).toHaveCount(0)
-  })
-
-  test("美容师 GROOM 看不到客户与健康，宠物/订单/服务可见", async ({ page }) => {
-    await login(page, ACCOUNT.GROOM, PASSWORD)
-    const keys = await navKeys(page)
-    expect(keys).toEqual(["dashboard", "pets", "orders", "services"])
-    await expect(page.locator('.nav-item[data-nav="customers"]')).toHaveCount(0)
-    await expect(page.locator('.nav-item[data-nav="health"]')).toHaveCount(0)
-  })
-
-  test("外勤 DRIVER 登录端点放行但 Web 端无工位", async ({ page }) => {
-    await page.goto("/")
-    await page.getByLabel("账号").fill(ACCOUNT.DRIVER)
+  /**
+   * 无 Web 工位岗位：/api/auth/login 与小程序员工端共用，必须照常签发 token，
+   * 否则小程序也登不上；Web 侧只在这里拦进入，业务接口由后端 @PreAuthorize 拦。
+   */
+  async function loginNoWorkbench(page: Page, account: string) {
+    await openLogin(page)
+    await page.getByLabel("账号").fill(account)
     await page.getByLabel("密码").fill(PASSWORD)
     await page.getByRole("button", { name: /登\s*录/ }).click()
     await expect(page.getByRole("heading", { name: /没有 Web 工位/ })).toBeVisible()
     await expect(page.locator(".workspace")).toHaveCount(0)
-    // 登录端点与小程序员工端共用，token 必须签发，否则小程序外勤也登不上
     const token = await page.evaluate(() => localStorage.getItem("pet_foster_token"))
     expect(token).toBeTruthy()
-    // 直接调 Web 业务接口仍被后端挡住
-    expect(await apiStatus(page, "/api/customers?page=1&size=1")).toBe(403)
-  })
+  }
 
-  test("后端墙：只读岗位写接口 403，读接口放行", async ({ page }) => {
-    await login(page, ACCOUNT.CARE, PASSWORD)
-    expect(await apiStatus(page, "/api/customers?page=1&size=1")).toBe(200)
+  // 护理员 / 兽医 / 美容师 / 外勤接送：一律只在小程序端作业，Web 后台不开放任何页面
+  for (const [label, account] of [
+    ["护理员 CARE", ACCOUNT.CARE],
+    ["兽医 VET", ACCOUNT.VET],
+    ["美容师 GROOM", ACCOUNT.GROOM],
+    ["外勤 DRIVER", ACCOUNT.DRIVER],
+  ] as const) {
+    test(`${label} 只在小程序端作业：Web 无工位但登录端点放行`, async ({ page }) => {
+      await loginNoWorkbench(page, account)
+      // 直接调 Web 业务接口仍被后端挡住
+      expect(await apiStatus(page, "/api/customers?page=1&size=1")).toBe(403)
+    })
+  }
+
+  test("后端墙：无 Web 工位岗位读/写/统计接口一律 403", async ({ page }) => {
+    await loginNoWorkbench(page, ACCOUNT.CARE)
+    expect(await apiStatus(page, "/api/customers?page=1&size=1")).toBe(403)
     expect(await apiStatus(page, "/api/customers", "POST", { name: "越权测试", phone: "13000000000" })).toBe(403)
     expect(await apiStatus(page, "/api/stats/dashboard")).toBe(403)
   })
 
   test("客户 token 不能借撞号访问 Web 客户接口", async ({ page }) => {
-    await page.goto("/")
+    await openLogin(page)
     const status = await page.evaluate(async (base) => {
       const loginRes = await fetch(`${base}/api/mp/auth/login`, {
         method: "POST",

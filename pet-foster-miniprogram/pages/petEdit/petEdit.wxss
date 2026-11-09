@@ -1,6 +1,6 @@
 /* 宠物档案编辑 */
 .edit-page { padding: 40rpx 36rpx 260rpx;
-  padding-top: 176rpx; }
+  padding-top: 48rpx; }
 
 .avatar-upload {
   display: flex;
@@ -12,19 +12,19 @@
   width: 160rpx;
   height: 160rpx;
   border-radius: 50%;
-  background: #FFF0E3;
-  border: 4rpx solid #F0E8DF;
+  background: var(--pf-brand-soft, #FFF0E8);
+  border: 4rpx solid var(--pf-border, #F0E6DE);
 }
 .avatar-hint {
   font-size: 24rpx;
-  color: #96918C;
+  color: var(--pf-ink-3, #7A7269);
   margin-top: 16rpx;
 }
 
 .lock-tip {
-  background: #FFF0E3;
+  background: var(--pf-brand-soft, #FFF0E8);
   border: 1rpx solid #ffe3d3;
-  color: #C96B3D;
+  color: var(--pf-warning, #E65100);
   border-radius: 24rpx;
   font-size: 24rpx;
   padding: 22rpx 26rpx;
@@ -40,22 +40,22 @@
   line-height: 76rpx;
   font-size: 29rpx;
   text-align: right;
-  color: #302D2A;
+  color: var(--pf-ink, #1E1B18);
   background: transparent;
   padding: 0;
 }
 .picker-value {
   font-size: 29rpx;
-  color: #302D2A;
+  color: var(--pf-ink, #1E1B18);
   text-align: right;
   min-height: 76rpx;
   line-height: 76rpx;
 }
-.picker-value.disabled { color: #B8B2AB; }
-.picker-value.readonly { color: #302D2A; font-weight: 600; }
-.picker-value.has-proof { color: #6EA782; }
+.picker-value.disabled { color: var(--pf-ink-4, #A8A096); }
+.picker-value.readonly { color: var(--pf-ink, #1E1B18); font-weight: 600; }
+.picker-value.has-proof { color: var(--pf-success, #2E7D32); }
 .picker-chev {
-  color: #B8B2AB;
+  color: var(--pf-ink-4, #A8A096);
   margin-left: 10rpx;
   font-size: 26rpx;
 }
@@ -72,11 +72,11 @@
 .vaccine-name {
   font-size: 30rpx;
   font-weight: 600;
-  color: #302D2A;
+  color: var(--pf-ink, #1E1B18);
 }
 .vaccine-sub {
   font-size: 24rpx;
-  color: #B8B2AB;
+  color: var(--pf-ink-4, #A8A096);
   margin-top: 6rpx;
   line-height: 1.6;
 }
@@ -89,7 +89,7 @@
   transition: background 0.2s;
   flex-shrink: 0;
 }
-.switch.on { background: #F47732; }
+.switch.on { background: var(--pf-brand, #FF6B35); }
 .switch-dot {
   width: 44rpx;
   height: 44rpx;

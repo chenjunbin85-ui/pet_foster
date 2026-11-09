@@ -26,7 +26,7 @@ const LS = {
   positions: "pet_foster_positions",
 }
 
-/** 纯 DRIVER 等外勤岗位：登录端点与小程序共用，Web 端只在这里拦进入，不挡登录。 */
+/** CARE / VET / GROOM / DRIVER 无 Web 工位：登录端点与小程序共用，这里只拦进入、不挡登录。 */
 function NoWebWorkbench({ label, onLogout }: { label: string; onLogout: () => void }) {
   return (
     <div className="no-web-workbench">
@@ -34,7 +34,7 @@ function NoWebWorkbench({ label, onLogout }: { label: string; onLogout: () => vo
         <span className="section-kicker">员工端专用</span>
         <h1>当前岗位没有 Web 工位。</h1>
         <p>
-          「{label}」的接送任务、到场交接与服务核销都在<strong>微信小程序员工端</strong>完成。
+          「{label}」的今日待办、作业记录与核销签署都在<strong>微信小程序员工端</strong>完成。
           按 PRD 3.2，该岗位在 Web 后台不开放任何页面；如需查询请由前台或店长代查。
         </p>
         <button className="primary-action" onClick={onLogout}>退出登录，改用小程序</button>

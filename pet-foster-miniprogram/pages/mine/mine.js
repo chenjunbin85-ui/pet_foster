@@ -1,3 +1,4 @@
+const nav = require('../../utils/nav.js')
 const api = require('../../utils/api')
 const app = getApp()
 
@@ -22,6 +23,7 @@ Page({
   },
 
   onShow() {
+    nav.syncTabBar(this, 2)
     if (!app.isLoggedIn()) {
       wx.redirectTo({ url: '/pages/login/login' })
       return
@@ -51,7 +53,7 @@ Page({
   goOrders(e) {
     const filter = e.currentTarget.dataset.filter
     if (filter) wx.setStorageSync('pendingFilter', filter)
-    wx.switchTab({ url: '/pages/orders/orders' })
+    wx.reLaunch({ url: '/pages/orders/orders' })
   },
 
   openContact() {

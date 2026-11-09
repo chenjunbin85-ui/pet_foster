@@ -1,6 +1,6 @@
 /* 在线支付 · 还原设计稿 payment-amount / demo-payment-tip */
 .pay-page { padding: 40rpx 36rpx 240rpx;
-  padding-top: 176rpx; }
+  padding-top: 48rpx; }
 
 /* 金额区：居中 39px 0 43px */
 .payment-amount {
@@ -9,33 +9,33 @@
 }
 .payment-amount .amount-label {
   font-size: 27rpx;   /* 14px */
-  color: #96918C;
+  color: var(--pf-ink-3, #7A7269);
 }
 .payment-amount .amount-value {
   font-size: 78rpx;   /* 39px */
   font-weight: 600;
   font-family: Arial, sans-serif;
-  color: #F47732;
+  color: var(--pf-brand, #FF6B35);
   line-height: 1.2;
   margin-top: 10rpx;
   letter-spacing: 0.5rpx;
 }
 .amount-status {
   font-size: 25rpx;
-  color: #96918C;
+  color: var(--pf-ink-3, #7A7269);
   margin-top: 14rpx;
 }
-.amount-status.countdown { color: #C96B3D; }
+.amount-status.countdown { color: var(--pf-warning, #E65100); }
 .cd {
   font-family: Arial, sans-serif;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: #F47732;
+  color: var(--pf-brand, #FF6B35);
 }
 
 /* 面板 */
 .panel {
-  border: 1rpx solid #F0E8DF;
+  border: 1rpx solid var(--pf-border, #F0E6DE);
   border-radius: 32rpx;
   padding: 38rpx;
   margin-bottom: 26rpx;
@@ -55,7 +55,7 @@
   height: 76rpx;
   border-radius: 20rpx;
   background: #e7f7ee;
-  color: #6EA782;
+  color: var(--pf-success, #2E7D32);
   font-size: 30rpx;
   font-weight: 600;
   display: flex;
@@ -64,25 +64,25 @@
   flex-shrink: 0;
 }
 .method-info { flex: 1; min-width: 0; }
-.method-name { font-size: 31rpx; font-weight: 600; color: #302D2A; }
-.method-sub { font-size: 23rpx; color: #96918C; margin-top: 4rpx; }
+.method-name { font-size: 31rpx; font-weight: 600; color: var(--pf-ink, #1E1B18); }
+.method-sub { font-size: 23rpx; color: var(--pf-ink-3, #7A7269); margin-top: 4rpx; }
 .radio-dot.checked { width: 40rpx; height: 40rpx; }
 .check-mark { font-size: 22rpx; line-height: 1; color: #FFFFFF; }
 
 /* 演示提示：brand-100 底 + warn-ink 字 */
 .demo-payment-tip {
-  background: #FFF0E3;
+  background: var(--pf-brand-soft, #FFF0E8);
   border-radius: 24rpx;
   padding: 26rpx 30rpx;
   font-size: 25rpx;
   line-height: 1.8;
-  color: #C96B3D;
+  color: var(--pf-warning, #E65100);
 }
 .tip-strong { font-weight: 600; margin-right: 6rpx; }
 
 .pay-resume-hint {
   font-size: 23rpx;
-  color: #B8B2AB;
+  color: var(--pf-ink-4, #A8A096);
   text-align: center;
   margin: 20rpx 0 0;
   line-height: 1.8;

@@ -1,10 +1,23 @@
 const auth = require('../../../utils/auth.js')
+const nav = require('../../../utils/nav.js')
 const api = require('../../../utils/api.js')
 const app = getApp()
 
+const WORKBENCH_LABEL = { CARE: '护理', VET: '兽医', GROOM: '洗护', DRIVER: '接送' }
+const WORKBENCH_TITLE = { CARE: '护理工作台', VET: '兽医工作台', GROOM: '洗护工作台', DRIVER: '司机接送' }
+
+function decorate(list) {
+  return (list || []).map(function (w) {
+    return Object.assign({}, w, {
+      shortLabel: WORKBENCH_LABEL[w.group] || '岗位',
+      shortTitle: WORKBENCH_TITLE[w.group] || w.title
+    })
+  })
+}
+
 Page({
   data: {
-    meName: '', positionLabel: '', positions: [], isVet: false,
+    meName: '', meInitial: '员', positionLabel: '', positions: [], isVet: false,
     workbenches: [], groups: [], menuCount: 0, today: {}
   },
 
@@ -13,10 +26,11 @@ Page({
     if (!s) return
     this.setData({
       meName: s.name,
+      meInitial: (s.name || '员工').slice(0, 1),
       positionLabel: s.label,
       positions: s.positions,
       isVet: s.positions.indexOf('VET') >= 0,
-      workbenches: auth.workbenches(s.positions)
+      workbenches: decorate(auth.workbenches(s.positions))
     })
     this.buildMenu(s.positions)
     this.load()
@@ -30,10 +44,12 @@ Page({
       wx.setStorageSync('staffInfo', Object.assign({}, wx.getStorageSync('staffInfo') || {}, me))
       const ps = auth.normalize(wx.getStorageSync('staffInfo') || {})
       this.setData({
+        meName: s.name,
+        meInitial: (s.name || '员工').slice(0, 1),
         positionLabel: ps.map((p) => auth.LABEL[p]).join('、') || '未分配岗位',
         positions: ps,
         isVet: ps.indexOf('VET') >= 0,
-        workbenches: auth.workbenches(ps)
+        workbenches: decorate(auth.workbenches(ps))
       })
       this.buildMenu(ps)
     }).catch(() => {})
@@ -68,14 +84,7 @@ Page({
 
   noop() {},
 
-  logout() {
-    wx.showModal({
-      title: '退出登录', content: '确定退出员工账号吗？', confirmColor: '#E8743B',
-      success: (res) => {
-        if (!res.confirm) return
-        app.clearStaffSession()
-        wx.redirectTo({ url: '/pages/login/login' })
-      }
-    })
+  goToday() {
+    nav.goTab('/pages/staff/today/today')
   }
 })

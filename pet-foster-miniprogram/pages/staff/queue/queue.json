@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "岗位队列",
+  "navigationBarBackgroundColor": "#FFF8F3",
+  "navigationBarTextStyle": "black",
+  "backgroundColor": "#FFF8F3",
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "tabbar": "/components/tabbar/index"
+  }
+}

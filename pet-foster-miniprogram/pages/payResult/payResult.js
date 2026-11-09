@@ -24,9 +24,9 @@ Page({
   },
 
   goHome() {
-    wx.switchTab({ url: '/pages/index/index' })
+    wx.reLaunch({ url: '/pages/index/index' })
   },
   goOrders() {
-    wx.switchTab({ url: '/pages/orders/orders' })
+    wx.reLaunch({ url: '/pages/orders/orders' })
   }
 })

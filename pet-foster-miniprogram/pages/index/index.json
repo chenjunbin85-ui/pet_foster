@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "立即预订",
-  "navigationStyle": "custom"
+  "usingComponents": {
+    "tabbar": "/components/tabbar/index"
+  }
 }

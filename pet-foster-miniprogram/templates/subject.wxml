@@ -1,0 +1,9 @@
+<!-- 作业页统一主语头：一页一主语，订单号不再占首屏（讨论稿 §2.2 规则 1） -->
+<view class="subject-bar">
+  <text class="subject-name">{{subject.petName}}</text>
+  <text class="subject-sep">·</text>
+  <text class="subject-room">{{subject.roomNo}}</text>
+  <text class="subject-sep">·</text>
+  <text class="subject-round">第 {{subject.round}} 次 / {{subject.shift}}</text>
+</view>
+<view class="subject-context" wx:if="{{subject.context}}">{{subject.context}}</view>
