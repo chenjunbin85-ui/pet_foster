@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: pet-foster-server
+  # 图片上传：容器层放宽到 5MB，真正的 2MB 业务限制在 FileController 里校验，
+  # 这样超限时返回可读提示而不是 Tomcat 层的 500。
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DATABASE_URL:jdbc:mysql://127.0.0.1:3306/pet_foster?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}

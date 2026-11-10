@@ -6,9 +6,11 @@ import {
   petDelete,
   petPage,
   petUpdate,
+  resolveFileUrl,
   type CustomerVO,
   type PetVO,
 } from "@/api"
+import { ImageUpload } from "@/components/ImageUpload"
 import { Pagination } from "@/components/Pagination"
 import { useDynamicPageSize } from "@/hooks/useDynamicPageSize"
 
@@ -22,7 +24,9 @@ const EMPTY = {
   age: "",
   weight: "",
   color: "",
+  photoUrl: "",
   vaccine: "",
+  vaccineProofUrl: "",
   history: "",
 }
 
@@ -123,7 +127,9 @@ export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: P
             age: row.age === undefined || row.age === null ? "" : String(row.age),
             weight: row.weight === undefined || row.weight === null ? "" : String(row.weight),
             color: row.color ?? "",
+            photoUrl: row.photoUrl ?? "",
             vaccine: row.vaccine ?? "",
+            vaccineProofUrl: row.vaccineProofUrl ?? "",
             history: row.history ?? "",
           }
         : { ...EMPTY, customerId: owners[0]?.id ?? "" }
@@ -150,7 +156,9 @@ export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: P
       age: draft.age === "" ? 0 : Number(draft.age),
       weight: draft.weight === "" ? 0 : Number(draft.weight),
       color: draft.color.trim(),
+      photoUrl: draft.photoUrl,
       vaccine: draft.vaccine.trim(),
+      vaccineProofUrl: draft.vaccineProofUrl,
       history: draft.history.trim(),
     }
     setSaving(true)
@@ -262,6 +270,17 @@ export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: P
                 <tr key={row.id}>
                   <td>
                     <div className="customer-name">
+                      {row.photoUrl ? (
+                        <img
+                          className="pet-row-avatar"
+                          src={resolveFileUrl(row.photoUrl)}
+                          alt={`${row.name}头像`}
+                        />
+                      ) : (
+                        <span className="pet-row-avatar pet-row-avatar-empty" aria-hidden>
+                          {row.name.slice(0, 1)}
+                        </span>
+                      )}
                       <strong>{row.name}</strong>
                     </div>
                   </td>
@@ -370,6 +389,13 @@ export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: P
             </>
           ) : mode === "view" ? (
             <>
+              {selected?.photoUrl && (
+                <img
+                  className="pet-detail-photo"
+                  src={resolveFileUrl(selected.photoUrl)}
+                  alt={`${selected.name}头像`}
+                />
+              )}
               <dl className="customer-detail">
                 {[
                   ["宠物名", selected?.name],
@@ -388,6 +414,12 @@ export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: P
                   </div>
                 ))}
               </dl>
+              {selected?.vaccineProofUrl && (
+                <div className="pet-proof">
+                  <span>疫苗证明</span>
+                  <img src={resolveFileUrl(selected.vaccineProofUrl)} alt={`${selected.name}疫苗证明`} />
+                </div>
+              )}
               <div className="dialog-actions">
                 <button className="primary-action" onClick={close}>
                   关闭
@@ -397,6 +429,15 @@ export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: P
           ) : (
             <form className="customer-form" onSubmit={save}>
               <p>请填写宠物的基础档案信息。</p>
+              <div className="pet-photo-field">
+                <span className="business-form-label">宠物头像</span>
+                <ImageUpload
+                  label="上传宠物头像"
+                  value={draft.photoUrl}
+                  onChange={(url) => setDraft({ ...draft, photoUrl: url })}
+                  disabled={saving}
+                />
+              </div>
               <div>
                 <label htmlFor="pet-name">宠物名</label>
                 <input
@@ -496,6 +537,17 @@ export function PetsPage({ readOnly = false, quickAction, onQuickActionDone }: P
                   onChange={(e) => setDraft({ ...draft, vaccine: e.target.value })}
                   maxLength={100}
                   placeholder="如 狂犬疫苗已接种"
+                />
+              </div>
+              <div className="pet-photo-field">
+                <span className="business-form-label">疫苗证明（选填）</span>
+                <ImageUpload
+                  label="上传疫苗证明"
+                  hint="到店核验用，支持 jpg / png，≤2MB"
+                  size="sm"
+                  value={draft.vaccineProofUrl}
+                  onChange={(url) => setDraft({ ...draft, vaccineProofUrl: url })}
+                  disabled={saving}
                 />
               </div>
               <div>

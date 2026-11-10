@@ -22,7 +22,7 @@
   <view class="pet-list">
     <view wx:for="{{pets}}" wx:key="id" class="pet-card">
       <view class="pet-head">
-        <image class="pet-avatar-img" src="/images/pet-{{item.petArt}}.png" mode="aspectFit" />
+        <image class="pet-avatar-img" src="{{item.avatarSrc}}" mode="aspectFill" />
         <view class="pet-name">{{item.name}}</view>
         <view class="pet-edit" data-id="{{item.id}}" bindtap="editPet">
           <text>编辑</text>

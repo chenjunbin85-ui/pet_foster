@@ -16,6 +16,10 @@ public class PetDTO {
     private Integer age;
     private BigDecimal weight;
     private String color;
+    /** 宠物头像：上传接口返回的 /api/files/xxx 地址 */
+    private String photoUrl;
     private String vaccine;
+    /** 疫苗/驱虫证明照片 */
+    private String vaccineProofUrl;
     private String history;
 }

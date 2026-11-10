@@ -278,7 +278,9 @@ CREATE TABLE IF NOT EXISTS `pet` (
   `age` int DEFAULT NULL COMMENT '年龄',
   `weight` decimal(6,2) DEFAULT NULL COMMENT '体重(kg)',
   `color` varchar(50) DEFAULT NULL COMMENT '颜色',
+  `photo_url` varchar(500) DEFAULT NULL COMMENT '宠物头像URL(/api/files/xxx)',
   `vaccine` varchar(255) DEFAULT NULL COMMENT '疫苗情况',
+  `vaccine_proof_url` varchar(500) DEFAULT NULL COMMENT '疫苗/驱虫证明照片URL(/api/files/xxx)',
   `history` text COMMENT '病史',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`pet_id`)

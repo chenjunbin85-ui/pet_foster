@@ -9,6 +9,7 @@ import com.petfoster.enums.OrderStatus;
 import com.petfoster.enums.PetGender;
 import com.petfoster.mapper.FosterOrderMapper;
 import com.petfoster.mapper.PetMapper;
+import com.petfoster.util.FileUrlUtil;
 import com.petfoster.util.VaccineJson;
 import com.petfoster.vo.MpPetVO;
 import com.petfoster.vo.PetVO;
@@ -69,8 +70,11 @@ public class MpPetService {
         Pet pet = requireOwned(id, customerId);
         validate(dto);
         if (hasActiveOrder(id)) {
-            // 进行中预约锁定关键信息，仅可补充毛色与备注
+            // 进行中预约锁定关键信息，仅可补充毛色与备注；
+            // 头像与疫苗证明属于附件，不参与关键信息判定，允许更换
             pet.setColor(dto.getColor());
+            pet.setPhotoUrl(FileUrlUtil.normalize(dto.getPhotoUrl()));
+            pet.setVaccineProofUrl(FileUrlUtil.normalize(dto.getVaccineProofUrl()));
             pet.setHistory(dto.getHistory());
         } else {
             applyDto(pet, dto);
@@ -108,8 +112,10 @@ public class MpPetService {
         vo.setAge(pet.getAge());
         vo.setWeight(pet.getWeight());
         vo.setColor(pet.getColor());
+        vo.setPhotoUrl(pet.getPhotoUrl());
         vo.setVaccine(pet.getVaccine());
         vo.setVaccineText(VaccineJson.toReadable(pet.getVaccine()));
+        vo.setVaccineProofUrl(pet.getVaccineProofUrl());
         vo.setHistory(pet.getHistory());
         vo.setCreatedAt(pet.getCreateTime());
         vo.setLocked(hasActiveOrder(pet.getPetId()));
@@ -148,7 +154,9 @@ public class MpPetService {
         pet.setAge(dto.getAge());
         pet.setWeight(dto.getWeight());
         pet.setColor(dto.getColor());
+        pet.setPhotoUrl(FileUrlUtil.normalize(dto.getPhotoUrl()));
         pet.setVaccine(dto.getVaccine());
+        pet.setVaccineProofUrl(FileUrlUtil.normalize(dto.getVaccineProofUrl()));
         pet.setHistory(dto.getHistory());
     }
 }

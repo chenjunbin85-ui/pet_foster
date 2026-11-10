@@ -94,3 +94,13 @@
   z-index: 50;
 }
 .detail-actions .btn { flex: 1; }
+
+/* 照护记录现场照片（员工端上传 → 顾客端展示） */
+.care-shift { color: var(--pf-ink-4, #A8A096); font-weight: 400; }
+.care-photos { display: flex; flex-wrap: wrap; gap: 12rpx; margin-top: 14rpx; }
+.care-photo {
+  width: 160rpx; height: 160rpx; border-radius: 16rpx;
+  border: 2rpx solid var(--pf-border, #F0E6DE);
+  background: var(--pf-brand-soft, #FFF0E8);
+}
+.care-time { margin-top: 8rpx; font-size: 22rpx; color: var(--pf-ink-4, #A8A096); }

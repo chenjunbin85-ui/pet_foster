@@ -18,7 +18,11 @@ public class Pet {
     private Integer age;
     private BigDecimal weight;
     private String color;
+    /** 宠物头像（相对地址 /api/files/xxx，读取由 FileController 放行） */
+    private String photoUrl;
     private String vaccine;
+    /** 疫苗/驱虫证明照片 */
+    private String vaccineProofUrl;
     private String history;
     private LocalDateTime createTime;
 }

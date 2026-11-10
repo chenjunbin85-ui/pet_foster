@@ -11,8 +11,13 @@
 
   <!-- 宠物头像上传 -->
   <view class="avatar-upload" bindtap="chooseAvatar">
-    <image class="avatar-preview" src="/images/pet-{{breed && breed.indexOf('猫') > -1 ? 'cat' : 'dog'}}.png" mode="aspectFill" />
-    <view class="avatar-hint">点击上传宠物照片</view>
+    <image class="avatar-preview" src="{{avatarPreview || '/images/pet-' + petArt + '.png'}}" mode="aspectFill" />
+    <view class="avatar-hint">
+      <text wx:if="{{avatarUploading}}">照片上传中…</text>
+      <text wx:elif="{{photoUrl}}">点击更换宠物照片</text>
+      <text wx:else>点击上传宠物照片</text>
+    </view>
+    <view class="avatar-remove" wx:if="{{photoUrl && !avatarUploading}}" catchtap="removeAvatar">移除</view>
   </view>
 
   <!-- 基本信息 -->
@@ -97,7 +102,15 @@
       </view>
       <view class="form-row" bindtap="chooseVaccineProof">
         <view class="form-label">疫苗证明</view>
-        <view class="picker-value {{vaccineProof ? 'has-proof' : ''}}">{{vaccineProof || '上传证明照片（选填）'}}<text class="picker-chev">›</text></view>
+        <view class="proof-cell">
+          <image wx:if="{{vaccineProofPreview}}" class="proof-thumb" src="{{vaccineProofPreview}}" mode="aspectFill" />
+          <view class="picker-value {{vaccineProofUrl ? 'has-proof' : ''}}">
+            <text wx:if="{{proofUploading}}">上传中…</text>
+            <text wx:elif="{{vaccineProofUrl}}">已上传，点击更换</text>
+            <text wx:else>上传证明照片（选填）</text>
+            <text class="picker-chev">›</text>
+          </view>
+        </view>
       </view>
     </block>
   </view>

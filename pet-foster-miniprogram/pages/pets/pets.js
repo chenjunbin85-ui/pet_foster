@@ -42,6 +42,7 @@ Page({
           vaccineLine: v.name ? v.name + (v.date ? ' ' + v.date.slice(0, 7) : '') : '',
           sexText: p.gender || '未知',
           petArt: cat ? 'cat' : 'dog',
+          avatarSrc: p.photoUrl ? api.fileUrl(p.photoUrl) : '/images/pet-' + (cat ? 'cat' : 'dog') + '.png',
           metaLine: metaParts.join(' · '),
           booking: !!bookingIds[String(p.id)]
         })

@@ -32,7 +32,15 @@ Page({
     medical: '',
     history: '',
     saving: false,
-    showDelete: false
+    showDelete: false,
+    // 图片上传
+    petArt: 'dog',
+    photoUrl: '',
+    avatarPreview: '',
+    avatarUploading: false,
+    vaccineProofUrl: '',
+    vaccineProofPreview: '',
+    proofUploading: false
   },
 
   onLoad(options) {
@@ -46,6 +54,7 @@ Page({
     try {
       const p = await api.petDetail(id)
       const v = util.vaccineDetails(p.vaccine)
+      const isCat = (p.breed || '').indexOf('猫') > -1
       this.setData({
         name: p.name || '',
         breed: p.breed || '',
@@ -58,7 +67,12 @@ Page({
         vaccineName: v.name || '',
         vaccineDate: v.date || '',
         history: p.history || '',
-        locked: !!p.locked
+        locked: !!p.locked,
+        petArt: isCat ? 'cat' : 'dog',
+        photoUrl: p.photoUrl || '',
+        avatarPreview: api.fileUrl(p.photoUrl),
+        vaccineProofUrl: p.vaccineProofUrl || '',
+        vaccineProofPreview: api.fileUrl(p.vaccineProofUrl)
       })
     } catch (e) {
       wx.showToast({ title: e.message || '加载失败', icon: 'none' })
@@ -100,13 +114,86 @@ Page({
     }
     this.setData({ birthDate: birth, age })
   },
-  chooseVaccineProof() {
-    if (this.data.locked) return
-    wx.chooseImage({
-      count: 1,
-      success: () => this.setData({ vaccineProof: '已上传 1 张（演示）' }),
-      fail: () => {}
+  /**
+   * 选图：优先 chooseMedia（可同时压缩），低版本基础库回退 chooseImage。
+   * 返回本地临时路径，供上传前即时预览。
+   */
+  chooseLocalImage() {
+    return new Promise((resolve, reject) => {
+      if (wx.chooseMedia) {
+        wx.chooseMedia({
+          count: 1,
+          mediaType: ['image'],
+          sizeType: ['compressed'],
+          sourceType: ['album', 'camera'],
+          success: (res) => resolve(res.tempFiles[0].tempFilePath),
+          fail: reject
+        })
+      } else {
+        wx.chooseImage({
+          count: 1,
+          sizeType: ['compressed'],
+          sourceType: ['album', 'camera'],
+          success: (res) => resolve(res.tempFilePaths[0]),
+          fail: reject
+        })
+      }
     })
+  },
+
+  /** 宠物头像：选图 → 即时预览 → 上传 → 回填 photoUrl（保存时随档案落库） */
+  async chooseAvatar() {
+    if (this.data.avatarUploading) return
+    let localPath
+    try {
+      localPath = await this.chooseLocalImage()
+    } catch (e) {
+      return // 用户取消选图
+    }
+    this.setData({ avatarPreview: localPath, avatarUploading: true })
+    wx.showLoading({ title: '上传中', mask: true })
+    try {
+      const uploaded = await api.customerUpload(localPath)
+      this.setData({ photoUrl: uploaded.url, avatarPreview: api.fileUrl(uploaded.url) })
+      wx.hideLoading()
+      wx.showToast({ title: '头像已上传', icon: 'none' })
+    } catch (e) {
+      wx.hideLoading()
+      this.setData({ avatarPreview: api.fileUrl(this.data.photoUrl) })
+      wx.showToast({ title: e.message || '头像上传失败', icon: 'none' })
+    } finally {
+      this.setData({ avatarUploading: false })
+    }
+  },
+
+  removeAvatar() {
+    if (this.data.avatarUploading) return
+    this.setData({ photoUrl: '', avatarPreview: '' })
+  },
+
+  /** 疫苗/驱虫证明：同样先上传拿到地址，再随档案一起保存 */
+  async chooseVaccineProof() {
+    if (this.data.proofUploading) return
+    let localPath
+    try {
+      localPath = await this.chooseLocalImage()
+    } catch (e) {
+      return
+    }
+    this.setData({ vaccineProofPreview: localPath, proofUploading: true })
+    wx.showLoading({ title: '上传中', mask: true })
+    try {
+      const uploaded = await api.customerUpload(localPath)
+      this.setData({ vaccineProofUrl: uploaded.url, vaccineProofPreview: api.fileUrl(uploaded.url) })
+      wx.hideLoading()
+      wx.showToast({ title: '证明已上传', icon: 'none' })
+    } catch (e) {
+      wx.hideLoading()
+      this.setData({ vaccineProofPreview: api.fileUrl(this.data.vaccineProofUrl) })
+      wx.showToast({ title: e.message || '证明上传失败', icon: 'none' })
+    } finally {
+      this.setData({ proofUploading: false })
+    }
   },
 
   validate() {
@@ -150,6 +237,8 @@ Page({
       age: Number(this.data.age),
       weight: Number(this.data.weight),
       color: this.data.color.trim(),
+      photoUrl: this.data.photoUrl || '',
+      vaccineProofUrl: this.data.vaccineProofUrl || '',
       history: packed
     }
     if (this.data.vaccinated) {

@@ -109,3 +109,42 @@ export function put<T>(path: string, data?: unknown) {
 export function del<T>(path: string) {
   return request<T>(path, { method: "DELETE" })
 }
+
+/** 上传单张图片（multipart/form-data）；不能复用 request，因为不能手写 Content-Type */
+export async function uploadImage<T>(path: string, file: File): Promise<T> {
+  const token = getToken()
+  const form = new FormData()
+  form.append("file", file)
+
+  let res: Response
+  try {
+    res = await fetch(`${BASE_URL}${path}`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    })
+  } catch {
+    throw new ApiError(0, "网络连接失败，请检查网络后重试")
+  }
+
+  if (res.status === 401) {
+    clearAuthState()
+    window.location.href = "/login"
+    throw new ApiError(401, "登录已过期，请重新登录")
+  }
+  if (res.status === 403) throw new ApiError(403, "没有权限执行该操作")
+
+  const body = (await res.json().catch(() => ({}))) as ApiResponse<T>
+  if (!res.ok || body.code !== 200) {
+    throw new ApiError(res.status, body.message || "图片上传失败", body.code)
+  }
+  return body.data
+}
+
+/** 后端返回 /api/files/xxx 相对地址，Web 端拼成可直接展示的绝对地址 */
+export function resolveFileUrl(url?: string | null): string {
+  if (!url) return ""
+  if (/^https?:\/\//.test(url)) return url
+  return `${BASE_URL}${url}`
+}
+

@@ -12,6 +12,7 @@ import com.petfoster.enums.PetGender;
 import com.petfoster.mapper.FosterOrderMapper;
 import com.petfoster.mapper.PetMapper;
 import com.petfoster.vo.PetVO;
+import com.petfoster.util.FileUrlUtil;
 import com.petfoster.util.VaccineJson;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -65,7 +66,9 @@ public class PetService extends ServiceImpl<PetMapper, Pet> {
         p.setAge(dto.getAge());
         p.setWeight(dto.getWeight());
         p.setColor(dto.getColor());
+        p.setPhotoUrl(FileUrlUtil.normalize(dto.getPhotoUrl()));
         p.setVaccine(dto.getVaccine());
+        p.setVaccineProofUrl(FileUrlUtil.normalize(dto.getVaccineProofUrl()));
         p.setHistory(dto.getHistory());
         p.setCreateTime(LocalDateTime.now());
         save(p);
@@ -82,7 +85,9 @@ public class PetService extends ServiceImpl<PetMapper, Pet> {
         p.setAge(dto.getAge());
         p.setWeight(dto.getWeight());
         p.setColor(dto.getColor());
+        p.setPhotoUrl(FileUrlUtil.normalize(dto.getPhotoUrl()));
         p.setVaccine(dto.getVaccine());
+        p.setVaccineProofUrl(FileUrlUtil.normalize(dto.getVaccineProofUrl()));
         p.setHistory(dto.getHistory());
         updateById(p);
     }
@@ -107,8 +112,10 @@ public class PetService extends ServiceImpl<PetMapper, Pet> {
         vo.setAge(p.getAge());
         vo.setWeight(p.getWeight());
         vo.setColor(p.getColor());
+        vo.setPhotoUrl(p.getPhotoUrl());
         vo.setVaccine(p.getVaccine());
         vo.setVaccineText(VaccineJson.toReadable(p.getVaccine()));
+        vo.setVaccineProofUrl(p.getVaccineProofUrl());
         vo.setHistory(p.getHistory());
         vo.setCreatedAt(p.getCreateTime());
         return vo;

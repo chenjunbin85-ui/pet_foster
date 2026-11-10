@@ -36,8 +36,22 @@
       <view wx:for="{{careRecords}}" wx:key="recordId" class="care-item">
         <view class="care-day">第{{item.day}}天</view>
         <view class="care-body">
-          <view class="care-type">{{item.type === 'PHOTO' ? '📷 照片' : item.type === 'DIET' ? '🍖 饮食' : item.type === 'ACTIVITY' ? '🎾 活动' : '💊 健康'}}</view>
+          <view class="care-type">{{item.typeText}}<text wx:if="{{item.shiftText}}" class="care-shift"> · {{item.shiftText}}</text></view>
           <view class="care-content">{{item.content}}</view>
+          <view wx:if="{{item.photoUrls.length > 0}}" class="care-photos">
+            <image
+              wx:for="{{item.photoUrls}}"
+              wx:for-item="photo"
+              wx:key="*this"
+              class="care-photo"
+              src="{{photo}}"
+              mode="aspectFill"
+              data-rid="{{item.recordId}}"
+              data-src="{{photo}}"
+              bindtap="previewCarePhoto"
+            />
+          </view>
+          <view wx:if="{{item.timeText}}" class="care-time">{{item.timeText}}</view>
         </view>
       </view>
     </view>

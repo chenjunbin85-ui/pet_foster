@@ -1,34 +1,31 @@
 package com.petfoster.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.petfoster.common.Result;
-import com.petfoster.entity.CareRecord;
-import com.petfoster.mapper.CareRecordMapper;
+import com.petfoster.service.MpCareService;
+import com.petfoster.util.SecurityUtil;
+import com.petfoster.vo.MpCareRecordVO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "小程序·照护记录", description = "寄养期间每日照片/饮食/活动/健康记录")
+@Tag(name = "小程序·照护记录", description = "寄养期间每日巡视（含现场照片）与照护记录")
 @RestController
 @RequestMapping("/api/mp/orders")
 @PreAuthorize("hasRole('CUSTOMER')")
 public class MpCareController {
 
-    private final CareRecordMapper careRecordMapper;
+    private final MpCareService mpCareService;
 
-    public MpCareController(CareRecordMapper careRecordMapper) {
-        this.careRecordMapper = careRecordMapper;
+    public MpCareController(MpCareService mpCareService) {
+        this.mpCareService = mpCareService;
     }
 
     @GetMapping("/{orderId}/care")
-    public Result<List<CareRecord>> list(@PathVariable Long orderId) {
-        List<CareRecord> records = careRecordMapper.selectList(
-                new LambdaQueryWrapper<CareRecord>()
-                        .eq(CareRecord::getOrderId, orderId)
-                        .orderByAsc(CareRecord::getDay)
-                        .orderByAsc(CareRecord::getRecordId));
-        return Result.success(records);
+    @Operation(summary = "照护时间线", description = "仅本人订单；员工端上传的现场照片在此返回")
+    public Result<List<MpCareRecordVO>> list(@PathVariable Long orderId) {
+        return Result.success(mpCareService.list(orderId, SecurityUtil.getCurrentUserId()));
     }
 }

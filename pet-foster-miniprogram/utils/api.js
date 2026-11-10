@@ -76,7 +76,7 @@ function fileUrl(path) {
 }
 
 /** 云托管通道的照片上传：callContainer 不支持 multipart，交给代理 /__upload 转协议 */
-function cloudUpload(filePath) {
+function cloudUpload(filePath, tokenKey, onUnauthorized) {
   return new Promise((resolve, reject) => {
     wx.getFileSystemManager().readFile({
       filePath: filePath,
@@ -84,7 +84,7 @@ function cloudUpload(filePath) {
       success(file) {
         const ext = (String(filePath).match(/\.([a-zA-Z0-9]+)$/) || [, 'jpg'])[1]
         const header = { 'X-WX-SERVICE': cloud.service }
-        const token = wx.getStorageSync('staffToken')
+        const token = wx.getStorageSync(tokenKey)
         if (token) header.Authorization = 'Bearer ' + token
         wx.cloud.callContainer({
           config: { env: cloud.env },
@@ -98,12 +98,51 @@ function cloudUpload(filePath) {
           },
           timeout: 12000,
           success(res) {
-            handleResult(res, resolve, reject, function () { auth.clearStaffSession() })
+            handleResult(res, resolve, reject, onUnauthorized)
           },
           fail() { reject(new Error('照片上传失败，请检查云托管服务')) }
         })
       },
       fail() { reject(new Error('读取照片失败')) }
+    })
+  })
+}
+
+/**
+ * 通用图片上传：云托管走 base64 + 代理转 multipart；回退通道用 wx.uploadFile。
+ * tokenKey 区分客户端（token）与员工端（staffToken）两套会话。
+ */
+function uploadBySession(filePath, tokenKey, onUnauthorized) {
+  if (cloud.enabled && wx.cloud) {
+    return cloudUpload(filePath, tokenKey, onUnauthorized)
+  }
+  return new Promise((resolve, reject) => {
+    const header = {}
+    const token = wx.getStorageSync(tokenKey)
+    if (token) header.Authorization = 'Bearer ' + token
+    wx.uploadFile({
+      url: BASE_URL + '/api/files/upload',
+      filePath: filePath,
+      name: 'file',
+      header: header,
+      success(res) {
+        if (res.statusCode === 401) {
+          onUnauthorized && onUnauthorized()
+          reject(new Error('登录已过期，请重新登录'))
+          return
+        }
+        try {
+          const body = JSON.parse(res.data)
+          if (body.code === 200) {
+            resolve(body.data)
+          } else {
+            reject(new Error(body.message || '图片上传失败'))
+          }
+        } catch (e) {
+          reject(new Error('上传返回解析失败'))
+        }
+      },
+      fail() { reject(new Error('图片上传失败，请检查网络与后端服务')) }
     })
   })
 }
@@ -275,34 +314,18 @@ module.exports = {
     return this.staffRequest('/api/staff/incidents/' + id + '/authorize', { method: 'POST', data: body })
   },
 
-  /** 现场照片上传：云托管走 base64 + 代理转 multipart；回退通道仍用 wx.uploadFile */
+  /** 现场照片上传（员工端）：云托管走 base64 + 代理转 multipart；回退通道用 wx.uploadFile */
   staffUpload(filePath) {
-    if (cloud.enabled && wx.cloud) return cloudUpload(filePath)
-    return new Promise((resolve, reject) => {
-      const header = {}
-      const token = wx.getStorageSync('staffToken')
-      if (token) header.Authorization = 'Bearer ' + token
-      wx.uploadFile({
-        url: BASE_URL + '/api/files/upload',
-        filePath: filePath,
-        name: 'file',
-        header: header,
-        success(res) {
-          if (res.statusCode === 401) {
-            auth.clearStaffSession()
-            reject(new Error('员工登录已过期'))
-            return
-          }
-          try {
-            const body = JSON.parse(res.data)
-            if (body.code === 200) resolve(body.data)
-            else reject(new Error(body.message || '照片上传失败'))
-          } catch (e) {
-            reject(new Error('上传返回解析失败'))
-          }
-        },
-        fail() { reject(new Error('照片上传失败，请检查网络与后端服务')) }
-      })
+    return uploadBySession(filePath, 'staffToken', function () { auth.clearStaffSession() })
+  },
+
+  /** 宠物头像 / 疫苗证明上传（客户端），返回 { url: 绝对地址 } */
+  customerUpload(filePath) {
+    return uploadBySession(filePath, 'token', function () {
+      wx.removeStorageSync('token')
+      wx.removeStorageSync('customer')
+      wx.showToast({ title: '登录已过期，请重新登录', icon: 'none' })
+      setTimeout(function () { wx.redirectTo({ url: '/pages/login/login' }) }, 600)
     })
   },
 

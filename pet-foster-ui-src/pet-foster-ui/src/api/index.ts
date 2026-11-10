@@ -1,7 +1,12 @@
 // 各模块 API 函数
-import { get, post, put, del, setToken, clearToken, getToken } from "./client"
+import { get, post, put, del, setToken, clearToken, getToken, uploadImage, resolveFileUrl } from "./client"
 
-export { setToken, clearToken, getToken }
+export { setToken, clearToken, getToken, uploadImage, resolveFileUrl }
+
+/** 上传接口返回体 */
+export interface UploadedFile { name: string; url: string; size: number; contentType: string }
+/** 上传单张图片（jpg/png，≤2MB） */
+export const uploadPicture = (file: File) => uploadImage<UploadedFile>("/api/files/upload", file)
 
 // ===== 通用类型 =====
 export type Role = "admin" | "staff"
@@ -43,6 +48,10 @@ export const customerDelete = (id: string) => del(`/api/customers/${id}`)
 export interface PetVO {
   id: string; customerId: string; name: string; breed: string; gender: string
   age: number; weight: number; color: string; vaccine: string; history?: string; createdAt: string
+  /** 宠物头像：/api/files/xxx（用 resolveFileUrl 拼绝对地址） */
+  photoUrl?: string
+  /** 疫苗/驱虫证明照片 */
+  vaccineProofUrl?: string
 }
 export const petPage = (page: number, size: number, customerId?: string, name?: string) =>
   get<PageResult<PetVO>>(`/api/pets?page=${page}&size=${size}${customerId ? `&customerId=${customerId}` : ""}${name ? `&name=${encodeURIComponent(name)}` : ""}`)

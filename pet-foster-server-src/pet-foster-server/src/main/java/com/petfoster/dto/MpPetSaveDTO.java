@@ -31,8 +31,16 @@ public class MpPetSaveDTO {
     @Size(max = 50, message = "毛色不能超过50字")
     private String color;
 
+    /** 宠物头像：上传接口返回的 /api/files/xxx 地址 */
+    @Size(max = 500, message = "头像地址过长")
+    private String photoUrl;
+
     /** 疫苗 JSON：{"status":"已接种","name":"狂犬疫苗","date":"2026-03"} */
     private String vaccine;
+
+    /** 疫苗/驱虫证明照片 */
+    @Size(max = 500, message = "证明照片地址过长")
+    private String vaccineProofUrl;
 
     @Size(max = 255, message = "备注不能超过255字")
     private String history;

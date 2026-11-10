@@ -2,6 +2,13 @@ const api = require('../../utils/api')
 const util = require('../../utils/util')
 
 const STATUS_CLASS = { 待入店: 'badge-orange', 寄养中: 'badge-blue', 已完成: 'badge-green', 已取消: 'badge-gray' }
+const CARE_TYPE_TEXT = {
+  PHOTO: '📷 照片',
+  DIET: '🍖 饮食',
+  ACTIVITY: '🎾 活动',
+  HEALTH: '💊 健康',
+  巡视: '🐾 巡视'
+}
 
 Page({
   data: {
@@ -30,7 +37,16 @@ Page({
       const statusText = this.buildStatusText(order)
       const timeline = this.buildTimeline(order)
       // 寄养中/已完成的订单加载照护记录与评价
-      const careRecords = await api.careRecords(order.id).catch(() => [])
+      const rawCare = await api.careRecords(order.id).catch(() => [])
+      const careRecords = (rawCare || []).map((r) => {
+        const photos = (r.photos && r.photos.length ? r.photos : (r.imageUrl ? [r.imageUrl] : []))
+        return Object.assign({}, r, {
+          typeText: CARE_TYPE_TEXT[r.type] || '📋 照护',
+          shiftText: r.shift ? r.shift + '班' : '',
+          photoUrls: photos.map(api.fileUrl),
+          timeText: String(r.recordTime || '').replace('T', ' ').slice(5, 16)
+        })
+      })
       const existingReview = order.status === '已完成' ? await api.getReview(order.id).catch(() => null) : null
       this.setData({
         timeline,
@@ -150,6 +166,15 @@ Page({
   },
   scrollToCare() {
     wx.pageScrollTo({ selector: '#care-panel', duration: 300 })
+  },
+
+  /** 顾客点开护理员上传的现场照片，可左右滑动查看同一条记录的全部照片 */
+  previewCarePhoto(e) {
+    const recordId = e.currentTarget.dataset.rid
+    const src = e.currentTarget.dataset.src
+    const record = this.data.careRecords.find((r) => String(r.recordId) === String(recordId))
+    const urls = record && record.photoUrls.length ? record.photoUrls : [src]
+    wx.previewImage({ current: src, urls })
   },
   noop() {},
 

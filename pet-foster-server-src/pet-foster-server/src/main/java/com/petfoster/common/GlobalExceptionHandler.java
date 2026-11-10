@@ -50,6 +50,13 @@ public class GlobalExceptionHandler {
         return Result.error(400, msg);
     }
 
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Result<Void> handleUploadSize(Exception e) {
+        // 文件在到达 Controller 前就被容器拦下（>5MB），仍按业务口径提示
+        return Result.error("单张图片不能超过 2MB");
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Result<Void> handleException(Exception e) {

@@ -8,7 +8,7 @@
  * CLOUD_SERVICE 必须与云托管控制台里「服务名称」完全一致，
  * callContainer 靠 header 里的 X-WX-SERVICE 做服务路由。
  */
-const CLOUD_ENV = ''
+const CLOUD_ENV = 'pet-foster-proxy-d3enpmw10e73b02'
 const CLOUD_SERVICE = 'pet-foster-proxy'
 
 module.exports = {

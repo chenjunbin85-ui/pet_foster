@@ -103,3 +103,17 @@
 .switch.on .switch-dot { left: 44rpx; }
 
 .delete-btn { margin-top: 10rpx; }
+
+/* 头像上传：上传中提示与移除入口 */
+.avatar-remove {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: var(--pf-ink-4, #A8A096);
+  text-decoration: underline;
+}
+/* 疫苗证明缩略图 */
+.proof-cell { display: flex; align-items: center; gap: 16rpx; }
+.proof-thumb {
+  width: 72rpx; height: 72rpx; border-radius: 12rpx;
+  border: 2rpx solid var(--pf-border, #F0E6DE);
+}
